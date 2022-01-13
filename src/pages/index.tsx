@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 
+import { VERSION } from '../constants';
 import useWord from '../hooks/useWord';
 import EndGameModal from '../organism/EndGameModal';
 import LetterGrid from '../organism/LetterGrid';
@@ -91,7 +92,7 @@ const Home: React.FC = () => {
         gameStatus={gameStatus}
       />
       <HStack pos="fixed" bottom={4}>
-        <Text>v0.1.0</Text>
+        <Text>{VERSION}</Text>
         <Link isExternal href="https://github.com/carldegs/saltong">
           Github Repo <ExternalLinkIcon />
         </Link>

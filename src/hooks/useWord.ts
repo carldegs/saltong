@@ -6,7 +6,6 @@ import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
   addAnswer,
-  getNumArr,
   hardResetUserData,
   initialize,
   setEndGame,
@@ -57,13 +56,10 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
 
   const getShareStatus = useCallback(() => {
     const { history, gameId } = gameData;
-    const grid = getNumArr(numTries)
-      .map((i) => {
-        const answer =
-          i < history.length
-            ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              history[i].word.map(([_, status]) => status)
-            : getNumArr(wordLength).map(() => LetterStatus.wrong);
+    const grid = history
+      .map(({ word }) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const answer = word.map(([_, status]) => status);
 
         return answer
           .map((letterStatus) => {
@@ -90,9 +86,9 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
       gameModeTitle = 'Saltong Mini';
     }
 
-    return `${gameModeTitle} #${gameId} (${history.length}/${numTries})
+    return `${gameModeTitle} ${gameId} (${history.length}/${numTries})
 ${grid}`;
-  }, [gameData, gameMode, numTries, wordLength]);
+  }, [gameData, gameMode, numTries]);
 
   useEffect(() => {
     const newUserData = initialize();

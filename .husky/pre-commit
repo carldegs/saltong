@@ -21,12 +21,12 @@ npm run check-types ||
     false;
 )
 
-echo '🏗️🔨 Building...'
+# echo '🏗️🔨 Building...'
 
-npm run build ||
-(
-    echo '⚠️ Next build failed: Check the errors above.'
-    false;
-)
+# npm run build ||
+# (
+#     echo '⚠️ Next build failed: Check the errors above.'
+#     false;
+# )
 
 echo '✅ Pre-commit tests passed. Executing git commit...'
