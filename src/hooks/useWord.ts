@@ -1,13 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useColorMode } from '@chakra-ui/react';
+import { formatDuration } from 'date-fns';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { DEFAULT_USER_GAME_DATA, NUM_TRIES, WORD_LENGTH } from '../constants';
+import {
+  DEFAULT_USER_GAME_DATA,
+  DOMAIN,
+  NUM_TRIES,
+  WORD_LENGTH,
+} from '../constants';
 import GameMode from '../types/GameMode';
 import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
   addAnswer,
-  hardResetUserData,
+  getCountdownToNextDay,
   initialize,
+  resetUserData,
   setEndGame,
   solveWord,
 } from '../utils';
@@ -19,17 +27,23 @@ interface UseWordResponse extends UserGameData {
   solve: (answer: string[]) => Promise<UserGameData>;
   resetLocalStorage: () => void;
   getShareStatus: () => string;
+  countdown: Duration;
+  countdownText: string;
 }
 
 const useWord = (gameMode: GameMode): UseWordResponse => {
+  const { colorMode } = useColorMode();
+
   const wordLength = WORD_LENGTH[gameMode];
   const numTries = NUM_TRIES[gameMode];
   const [userData, setUserData] = useState<UserData>({
     main: DEFAULT_USER_GAME_DATA,
     mini: DEFAULT_USER_GAME_DATA,
     max: DEFAULT_USER_GAME_DATA,
+    version: '',
   });
   const gameData = userData[gameMode];
+  const [countdown, setCountdown] = useState<Duration>({});
 
   const solve = useCallback(
     async (answer: string[]) => {
@@ -50,8 +64,10 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
     [gameMode, numTries]
   );
 
-  const resetLocalStorage = useCallback(() => {
-    setUserData(hardResetUserData());
+  const resetLocalStorage = useCallback(async () => {
+    const userData = await resetUserData();
+
+    setUserData(userData);
   }, []);
 
   const getShareStatus = useCallback(() => {
@@ -69,7 +85,7 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
               case LetterStatus.wrongSpot:
                 return '🟨';
               case LetterStatus.wrong:
-                return '⬜';
+                return colorMode === 'dark' ? '⬛' : '⬜';
             }
           })
           .join('');
@@ -87,12 +103,28 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
     }
 
     return `${gameModeTitle} ${gameId} (${history.length}/${numTries})
-${grid}`;
-  }, [gameData, gameMode, numTries]);
+${grid}
+
+${DOMAIN}`;
+  }, [gameData, gameMode, numTries, colorMode]);
+
+  const countdownText = useMemo(() => formatDuration(countdown), [countdown]);
 
   useEffect(() => {
-    const newUserData = initialize();
-    setUserData(newUserData);
+    const init = async () => {
+      const newUserData = await initialize();
+      setUserData(newUserData);
+    };
+
+    init();
+
+    const intervalId = setInterval(() => {
+      setCountdown(getCountdownToNextDay());
+    }, 1000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   return {
@@ -101,6 +133,8 @@ ${grid}`;
     solve,
     resetLocalStorage,
     getShareStatus,
+    countdown,
+    countdownText,
     ...gameData,
   };
 };

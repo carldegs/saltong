@@ -1,5 +1,6 @@
 import {
   Button,
+  Flex,
   Heading,
   Modal,
   ModalBody,
@@ -8,15 +9,26 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Text,
+  Stat,
+  StatGroup,
+  StatHelpText,
+  StatLabel,
+  StatNumber,
   useClipboard,
 } from '@chakra-ui/react';
 import React from 'react';
 
+import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameStatus from '../types/GameStatus';
 
 interface EndGameModalProps extends Omit<ModalProps, 'children'> {
   gameStatus: GameStatus;
+  numWins: number;
+  numPlayed: number;
+  winStreak: number;
+  longestWinStreak: number;
+  lastWinDate: string;
+  turnStats: number[];
   onShare: () => string;
 }
 // TODO: Create list of emotes for header
@@ -26,22 +38,58 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
   onClose,
   gameStatus,
   onShare,
+  numPlayed,
+  numWins,
+  winStreak,
+  longestWinStreak,
+  lastWinDate,
+  turnStats,
 }) => {
   const { hasCopied, onCopy } = useClipboard(onShare());
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} size="lg">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
           {gameStatus === GameStatus.lose ? 'YOU LOSE' : 'YOU WON!'}
         </ModalHeader>
         <ModalCloseButton />
-        <ModalBody>
-          <Text>ADD STATS HERE</Text>
-          <Heading size="md">Share</Heading>
+        <ModalBody mb={4}>
+          <StatGroup>
+            <Stat>
+              <StatLabel>Number of Wins</StatLabel>
+              <StatNumber>{numWins}</StatNumber>
+              <StatHelpText>out of {numPlayed}</StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Win Rate</StatLabel>
+              <StatNumber>
+                {numPlayed > 0 ? ((numWins / numPlayed) * 100).toFixed(0) : 0}%
+              </StatNumber>
+              <StatHelpText>Last won {lastWinDate.split('T')[0]}</StatHelpText>
+            </Stat>
+
+            <Stat>
+              <StatLabel>Win Streak</StatLabel>
+              <StatNumber>{winStreak}</StatNumber>
+              <StatHelpText>Longest: {longestWinStreak}</StatHelpText>
+            </Stat>
+          </StatGroup>
+          <Heading textAlign="center" size="md" mt={6} mb={4}>
+            Games won by turn
+          </Heading>
+          <Flex w="full" h="200px" alignItems="center">
+            <TurnStatPieChart turnStats={turnStats} diameter={200} />
+          </Flex>
+          <Heading size="md" mt={6} mb={4} textAlign="center">
+            Share
+          </Heading>
           {/* TODO: Add socials */}
-          <Button onClick={onCopy}>{hasCopied ? 'COPIED' : 'COPY'}</Button>
+          <Flex alignItems="center" justifyContent="center">
+            <Button onClick={onCopy}>{hasCopied ? 'COPIED' : 'COPY'}</Button>
+          </Flex>
         </ModalBody>
       </ModalContent>
     </Modal>

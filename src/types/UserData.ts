@@ -9,9 +9,11 @@ export interface UserGameHistory {
 export interface UserGameData {
   numPlayed: number;
   numWins: number;
+  winStreak: number;
+  longestWinStreak: number;
   lastWinDate: string;
   history: UserGameHistory[];
-  turnStats: Record<number, number>;
+  turnStats: number[];
   gameStatus: GameStatus;
   gameStartDate: string;
   gameId: number | string;
@@ -21,6 +23,7 @@ interface UserData {
   main: UserGameData;
   mini: UserGameData;
   max: UserGameData;
+  version: string;
 }
 
 export default UserData;

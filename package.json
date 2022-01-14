@@ -7,9 +7,9 @@
     "build": "next build",
     "start": "next start",
     "check-types": "tsc --pretty --noEmit",
-    "check-format": "prettier --check ./src/**",
-    "check-lint": "eslint ./src/** --ext ts --ext tsx --ext js",
-    "format": "prettier --write ./src/**",
+    "check-format": "prettier --check ./src/**/*.{tsx,ts,jsx,js}",
+    "check-lint": "eslint ./src/**/*.{tsx,ts,jsx,js} --ext ts --ext tsx --ext js",
+    "format": "prettier --write ./src/**/*.{tsx,ts,jsx,js}",
     "test-all": "npm run check-format && npm run check-lint && npm run check-types && npm run build",
     "prepare": "husky install"
   },
@@ -20,6 +20,7 @@
     "@emotion/styled": "^11",
     "@hookform/resolvers": "^2.8.2",
     "axios": "^0.24.0",
+    "date-fns": "^2.28.0",
     "framer-motion": "^4.1.17",
     "joi": "^17.4.2",
     "next": "^12.0.4",
@@ -28,7 +29,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.17.5",
-    "react-query": "^3.27.0"
+    "react-query": "^3.27.0",
+    "recharts": "^2.1.8"
   },
   "devDependencies": {
     "@trivago/prettier-plugin-sort-imports": "^2.0.4",

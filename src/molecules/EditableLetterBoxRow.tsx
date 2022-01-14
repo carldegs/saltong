@@ -21,12 +21,22 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
 
   useEffect(() => {
     if (numFocus <= 0) {
-      boxesRef.current[values.indexOf('')].current.focus();
+      let idx = values.indexOf('');
+
+      if (idx < 0) {
+        if (values[values.length - 1] !== '') {
+          idx = values.length - 1;
+        } else {
+          return;
+        }
+      }
+
+      boxesRef.current[idx].current.focus();
     }
   }, [numFocus, values]);
 
   return (
-    <HStack spacing={4}>
+    <HStack spacing={3}>
       {values
         .map((value, key) => ({ value, key: `edit-${key}` }))
         .map(({ value, key }, i) => (

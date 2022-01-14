@@ -1,4 +1,4 @@
-import { Stack } from '@chakra-ui/layout';
+import { Stack, StackProps } from '@chakra-ui/layout';
 
 import EditableLetterBoxRow from '../molecules/EditableLetterBoxRow';
 import LetterBoxRow from '../molecules/LetterBoxRow';
@@ -6,7 +6,7 @@ import GameStatus from '../types/GameStatus';
 import { UserGameHistory } from '../types/UserData';
 import { getNumArr } from '../utils';
 
-interface LetterGridProps {
+interface LetterGridProps extends StackProps {
   numTries: number;
   wordLength: number;
   tries?: UserGameHistory['word'][];
@@ -20,9 +20,10 @@ const LetterGrid: React.FC<LetterGridProps> = ({
   tries,
   onSolve,
   gameStatus = GameStatus.playing,
+  ...stackProps
 }) => {
   return (
-    <Stack spacing={4}>
+    <Stack spacing={3} {...stackProps}>
       {getNumArr(numTries).map((i) =>
         (tries.length <= numTries && tries.length !== i) ||
         gameStatus !== GameStatus.playing ? (

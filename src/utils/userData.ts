@@ -1,8 +1,10 @@
 import { getNumArr } from '.';
-import { DEFAULT_USER_GAME_DATA, NUM_TRIES } from '../constants';
+import { DEFAULT_USER_GAME_DATA, NUM_TRIES, VERSION } from '../constants';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import UserData, { UserGameData, UserGameHistory } from '../types/UserData';
+import getRoundData from './api/getRoundData';
+import { isSupportedVersion } from './versioning';
 
 const USER_DATA = 'saltong-user-data';
 
@@ -65,6 +67,7 @@ const resetDailyUserDataIfOutdated = (userData: UserData): UserData => {
     main: resetDailyGameDataIfOutdated(userData.main, date),
     mini: resetDailyGameDataIfOutdated(userData.mini, date),
     max: resetDailyGameDataIfOutdated(userData.max, date),
+    version: userData.version,
   };
 };
 
@@ -76,13 +79,44 @@ export const hardResetUserData = () =>
       main: getDefaultUserGameData(date, GameMode.main),
       mini: getDefaultUserGameData(date, GameMode.mini),
       max: getDefaultUserGameData(date, GameMode.max),
+      version: VERSION,
     };
     setUserData(userData);
     return userData;
   });
 
-export const initialize = () =>
-  checkWindow(() => {
+export const hardResetUserDataIfOutdatedVersion = (userData: UserData) => {
+  if (!userData?.version || !isSupportedVersion(userData.version)) {
+    return hardResetUserData();
+  }
+  return userData;
+};
+
+export const setGameDataId = async (
+  gameData: UserGameData,
+  date: string,
+  gameMode: GameMode
+) => {
+  const { gameId } = await getRoundData(date, gameMode);
+  return {
+    ...gameData,
+    gameId,
+  };
+};
+
+export const setAllGameDataId = async (userData: UserData) => {
+  const date = new Date().toISOString();
+
+  return {
+    ...userData,
+    main: await setGameDataId(userData.main, date, GameMode.main),
+    mini: await setGameDataId(userData.mini, date, GameMode.mini),
+    max: await setGameDataId(userData.max, date, GameMode.max),
+  };
+};
+
+export const initialize = async () =>
+  await checkWindow(async () => {
     let userData = getUserData();
 
     if (!userData?.main?.history) {
@@ -91,6 +125,8 @@ export const initialize = () =>
     }
 
     userData = resetDailyUserDataIfOutdated(userData);
+    userData = hardResetUserDataIfOutdatedVersion(userData);
+    userData = await setAllGameDataId(userData);
 
     return userData;
   });
@@ -123,21 +159,46 @@ export const addAnswer = (
 export const setEndGame = (gameMode: GameMode, win: boolean) =>
   checkWindow(() => {
     const userData = getUserData();
+    const {
+      winStreak,
+      numPlayed,
+      numWins,
+      lastWinDate,
+      longestWinStreak,
+      turnStats,
+      history,
+    } = userData[gameMode];
+    // TODO: Check if no game was skipped
+    const newWinStreak = win ? winStreak + 1 : 0;
     const newUserData = {
       ...userData,
       [gameMode]: {
         ...userData[gameMode],
-        numPlayed: userData[gameMode].numPlayed + 1,
-        numWins: userData[gameMode].numWins + (win ? 1 : 0),
-        lastWinDate: win
-          ? new Date().toISOString()
-          : userData[gameMode].lastWinDate,
+        numPlayed: numPlayed + 1,
+        numWins: numWins + (win ? 1 : 0),
+        lastWinDate: win ? new Date().toISOString() : lastWinDate,
         gameStatus: win ? GameStatus.win : GameStatus.lose,
+        winStreak: newWinStreak,
+        longestWinStreak:
+          newWinStreak > longestWinStreak ? newWinStreak : longestWinStreak,
+        turnStats: win
+          ? Object.assign([], turnStats, {
+              [history.length - 1]: turnStats[history.length - 1] + 1,
+            })
+          : turnStats,
       },
     };
 
-    // TODO: Compute for turn wins summary
-
     setUserData(newUserData);
     return newUserData;
+  });
+
+export const resetUserData = async () =>
+  await checkWindow(async () => {
+    let userData = hardResetUserData();
+    userData = await setAllGameDataId(userData);
+
+    setUserData(userData);
+
+    return userData;
   });

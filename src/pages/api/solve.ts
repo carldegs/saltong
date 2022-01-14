@@ -1,8 +1,12 @@
 import { NextApiRequest } from 'next';
 
+import { WORD_LENGTH } from '../../constants';
+import dictionary from '../../dict.json';
 import createApiHandler from '../../lib/api/create-api-handler';
+import InvalidWordError from '../../lib/errors/InvalidWordError';
 import GameMode from '../../types/GameMode';
 import LetterStatus from '../../types/LetterStatus';
+import getPrivateRoundData from '../../utils/api/getPrivateRoundData';
 
 interface SolveHandlerRequest extends NextApiRequest {
   body: {
@@ -13,10 +17,19 @@ interface SolveHandlerRequest extends NextApiRequest {
 
 const SolveHandler = createApiHandler().post<SolveHandlerRequest>(
   async (req, res) => {
-    const { answer } = req.body;
-    // TODO: Check if answer is part of valid word list.
-    // TODO: Get word somewhere
-    const correct = ['L', 'A', 'M', 'O', 'K'];
+    const { answer, gameMode } = req.body;
+    const roundData = getPrivateRoundData(new Date().toISOString(), gameMode);
+    const correct = roundData.word.toUpperCase().split('');
+
+    const dict = dictionary[WORD_LENGTH[gameMode]];
+
+    const isValidWord = !!dict.find(
+      (dictWord) => dictWord === (answer as string[]).join('').toLowerCase()
+    );
+
+    if (!isValidWord) {
+      throw InvalidWordError;
+    }
 
     let result = answer.map((letter) => [letter, LetterStatus.wrong]);
 

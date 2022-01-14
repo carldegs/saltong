@@ -11,16 +11,18 @@ export const NUM_TRIES = {
 export const WORD_LENGTH = {
   [GameMode.main]: 5,
   [GameMode.mini]: 4,
-  [GameMode.max]: 8,
+  [GameMode.max]: 7,
 };
 
 export const DEFAULT_USER_GAME_DATA: UserGameData = {
   numPlayed: 0,
   numWins: 0,
+  winStreak: 0,
+  longestWinStreak: 0,
   lastWinDate: '',
   history: [],
   turnStats: [],
   gameStatus: GameStatus.playing,
   gameStartDate: '',
-  gameId: 'ALPHA 0.1',
+  gameId: 0,
 };
