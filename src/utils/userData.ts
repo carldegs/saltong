@@ -129,6 +129,7 @@ export const initialize = async () =>
 
     userData = await setAllGameDataId(userData);
 
+    setUserData(userData);
     return userData;
   });
 
