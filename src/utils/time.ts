@@ -1,4 +1,4 @@
-import { startOfTomorrow, intervalToDuration } from 'date-fns';
+import { startOfTomorrow, intervalToDuration, addHours } from 'date-fns';
 
 export const getCountdownToNextDay = () =>
   intervalToDuration({
@@ -12,4 +12,14 @@ export const delay = async (delay = 1000, callback = () => {}) => {
   await delayPromise(delay);
 
   callback();
+};
+
+const PH_TIMEZONE = -8;
+export const correctTimezone = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const timezone = date.getTimezoneOffset() / 60;
+  const diffTimezone = timezone - PH_TIMEZONE;
+  const newDate = addHours(date, diffTimezone);
+
+  return newDate;
 };
