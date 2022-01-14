@@ -121,11 +121,12 @@ export const initialize = async () =>
 
     if (!userData?.main?.history) {
       console.warn('No user data found. Initializing data...');
-      return hardResetUserData();
+      userData = hardResetUserData();
+    } else {
+      userData = resetDailyUserDataIfOutdated(userData);
+      userData = hardResetUserDataIfOutdatedVersion(userData);
     }
 
-    userData = resetDailyUserDataIfOutdated(userData);
-    userData = hardResetUserDataIfOutdatedVersion(userData);
     userData = await setAllGameDataId(userData);
 
     return userData;
