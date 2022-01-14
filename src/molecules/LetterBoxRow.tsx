@@ -26,7 +26,7 @@ const LetterBoxRow: React.FC<LetterBoxRowProps> = ({ word, wordLength }) => {
   }, [word, wordLength]);
 
   return (
-    <HStack spacing={4}>
+    <HStack spacing={3}>
       {letterListData.map(({ letter, status, key }) => (
         <LetterBox status={status} key={key}>
           {letter}

@@ -1,5 +1,5 @@
 import { BoxProps, Box, Heading } from '@chakra-ui/layout';
-import { VisuallyHiddenInput } from '@chakra-ui/react';
+import { useColorMode, VisuallyHiddenInput } from '@chakra-ui/react';
 import { useMemo } from 'react';
 import { useState } from 'react';
 import { forwardRef } from 'react';
@@ -28,33 +28,36 @@ const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = (
   },
   ref
 ) => {
+  const { colorMode } = useColorMode();
+
   const [isFocused, setFocused] = useState(false);
 
   const bprops = useMemo(() => {
+    const isDarkMode = colorMode === 'dark';
     let bprops = {
-      bg: 'gray.100',
-      color: 'gray.900',
+      bg: isDarkMode ? 'gray.600' : 'gray.100',
+      color: isDarkMode ? 'gray.200' : 'gray.900',
     };
 
     switch (status) {
       case LetterStatus.wrong:
         bprops = {
           ...bprops,
-          bg: 'gray.400',
+          bg: isDarkMode ? 'gray.700' : 'gray.400',
           color: 'white',
         };
         break;
       case LetterStatus.correct:
         bprops = {
           ...bprops,
-          bg: 'green.400',
+          bg: isDarkMode ? 'green.600' : 'green.400',
           color: 'white',
         };
         break;
       case LetterStatus.wrongSpot:
         bprops = {
           ...bprops,
-          bg: 'orange.400',
+          bg: isDarkMode ? 'orange.600' : 'orange.400',
           color: 'white',
         };
         break;
@@ -63,15 +66,22 @@ const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = (
     if (isFocused) {
       bprops = {
         ...bprops,
-        bg: 'blue.100',
+        bg: isDarkMode ? 'blue.300' : 'blue.100',
       };
     }
 
     return bprops;
-  }, [status, isFocused]);
+  }, [status, isFocused, colorMode]);
 
   return (
-    <Box w={12} h={12} pos="relative" {...bprops} {...boxProps}>
+    <Box
+      w={12}
+      h={12}
+      pos="relative"
+      borderRadius={4}
+      {...bprops}
+      {...boxProps}
+    >
       <Heading textAlign="center">{value?.toUpperCase() || children}</Heading>
       {editable && (
         <VisuallyHiddenInput
