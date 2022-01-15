@@ -1,80 +1,84 @@
 import { HStack } from '@chakra-ui/layout';
-import React, { useEffect, useRef, useState } from 'react';
+import { useOutsideClick, VisuallyHiddenInput } from '@chakra-ui/react';
+import React, { useMemo, useState } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
-import { getNumArr } from '../utils';
+import { useKeyboard } from '../context/KeyboardContext';
 
 interface EditableLetterBoxRowProps {
   wordLength: number;
-  onSolve: (answer: string[]) => void;
+  onSolve: (answer: string) => void;
 }
 
 const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
   wordLength,
   onSolve,
 }) => {
-  const [values, setValues] = useState(getNumArr(wordLength).map(() => ''));
-  const boxesRef = useRef<React.RefObject<HTMLInputElement>[]>(
-    getNumArr(wordLength).map(() => React.createRef())
+  const [values, setValues] = useState('');
+  const [isFocused, setFocused] = useState(false);
+  const keyboardRef = useKeyboard();
+
+  useOutsideClick({
+    ref: keyboardRef,
+    handler: () => keyboardRef.current?.focus(),
+  });
+
+  const splitValues = useMemo(
+    () =>
+      values
+        .split('')
+        .concat(new Array(wordLength).fill(''))
+        .slice(0, wordLength),
+    [wordLength, values]
   );
-  const [numFocus, setNumFocus] = useState(0);
-
-  useEffect(() => {
-    if (numFocus <= 0) {
-      let idx = values.indexOf('');
-
-      if (idx < 0) {
-        if (values[values.length - 1] !== '') {
-          idx = values.length - 1;
-        } else {
-          return;
-        }
-      }
-
-      boxesRef.current[idx].current.focus();
-    }
-  }, [numFocus, values]);
 
   return (
-    <HStack spacing={3}>
-      {values
-        .map((value, key) => ({ value, key: `edit-${key}` }))
-        .map(({ value, key }, i) => (
-          <LetterBox
-            key={key}
-            ref={boxesRef.current[i]}
-            editable
-            value={value}
-            onChange={(newValue) => {
-              if (newValue === '' && i > 0) {
-                boxesRef.current[i - 1].current.focus();
-              } else if (newValue && i < wordLength - 1) {
-                boxesRef.current[i + 1].current.focus();
-              }
+    <>
+      <HStack
+        spacing={3}
+        onClick={() => {
+          keyboardRef.current.focus();
+        }}
+      >
+        {splitValues
+          .map((value, key) => ({ value, key: `edit-${key}` }))
+          .map(({ value, key }) => (
+            <LetterBox
+              bg={isFocused ? 'blue.300' : 'blue.200'}
+              color="blue.900"
+              key={key}
+              value={value}
+            />
+          ))}
+      </HStack>
 
-              if (newValue === 'SEND') {
-                if (values.filter((value) => !!value).length === wordLength) {
-                  onSolve(values);
-                }
-                return;
-              }
+      <VisuallyHiddenInput
+        ref={keyboardRef}
+        onChange={(e) => {
+          setValues(e.target.value?.toUpperCase());
+        }}
+        onFocus={(e) => {
+          setFocused(true);
+          if (e.target.value !== values) {
+            setValues(e.target.value);
+          }
+        }}
+        onBlur={() => {
+          setFocused(false);
+        }}
+        onKeyDown={(e) => {
+          if (!e.key.match(/[a-zA-Z]/)) {
+            e.preventDefault();
+            return;
+          }
 
-              if (newValue !== undefined) {
-                setValues((values) =>
-                  Object.assign([], values, { [i]: newValue })
-                );
-              }
-            }}
-            onFocus={() => {
-              setNumFocus((n) => n + 1);
-            }}
-            onBlur={() => {
-              setNumFocus((n) => n - 1);
-            }}
-            submitOnEnter={i === wordLength - 1}
-          />
-        ))}
-    </HStack>
+          if (e.key === 'Enter') {
+            onSolve(values);
+          }
+        }}
+        inputMode="none"
+      />
+    </>
   );
 };
 
