@@ -1,9 +1,8 @@
-import { BoxProps, Box, Heading } from '@chakra-ui/layout';
-import { useColorMode, VisuallyHiddenInput } from '@chakra-ui/react';
+import { BoxProps, Heading, Flex } from '@chakra-ui/layout';
 import { useMemo } from 'react';
-import { useState } from 'react';
 import { forwardRef } from 'react';
 
+import useLetterStatusColor from '../hooks/useLetterStatusColor';
 import LetterStatus from '../types/LetterStatus';
 
 interface LetterBoxProps extends Omit<BoxProps, 'onChange'> {
@@ -14,119 +13,38 @@ interface LetterBoxProps extends Omit<BoxProps, 'onChange'> {
   submitOnEnter?: boolean;
 }
 
-const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = (
-  {
-    status,
-    editable,
-    children,
-    value,
-    onChange,
-    onFocus,
-    onBlur,
-    submitOnEnter,
-    ...boxProps
-  },
-  ref
-) => {
-  const { colorMode } = useColorMode();
-
-  const [isFocused, setFocused] = useState(false);
+const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = ({
+  status,
+  editable,
+  children,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  submitOnEnter,
+  ...boxProps
+}) => {
+  const { getStyle } = useLetterStatusColor();
 
   const bprops = useMemo(() => {
-    const isDarkMode = colorMode === 'dark';
-    let bprops = {
-      bg: isDarkMode ? 'gray.600' : 'gray.100',
-      color: isDarkMode ? 'gray.200' : 'gray.900',
-    };
-
-    switch (status) {
-      case LetterStatus.wrong:
-        bprops = {
-          ...bprops,
-          bg: isDarkMode ? 'gray.700' : 'gray.400',
-          color: 'white',
-        };
-        break;
-      case LetterStatus.correct:
-        bprops = {
-          ...bprops,
-          bg: isDarkMode ? 'green.600' : 'green.400',
-          color: 'white',
-        };
-        break;
-      case LetterStatus.wrongSpot:
-        bprops = {
-          ...bprops,
-          bg: isDarkMode ? 'orange.600' : 'orange.400',
-          color: 'white',
-        };
-        break;
-    }
-
-    if (isFocused) {
-      bprops = {
-        ...bprops,
-        bg: isDarkMode ? 'blue.300' : 'blue.100',
-      };
-    }
-
-    return bprops;
-  }, [status, isFocused, colorMode]);
+    return getStyle(status);
+  }, [getStyle, status]);
 
   return (
-    <Box
-      w={12}
-      h={12}
+    <Flex
+      w={[10, 12]}
+      h={[10, 12]}
       pos="relative"
       borderRadius={4}
+      alignItems="center"
+      justifyContent="center"
       {...bprops}
       {...boxProps}
     >
-      <Heading textAlign="center">{value?.toUpperCase() || children}</Heading>
-      {editable && (
-        <VisuallyHiddenInput
-          ref={ref}
-          onFocus={(e) => {
-            setFocused(true);
-            if (onFocus) {
-              onFocus(e);
-            }
-          }}
-          onBlur={(e) => {
-            setFocused(false);
-            if (onBlur) {
-              onBlur(e);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (!e.key.match(/[a-zA-Z]/)) {
-              e.preventDefault();
-              return;
-            }
-
-            if (onChange && (e.key === 'Backspace' || e.key === 'Delete')) {
-              onChange('');
-            }
-
-            if (e.key === 'Enter') {
-              if (submitOnEnter) {
-                onChange('SEND');
-              }
-              e.preventDefault();
-            }
-          }}
-          onChange={(e) => {
-            if (onChange) {
-              onChange(
-                e.target.value[e.target.value.length - 1]?.toUpperCase()
-              );
-            }
-          }}
-          value={value?.toUpperCase()}
-          tabIndex={-1}
-        />
-      )}
-    </Box>
+      <Heading textAlign="center" fontSize={['2xl', '3xl']}>
+        {value?.toUpperCase() || children}
+      </Heading>
+    </Flex>
   );
 };
 

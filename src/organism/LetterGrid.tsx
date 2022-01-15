@@ -11,7 +11,7 @@ interface LetterGridProps extends StackProps {
   wordLength: number;
   tries?: UserGameHistory['word'][];
   gameStatus?: GameStatus;
-  onSolve: (answer: string[]) => void;
+  onSolve: (answer: string) => void;
 }
 
 const LetterGrid: React.FC<LetterGridProps> = ({

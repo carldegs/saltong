@@ -17,6 +17,7 @@ export interface UserGameData {
   gameStatus: GameStatus;
   gameStartDate: string;
   gameId: number | string;
+  correctAnswer?: string;
 }
 
 interface UserData {
@@ -24,6 +25,7 @@ interface UserData {
   mini: UserGameData;
   max: UserGameData;
   version: string;
+  uuid?: string;
 }
 
 export default UserData;
