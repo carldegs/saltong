@@ -1,23 +1,21 @@
 import { format } from 'date-fns';
 
-import { delay } from '..';
-import tempRounds from '../../tempRound.json';
+import mainRound from '../../mainRound.json';
+import maxRound from '../../maxRound.json';
+import miniRound from '../../miniRound.json';
 import GameMode from '../../types/GameMode';
-import { PrivateRoundData, RoundData } from '../../types/RoundData';
+import { RoundData } from '../../types/RoundData';
 
-const getRoundData = async (
-  date: string,
-  // TODO: Temporary only
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  gameMode: GameMode
-): Promise<RoundData> => {
+const ROUNDS_DATA = {
+  [GameMode.main]: mainRound,
+  [GameMode.mini]: miniRound,
+  [GameMode.max]: maxRound,
+};
+
+const getRoundData = (date: string, gameMode: GameMode): RoundData => {
   const dateStr = format(new Date(date), 'yyyy-MM-dd');
-  const rounds: Record<string, PrivateRoundData> = tempRounds;
-
-  await delay(200);
-
-  const { word, ...round } = rounds[dateStr];
-  return round;
+  const rounds: Record<string, RoundData> = ROUNDS_DATA[gameMode];
+  return rounds[dateStr];
 };
 
 export default getRoundData;

@@ -10,7 +10,7 @@ import { isSupportedVersion } from './versioning';
 
 const USER_DATA = 'saltong-user-data';
 
-// TODO: Test if working
+// TODO: Refactor data manipulation
 export const isValidGame = (date: string) => {
   const now = new Date();
   const gameDate = new Date(date);
@@ -96,31 +96,32 @@ export const hardResetUserDataIfOutdatedVersion = (userData: UserData) => {
   return userData;
 };
 
-export const setGameDataId = async (
+export const setGameDataId = (
   gameData: UserGameData,
   date: string,
   gameMode: GameMode
-) => {
-  const { gameId } = await getRoundData(date, gameMode);
+): UserGameData => {
+  const { gameId, word } = getRoundData(date, gameMode);
   return {
     ...gameData,
     gameId,
+    correctAnswer: word,
   };
 };
 
-export const setAllGameDataId = async (userData: UserData) => {
+export const setAllGameDataId = (userData: UserData) => {
   const date = new Date().toISOString();
 
   return {
     ...userData,
-    main: await setGameDataId(userData.main, date, GameMode.main),
-    mini: await setGameDataId(userData.mini, date, GameMode.mini),
-    max: await setGameDataId(userData.max, date, GameMode.max),
+    main: setGameDataId(userData.main, date, GameMode.main),
+    mini: setGameDataId(userData.mini, date, GameMode.mini),
+    max: setGameDataId(userData.max, date, GameMode.max),
   };
 };
 
-export const initialize = async () =>
-  await checkWindow(async () => {
+export const initialize = () =>
+  checkWindow(() => {
     let userData = getUserData();
 
     if (!userData?.main?.history) {
@@ -131,7 +132,7 @@ export const initialize = async () =>
       userData = hardResetUserDataIfOutdatedVersion(userData);
     }
 
-    userData = await setAllGameDataId(userData);
+    userData = setAllGameDataId(userData);
 
     if (!userData?.uuid) {
       userData = {
@@ -222,10 +223,10 @@ export const setEndGame = (gameMode: GameMode, win: boolean) =>
     return newUserData;
   });
 
-export const resetUserData = async () =>
-  await checkWindow(async () => {
+export const resetUserData = () =>
+  checkWindow(() => {
     let userData = hardResetUserData();
-    userData = await setAllGameDataId(userData);
+    userData = setAllGameDataId(userData);
 
     setUserData(userData);
 

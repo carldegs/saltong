@@ -35,7 +35,7 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
   return (
     <>
       <HStack
-        spacing={3}
+        spacing={[2, 3]}
         onClick={() => {
           keyboardRef.current.focus();
         }}
@@ -55,7 +55,7 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
       <VisuallyHiddenInput
         ref={keyboardRef}
         onChange={(e) => {
-          setValues(e.target.value?.toUpperCase());
+          setValues(e.target.value?.toUpperCase().substring(0, wordLength));
         }}
         onFocus={(e) => {
           setFocused(true);

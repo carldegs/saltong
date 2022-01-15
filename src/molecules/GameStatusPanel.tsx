@@ -46,7 +46,8 @@ const GameStatusPanel: React.FC<GameStatusPanelProps> = ({
           _hover={{
             textDecoration: 'underline',
           }}
-          fontSize="lg"
+          fontSize={['md', 'lg']}
+          textAlign="center"
         >
           Game #{gameId}
         </Text>
@@ -54,8 +55,10 @@ const GameStatusPanel: React.FC<GameStatusPanelProps> = ({
       <PopoverContent>
         <PopoverArrow />
         <Flex alignItems="center" flexDir="column" p={5}>
-          <Text>Game ends in</Text>
-          <Heading size="md">{countdown}</Heading>
+          <Text textAlign="center">Game ends in</Text>
+          <Heading size="md" textAlign="center">
+            {countdown}
+          </Heading>
         </Flex>
       </PopoverContent>
     </Popover>

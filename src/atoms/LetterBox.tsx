@@ -1,6 +1,5 @@
 import { BoxProps, Heading, Flex } from '@chakra-ui/layout';
 import { useMemo } from 'react';
-import { forwardRef } from 'react';
 
 import useLetterStatusColor from '../hooks/useLetterStatusColor';
 import LetterStatus from '../types/LetterStatus';
@@ -13,7 +12,7 @@ interface LetterBoxProps extends Omit<BoxProps, 'onChange'> {
   submitOnEnter?: boolean;
 }
 
-const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = ({
+const LetterBox: React.FC<LetterBoxProps> = ({
   status,
   editable,
   children,
@@ -48,4 +47,4 @@ const LetterBox: React.ForwardRefRenderFunction<any, LetterBoxProps> = ({
   );
 };
 
-export default forwardRef(LetterBox);
+export default LetterBox;
