@@ -21,6 +21,7 @@ import React from 'react';
 
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameStatus from '../types/GameStatus';
+import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 interface EndGameModalProps extends Omit<ModalProps, 'children'> {
   gameStatus: GameStatus;
@@ -103,7 +104,14 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                 SHARE
               </Button>
             )} */}
-            <Button onClick={onCopy}>{hasCopied ? 'COPIED' : 'COPY'}</Button>
+            <Button
+              onClick={() => {
+                onCopy();
+                sendEvent(GTAG_EVENTS.sharedResult);
+              }}
+            >
+              {hasCopied ? 'COPIED' : 'COPY'}
+            </Button>
           </HStack>
         </ModalBody>
       </ModalContent>
