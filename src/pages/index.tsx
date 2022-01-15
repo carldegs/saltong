@@ -1,4 +1,8 @@
-import { ExternalLinkIcon, HamburgerIcon } from '@chakra-ui/icons';
+import {
+  ExternalLinkIcon,
+  HamburgerIcon,
+  QuestionOutlineIcon,
+} from '@chakra-ui/icons';
 import {
   Alert,
   AlertDescription,
@@ -16,6 +20,7 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  Spacer,
   Text,
   useColorMode,
   useDisclosure,
@@ -33,6 +38,7 @@ import Keyboard from '../molecules/Keyboard';
 import BugReportModal from '../organism/BugReportModal';
 import EndGameModal from '../organism/EndGameModal';
 import LetterGrid from '../organism/LetterGrid';
+import RulesModal from '../organism/RulesModal';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { getUserData } from '../utils';
@@ -60,6 +66,7 @@ const Home: React.FC = () => {
   const endGameModalDisc = useDisclosure();
   const bugModalDisc = useDisclosure();
   const aboutModalDisc = useDisclosure();
+  const rulesModalDisc = useDisclosure();
   const { onOpen: onAlertOpen, ...alertDisc } = useDisclosure();
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -105,7 +112,7 @@ const Home: React.FC = () => {
             .
           </Text>
         </Box>
-        <HStack flex={1} flexDir="row-reverse">
+        <HStack flex={1} flexDir="row-reverse" spacing={4}>
           <Menu
             onClose={() => {
               keyboardRef.current?.focus();
@@ -179,6 +186,14 @@ const Home: React.FC = () => {
               )}
             </MenuList>
           </Menu>
+
+          <Spacer maxW="0" />
+
+          <IconButton
+            aria-label="help"
+            icon={<QuestionOutlineIcon />}
+            onClick={rulesModalDisc.onOpen}
+          />
         </HStack>
       </HStack>
       {alertDisc.isOpen && (
@@ -223,6 +238,12 @@ const Home: React.FC = () => {
       <AboutModal
         isOpen={aboutModalDisc.isOpen}
         onClose={aboutModalDisc.onClose}
+      />
+      <RulesModal
+        isOpen={rulesModalDisc.isOpen}
+        onClose={rulesModalDisc.onClose}
+        wordLength={wordLength}
+        numTries={numTries}
       />
       {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
         <Link isExternal href={`${DICTIONARY_LINK}/word/${correctAnswer}`}>

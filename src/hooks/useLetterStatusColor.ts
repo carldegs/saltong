@@ -14,6 +14,8 @@ const useLetterStatusColor = (): {
       let bprops = {
         bg: isDarkMode ? 'gray.600' : 'gray.100',
         color: isDarkMode ? 'gray.200' : 'gray.900',
+        borderWidth: 1,
+        borderColor: isDarkMode ? 'gray.900' : 'gray.50',
       };
 
       switch (status) {
