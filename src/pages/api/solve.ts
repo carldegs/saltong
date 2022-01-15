@@ -14,19 +14,15 @@ interface SolveHandlerRequest extends NextApiRequest {
   body: {
     answer: string[];
     gameMode: GameMode;
+    uuid?: string;
   };
 }
 
 const SolveHandler = createApiHandler().post<SolveHandlerRequest>(
   async (req, res) => {
-    const { answer, gameMode } = req.body;
+    const { answer, gameMode, uuid } = req.body;
     const currDate = new Date().toISOString();
     const correctedDate = correctTimezone(currDate).toISOString();
-
-    console.log({
-      current: new Date(currDate).toString(),
-      corrected: new Date(correctedDate).toString(),
-    });
 
     const roundData = getPrivateRoundData(correctedDate, gameMode);
     const correct = roundData.word.toUpperCase().split('');
@@ -36,10 +32,19 @@ const SolveHandler = createApiHandler().post<SolveHandlerRequest>(
       (dictWord) => dictWord === (answer as string[]).join('').toLowerCase()
     );
 
-    console.log({ answer, correct, isValidWord });
+    console.log({
+      time: {
+        current: new Date(currDate).toString(),
+        corrected: new Date(correctedDate).toString(),
+      },
+      answer,
+      correct,
+      isValidWord,
+      uuid,
+    });
 
     if (!isValidWord) {
-      throw InvalidWordError;
+      throw new InvalidWordError();
     }
 
     let result = answer.map((letter) => [letter, LetterStatus.wrong]);
@@ -47,7 +52,7 @@ const SolveHandler = createApiHandler().post<SolveHandlerRequest>(
     correct.forEach((cLetter, j) => {
       const matchIdx = result.findIndex(
         ([letter, status]) =>
-          letter === cLetter && status === LetterStatus.wrong
+          letter === cLetter && status !== LetterStatus.correct
       );
       if (matchIdx >= 0) {
         result = Object.assign([], result, {

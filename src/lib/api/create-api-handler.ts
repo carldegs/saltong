@@ -13,7 +13,7 @@ const createApiHandler = (): NextConnect<NextApiRequest, NextApiResponse> =>
           payload: details.payload,
         });
       } else {
-        console.log(err); //eslint-disable-line no-console
+        console.error(err);
         res.status(500).json({
           message: 'Unexpected server error',
         });

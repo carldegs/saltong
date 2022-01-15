@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { getNumArr } from '.';
 import { DEFAULT_USER_GAME_DATA, NUM_TRIES, VERSION } from '../constants';
 import GameMode from '../types/GameMode';
@@ -64,6 +66,7 @@ const resetDailyGameDataIfOutdated = (
 const resetDailyUserDataIfOutdated = (userData: UserData): UserData => {
   const date = new Date().toISOString();
   return {
+    ...userData,
     main: resetDailyGameDataIfOutdated(userData.main, date),
     mini: resetDailyGameDataIfOutdated(userData.mini, date),
     max: resetDailyGameDataIfOutdated(userData.max, date),
@@ -75,11 +78,12 @@ export const hardResetUserData = () =>
   checkWindow(() => {
     const date = new Date().toISOString();
 
-    const userData = {
+    const userData: UserData = {
       main: getDefaultUserGameData(date, GameMode.main),
       mini: getDefaultUserGameData(date, GameMode.mini),
       max: getDefaultUserGameData(date, GameMode.max),
       version: VERSION,
+      uuid: uuidv4(),
     };
     setUserData(userData);
     return userData;
@@ -129,6 +133,13 @@ export const initialize = async () =>
 
     userData = await setAllGameDataId(userData);
 
+    if (!userData?.uuid) {
+      userData = {
+        ...userData,
+        uuid: uuidv4(),
+      };
+    }
+
     setUserData(userData);
     return userData;
   });
@@ -150,6 +161,22 @@ export const addAnswer = (
             guessedAt: new Date().toISOString(),
           },
         ],
+      },
+    };
+
+    setUserData(newUserData);
+
+    return newUserData;
+  });
+
+export const addCorrectAnswer = (correctAnswer: string, gameMode: GameMode) =>
+  checkWindow(() => {
+    const userData = getUserData();
+    const newUserData: UserData = {
+      ...userData,
+      [gameMode]: {
+        ...userData[gameMode],
+        correctAnswer,
       },
     };
 

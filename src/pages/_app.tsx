@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Hydrate } from 'react-query/hydration';
 
+import { KeyboardProvider } from '../context/KeyboardContext';
 import theme from '../theme';
 
 const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
@@ -17,7 +18,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider theme={theme}>
-          <Component {...pageProps} />
+          <KeyboardProvider>
+            <Component {...pageProps} />
+          </KeyboardProvider>
         </ChakraProvider>
       </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />

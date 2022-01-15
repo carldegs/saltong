@@ -11,8 +11,6 @@ const getPrivateRoundData = (
   gameMode: GameMode
 ): PrivateRoundData => {
   const dateStr = format(new Date(date), 'yyyy-MM-dd');
-  // eslint-disable-next-line no-console
-  console.log('dateStr', dateStr);
   const rounds: Record<string, PrivateRoundData> = tempRounds;
 
   const round = rounds[dateStr];

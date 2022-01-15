@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   Heading,
+  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -52,7 +53,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          {gameStatus === GameStatus.lose ? 'YOU LOSE' : 'YOU WON!'}
+          {gameStatus === GameStatus.lose ? 'YOU LOSE' : 'SOLVED!'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody mb={4}>
@@ -83,13 +84,27 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
           <Flex w="full" h="200px" alignItems="center">
             <TurnStatPieChart turnStats={turnStats} diameter={200} />
           </Flex>
-          <Heading size="md" mt={6} mb={4} textAlign="center">
-            Share
-          </Heading>
           {/* TODO: Add socials */}
-          <Flex alignItems="center" justifyContent="center">
+          <HStack
+            spacing={4}
+            alignItems="center"
+            justifyContent="center"
+            mt={8}
+          >
+            {/* {navigator?.share && (
+              <Button
+                onClick={() => {
+                  navigator.share({
+                    title: 'Saltong!',
+                    text: onShare(),
+                  });
+                }}
+              >
+                SHARE
+              </Button>
+            )} */}
             <Button onClick={onCopy}>{hasCopied ? 'COPIED' : 'COPY'}</Button>
-          </Flex>
+          </HStack>
         </ModalBody>
       </ModalContent>
     </Modal>
