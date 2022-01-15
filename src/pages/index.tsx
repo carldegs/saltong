@@ -42,6 +42,7 @@ import RulesModal from '../organism/RulesModal';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { getUserData } from '../utils';
+import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 const Home: React.FC = () => {
   const {
@@ -78,6 +79,7 @@ const Home: React.FC = () => {
         const { gameStatus } = await solve(answer);
         if (gameStatus !== GameStatus.playing) {
           endGameModalDisc.onOpen();
+          sendEvent(GTAG_EVENTS.completedRound);
         }
       } catch (err) {
         toast({
