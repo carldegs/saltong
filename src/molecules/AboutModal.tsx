@@ -40,7 +40,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
             <Link isExternal href="https://github.com/carldegs/saltong">
               Github Repo <ExternalLinkIcon />
             </Link>
-            <Text>
+            <Text textAlign="center">
               Word list parsed from{' '}
               <Link isExternal href="https://tagalog.pinoydictionary.com/">
                 tagalog.pinoydictionary.com
