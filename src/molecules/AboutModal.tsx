@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
+  Button,
   Heading,
   HStack,
   Link,
@@ -26,7 +27,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
       <ModalContent>
         <ModalCloseButton />
         <ModalBody my={8}>
-          <Stack alignItems="center" spacing={3}>
+          <Stack alignItems="center" spacing={6}>
             <HStack alignItems="end">
               <Heading size="lg">Saltong</Heading>
               <Text>{VERSION}</Text>
@@ -37,9 +38,6 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                 Wordle <ExternalLinkIcon />
               </Link>
             </Text>
-            <Link isExternal href="https://github.com/carldegs/saltong">
-              Github Repo <ExternalLinkIcon />
-            </Link>
             <Text textAlign="center">
               Word list parsed from{' '}
               <Link isExternal href="https://tagalog.pinoydictionary.com/">
@@ -47,6 +45,18 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
               </Link>
               <ExternalLinkIcon />
             </Text>
+            <Text>A project by Carl de Guia</Text>
+            <HStack spacing={4}>
+              <Link isExternal href="https://github.com/carldegs/saltong">
+                <Button colorScheme="gray">GitHub</Button>
+              </Link>
+              <Link
+                isExternal
+                href="https://www.linkedin.com/in/carl-justin-de-guia-b40a1b97/"
+              >
+                <Button colorScheme="linkedin">LinkedIn</Button>
+              </Link>
+            </HStack>
           </Stack>
         </ModalBody>
       </ModalContent>

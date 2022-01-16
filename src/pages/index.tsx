@@ -4,7 +4,9 @@ import {
   QuestionOutlineIcon,
 } from '@chakra-ui/icons';
 import {
+  Alert,
   Box,
+  CloseButton,
   Container,
   Flex,
   Heading,
@@ -25,7 +27,8 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import Head from 'next/head';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { DICTIONARY_LINK } from '../constants';
@@ -46,6 +49,7 @@ import { delay, getUserData } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 const Home: React.FC = () => {
+  const router = useRouter();
   const {
     wordLength,
     numTries,
@@ -63,7 +67,8 @@ const Home: React.FC = () => {
     gameId,
     letterStatuses,
     correctAnswer,
-  } = useWord(GameMode.main);
+    gameMode,
+  } = useWord();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
   // Move all disclosures to context
   const endGameModalDisc = useDisclosure();
@@ -72,7 +77,7 @@ const Home: React.FC = () => {
   const rulesModalDisc = useDisclosure();
   const debugModalDisc = useDisclosure();
   const resetAlertDisc = useDisclosure();
-  const { onOpen: onAlertOpen } = useDisclosure();
+  const [showAlert, setShowAlert] = useState(true);
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
   const keyboardRef = useKeyboard();
@@ -84,7 +89,11 @@ const Home: React.FC = () => {
         await delay(200);
         if (gameStatus !== GameStatus.playing) {
           endGameModalDisc.onOpen();
-          sendEvent(GTAG_EVENTS.completedRound);
+          sendEvent(
+            `${GTAG_EVENTS.completedRound}${
+              gameMode !== GameMode.main ? `_${gameMode}` : ''
+            }`
+          );
         }
       } catch (err) {
         toast({
@@ -96,26 +105,57 @@ const Home: React.FC = () => {
         });
       }
     },
-    [endGameModalDisc, solve, toast]
+    [endGameModalDisc, solve, toast, gameMode]
   );
-
-  useEffect(() => {
-    onAlertOpen();
-  }, [onAlertOpen]);
 
   return (
     <>
       <Head>
         <title>Saltong</title>
       </Head>
+      {showAlert && (
+        <Alert status="success">
+          <Text>
+            BITIN? Try{' '}
+            <Link
+              onClick={() => {
+                router.push(`/${GameMode.mini}`);
+              }}
+              fontWeight="bold"
+              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
+            >
+              Saltong Mini
+            </Link>
+            , a 4-word puzzle and{' '}
+            <Link
+              onClick={() => {
+                router.push(`/${GameMode.max}`);
+              }}
+              fontWeight="bold"
+              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
+            >
+              Saltong Max
+            </Link>
+            , a 7-word puzzle!
+          </Text>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => {
+              setShowAlert(false);
+            }}
+          />
+        </Alert>
+      )}
       <Container centerContent maxW="container.xl">
         <HStack my={4} w="full">
           <Flex flex={1} flexDir="row">
             <GameStatusPanel gameId={gameId} />
           </Flex>
           <Box>
-            <Heading size="lg" textAlign="center">
-              Saltong
+            <Heading size="lg" textAlign="center" textTransform="capitalize">
+              {`Saltong ${gameMode !== GameMode.main ? gameMode : ''}`}
             </Heading>
             <Text fontSize={['sm', 'md']} textAlign="center">
               A Filipino clone of{' '}
@@ -156,6 +196,33 @@ const Home: React.FC = () => {
                 >
                   View Stats/ Share Results
                 </MenuItem>
+                <MenuDivider />
+                <MenuGroup title="Other Game Modes">
+                  {gameMode !== GameMode.mini && (
+                    <MenuItem
+                      icon={<EmojiWrapper value="🟢" />}
+                      onClick={() => router.push(`/${GameMode.mini}`)}
+                    >
+                      Saltong Mini
+                    </MenuItem>
+                  )}
+                  {gameMode !== GameMode.main && (
+                    <MenuItem
+                      icon={<EmojiWrapper value="🟡" />}
+                      onClick={() => router.push(`/`)}
+                    >
+                      Saltong
+                    </MenuItem>
+                  )}
+                  {gameMode !== GameMode.max && (
+                    <MenuItem
+                      icon={<EmojiWrapper value="🔴" />}
+                      onClick={() => router.push(`/${GameMode.max}`)}
+                    >
+                      Saltong Max
+                    </MenuItem>
+                  )}
+                </MenuGroup>
                 <MenuDivider />
                 <MenuGroup title="UI Settings">
                   <MenuItemOption

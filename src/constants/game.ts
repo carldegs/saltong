@@ -4,7 +4,7 @@ import { UserGameData } from '../types/UserData';
 
 export const NUM_TRIES = {
   [GameMode.main]: 6,
-  [GameMode.mini]: 4,
+  [GameMode.mini]: 5,
   [GameMode.max]: 8,
 };
 
