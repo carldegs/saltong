@@ -31,7 +31,13 @@ const Keyboard: React.FC<KeyboardProps> = ({
         row.map((char) => ({
           value: char,
           label:
-            char === 'Backspace' ? <ChevronLeftIcon /> : char.toUpperCase(),
+            char === 'Backspace' ? (
+              <ChevronLeftIcon />
+            ) : char === 'Enter' ? (
+              '↵'
+            ) : (
+              char.toUpperCase()
+            ),
           status: letterStatuses[char.toUpperCase()],
         }))
       ),
@@ -73,6 +79,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
                 eventRef.current.blur();
                 eventRef.current.focus();
               }}
+              disableDelay={data.value === 'Enter' ? 200 : undefined}
               {...data}
             />
           ))}

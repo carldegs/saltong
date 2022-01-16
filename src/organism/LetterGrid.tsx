@@ -23,7 +23,7 @@ const LetterGrid: React.FC<LetterGridProps> = ({
   ...stackProps
 }) => {
   return (
-    <Stack spacing={3} {...stackProps}>
+    <Stack spacing={[2, 3]} {...stackProps}>
       {getNumArr(numTries).map((i) =>
         (tries.length <= numTries && tries.length !== i) ||
         gameStatus !== GameStatus.playing ? (

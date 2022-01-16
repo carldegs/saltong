@@ -9,13 +9,10 @@ import {
 } from '../constants';
 import IncompleteWordError from '../lib/errors/IncompleteWordError';
 import GameMode from '../types/GameMode';
-import GameStatus from '../types/GameStatus';
 import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
   addAnswer,
-  addCorrectAnswer,
-  getRoundWithAnswer,
   initialize,
   resetUserData,
   setEndGame,
@@ -26,7 +23,7 @@ import {
 interface UseWordResponse extends UserGameData {
   wordLength: number;
   numTries: number;
-  solve: (answer: string) => Promise<UserGameData>;
+  solve: (answer: string) => UserGameData;
   resetLocalStorage: () => void;
   getShareStatus: () => string;
   letterStatuses: Record<string, LetterStatus>;
@@ -47,14 +44,14 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
   const gameData = userData[gameMode];
 
   const solve = useCallback(
-    async (answer: string) => {
+    (answer: string) => {
       if (answer.length !== wordLength) {
         throw new IncompleteWordError(wordLength);
       }
 
       const splitValues = answer.toUpperCase().split('');
 
-      const result = await solveWord(splitValues, gameMode, userData?.uuid);
+      const result = solveWord(splitValues, gameMode);
       let newUserData = addAnswer(result, gameMode);
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -64,25 +61,15 @@ const useWord = (gameMode: GameMode): UseWordResponse => {
         newUserData = setEndGame(gameMode, false);
       }
 
-      if (newUserData[gameMode].gameStatus !== GameStatus.playing) {
-        const { word: correctAnswer } = await getRoundWithAnswer(
-          gameMode,
-          newUserData[gameMode].gameStatus,
-          userData?.uuid
-        );
-
-        newUserData = addCorrectAnswer(correctAnswer, gameMode);
-      }
-
       setUserData(newUserData);
 
       return newUserData[gameMode];
     },
-    [gameMode, numTries, userData, wordLength]
+    [gameMode, numTries, wordLength]
   );
 
-  const resetLocalStorage = useCallback(async () => {
-    const userData = await resetUserData();
+  const resetLocalStorage = useCallback(() => {
+    const userData = resetUserData();
 
     setUserData(userData);
   }, []);
@@ -160,7 +147,7 @@ ${DOMAIN}`;
 
   useEffect(() => {
     const init = async () => {
-      const newUserData = await initialize();
+      const newUserData = initialize();
       setUserData(newUserData);
     };
 

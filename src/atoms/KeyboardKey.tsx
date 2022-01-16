@@ -1,5 +1,5 @@
-import { Flex } from '@chakra-ui/react';
-import { ReactElement } from 'react';
+import { Flex, Spinner } from '@chakra-ui/react';
+import { ReactElement, useState } from 'react';
 
 import useLetterStatusColor from '../hooks/useLetterStatusColor';
 import LetterStatus from '../types/LetterStatus';
@@ -8,6 +8,7 @@ export interface KeyboardKeyData {
   value: string;
   label: ReactElement | string;
   status?: LetterStatus;
+  disableDelay?: number;
 }
 
 export interface KeyboardKeyProps extends KeyboardKeyData {
@@ -19,13 +20,26 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
   label,
   status,
   onClick,
+  disableDelay,
 }) => {
+  const [isDisabled, setDisabled] = useState(false);
   const { getStyle } = useLetterStatusColor();
+
   return (
     <Flex
       onClick={(e) => {
+        if (isDisabled) {
+          return;
+        }
+
         e.preventDefault();
         onClick(value);
+        if (disableDelay) {
+          setDisabled(true);
+          setTimeout(() => {
+            setDisabled(false);
+          }, disableDelay);
+        }
       }}
       borderRadius={6}
       w="full"
@@ -34,10 +48,10 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
       h="58px"
       alignItems="center"
       justifyContent="center"
-      cursor="pointer"
-      {...getStyle(status)}
+      cursor={isDisabled ? 'wait' : 'pointer'}
+      {...getStyle(status, { isDisabled })}
     >
-      {label}
+      {isDisabled ? <Spinner /> : label}
     </Flex>
   );
 };

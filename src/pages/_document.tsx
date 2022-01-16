@@ -1,6 +1,7 @@
 import { ColorModeScript } from '@chakra-ui/react';
 import NextDocument, { Html, Head, Main, NextScript } from 'next/document';
 
+import { DOMAIN } from '../constants';
 import theme from '../theme';
 
 export default class Document extends NextDocument {
@@ -24,6 +25,10 @@ export default class Document extends NextDocument {
           `,
             }}
           />
+          <meta property="og:url" content={DOMAIN} />
+          <meta property="og:title" content="Saltong" />
+          <meta property="og:description" content="A Filipino Wordle Clone" />
+          <meta name="description" content="A Filipino Wordle Clone" />
         </Head>
         <body>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />

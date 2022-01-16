@@ -1,63 +1,65 @@
-import axios from 'axios';
-
-import ApiError from '../lib/errors/ApiError';
+import { WORD_LENGTH } from '../constants';
+import dictionary from '../dict.json';
+import InvalidWordError from '../lib/errors/InvalidWordError';
 import GameMode from '../types/GameMode';
-import GameStatus from '../types/GameStatus';
-import { PrivateRoundData } from '../types/RoundData';
+import LetterStatus from '../types/LetterStatus';
 import { UserGameHistory } from '../types/UserData';
+import getRoundData from './api/getRoundData';
 
-export const solveWord = async (
+export const solveWord = (
   answer: string[],
-  gameMode: GameMode,
-  uuid?: string
-) => {
-  try {
-    const { data } = await axios.post<UserGameHistory['word']>('api/solve', {
-      answer,
-      gameMode,
-      uuid,
-    });
+  gameMode: GameMode
+): UserGameHistory['word'] => {
+  const currDate = new Date().toString();
+  const { word: solution } = getRoundData(currDate, gameMode);
 
-    return data;
-  } catch (err) {
-    const { status, data } = err?.response || {};
-    const { message } = data || {};
-    throw new ApiError(status, message);
+  const dict = dictionary[WORD_LENGTH[gameMode]];
+
+  const isValidWord = !!dict.find(
+    (dictWord) => dictWord === (answer as string[]).join('').toLowerCase()
+  );
+
+  if (!isValidWord) {
+    throw new InvalidWordError();
   }
-};
 
-export const getRound = async (gameMode: GameMode) => {
-  try {
-    const { data } = await axios.get<UserGameHistory['word']>(
-      `api/round/${gameMode}`
-    );
+  let result: [string, LetterStatus][] = answer.map((letter) => [
+    letter,
+    LetterStatus.wrong,
+  ]);
 
-    return data;
-  } catch (err) {
-    const { status, data } = err?.response || {};
-    const { message } = data || {};
-    throw new ApiError(status, message);
-  }
-};
+  let checklist: [string, boolean][] = solution
+    .toUpperCase()
+    .split('')
+    .map((letter) => [letter, false]);
 
-export const getRoundWithAnswer = async (
-  gameMode: GameMode,
-  gameStatus: GameStatus,
-  uuid?: string
-) => {
-  try {
-    const { data } = await axios.post<PrivateRoundData>(
-      `api/round/${gameMode}`,
-      {
-        gameStatus,
-        uuid,
+  // Check correct letters
+  result = result.map(([rLetter, rStatus], i) => {
+    if (rLetter === checklist[i][0] && !checklist[i][1]) {
+      checklist = Object.assign([], checklist, { [i]: [checklist[i], true] });
+      return [rLetter, LetterStatus.correct];
+    }
+
+    return [rLetter, rStatus];
+  });
+
+  // Check wrong spot letters
+  result = result.map(([rLetter, rStatus]) => {
+    if (rStatus !== LetterStatus.correct) {
+      const matchIdx = checklist.findIndex(
+        ([cLetter, cUsed]) => !cUsed && cLetter === rLetter
+      );
+
+      if (matchIdx >= 0) {
+        checklist = Object.assign([], checklist, {
+          [matchIdx]: [checklist[matchIdx], true],
+        });
+        return [rLetter, LetterStatus.wrongSpot];
       }
-    );
+    }
 
-    return data;
-  } catch (err) {
-    const { status, data } = err?.response || {};
-    const { message } = data || {};
-    throw new ApiError(status, message);
-  }
+    return [rLetter, rStatus];
+  });
+
+  return result as UserGameHistory['word'];
 };

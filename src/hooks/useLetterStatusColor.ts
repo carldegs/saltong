@@ -3,14 +3,22 @@ import { useCallback, useMemo } from 'react';
 
 import LetterStatus from '../types/LetterStatus';
 
+interface StyleOptions {
+  isDisabled: boolean;
+}
+
 const useLetterStatusColor = (): {
-  getStyle: (status?: LetterStatus) => Partial<BoxProps>;
+  getStyle: (
+    status?: LetterStatus,
+    options?: Partial<StyleOptions>
+  ) => Partial<BoxProps>;
 } => {
   const { colorMode } = useColorMode();
   const isDarkMode = useMemo(() => colorMode === 'dark', [colorMode]);
 
   const getStyle = useCallback(
-    (status: LetterStatus) => {
+    (status: LetterStatus, options: StyleOptions) => {
+      const { isDisabled } = options || {};
       let bprops = {
         bg: isDarkMode ? 'gray.600' : 'gray.100',
         color: isDarkMode ? 'gray.200' : 'gray.900',
@@ -40,6 +48,13 @@ const useLetterStatusColor = (): {
             color: 'white',
           };
           break;
+      }
+
+      if (isDisabled) {
+        bprops = {
+          ...bprops,
+          bg: 'gray.900',
+        };
       }
 
       return bprops;
