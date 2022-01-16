@@ -111,7 +111,9 @@ const Home: React.FC = () => {
   return (
     <>
       <Head>
-        <title>Saltong</title>
+        <title>{`Saltong${
+          gameMode !== GameMode.main ? ` ${gameMode?.toUpperCase()}` : ''
+        }`}</title>
       </Head>
       {showAlert && (
         <Alert status="success">
