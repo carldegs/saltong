@@ -1,6 +1,8 @@
 export enum GTAG_EVENTS {
   completedRound = 'completed_round',
   sharedResult = 'shared_result',
+  openGithub = 'open_github',
+  openLinkedin = 'open_linkedin',
 }
 
 export const sendPageViewEvent = (url: string): void => {
