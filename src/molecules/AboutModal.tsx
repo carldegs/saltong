@@ -16,6 +16,7 @@ import {
 import React from 'react';
 
 import { VERSION } from '../constants';
+import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
   isOpen,
@@ -47,12 +48,21 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
             </Text>
             <Text>A project by Carl de Guia</Text>
             <HStack spacing={4}>
-              <Link isExternal href="https://github.com/carldegs/saltong">
+              <Link
+                isExternal
+                href="https://github.com/carldegs/saltong"
+                onClick={() => {
+                  sendEvent(GTAG_EVENTS.openLinkedin);
+                }}
+              >
                 <Button colorScheme="gray">GitHub</Button>
               </Link>
               <Link
                 isExternal
                 href="https://www.linkedin.com/in/carl-justin-de-guia-b40a1b97/"
+                onClick={() => {
+                  sendEvent(GTAG_EVENTS.openLinkedin);
+                }}
               >
                 <Button colorScheme="linkedin">LinkedIn</Button>
               </Link>
