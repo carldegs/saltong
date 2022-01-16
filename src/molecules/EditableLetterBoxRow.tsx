@@ -1,6 +1,7 @@
 import { HStack } from '@chakra-ui/layout';
 import { useOutsideClick, VisuallyHiddenInput } from '@chakra-ui/react';
-import React, { useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
 import { useKeyboard } from '../context/KeyboardContext';
@@ -17,11 +18,23 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
   const [values, setValues] = useState('');
   const [isFocused, setFocused] = useState(false);
   const keyboardRef = useKeyboard();
+  const [prevRoute, setPrevRoute] = useState('');
+  const route = useRouter();
 
   useOutsideClick({
     ref: keyboardRef,
     handler: () => keyboardRef.current?.focus(),
   });
+
+  useEffect(() => {
+    if ((route.query?.slug as string) || '' !== prevRoute) {
+      setValues('');
+      if (keyboardRef.current?.value) {
+        keyboardRef.current.value = '';
+      }
+      setPrevRoute((route.query?.slug as string) || '');
+    }
+  }, [route, prevRoute, keyboardRef]);
 
   const splitValues = useMemo(
     () =>

@@ -1,4 +1,5 @@
 import { useColorMode } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
@@ -27,10 +28,34 @@ interface UseWordResponse extends UserGameData {
   resetLocalStorage: () => void;
   getShareStatus: () => string;
   letterStatuses: Record<string, LetterStatus>;
+  gameMode: GameMode;
 }
 
-const useWord = (gameMode: GameMode): UseWordResponse => {
+const useWord = (): UseWordResponse => {
   const { colorMode } = useColorMode();
+  const router = useRouter();
+
+  const gameMode = useMemo(() => {
+    let { slug } = router.query;
+
+    if (!slug) {
+      return GameMode.main;
+    }
+
+    if (Array.isArray(slug)) {
+      router.push('/');
+      return GameMode.main;
+    }
+
+    slug = (slug as string).toLowerCase();
+
+    if (slug !== GameMode.max && slug !== GameMode.mini) {
+      router.push('/');
+      return GameMode.main;
+    }
+
+    return slug as GameMode;
+  }, [router]);
 
   const wordLength = WORD_LENGTH[gameMode];
   const numTries = NUM_TRIES[gameMode];
@@ -161,6 +186,7 @@ ${DOMAIN}`;
     resetLocalStorage,
     getShareStatus,
     letterStatuses,
+    gameMode,
     ...gameData,
   };
 };

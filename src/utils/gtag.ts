@@ -9,7 +9,7 @@ export const sendPageViewEvent = (url: string): void => {
   });
 };
 
-export const sendEvent = (action: GTAG_EVENTS): void => {
+export const sendEvent = (action: string): void => {
   (window as any).gtag('event', action, {
     send_to: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
   });
