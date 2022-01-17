@@ -124,7 +124,7 @@ export const initialize = () =>
   checkWindow(() => {
     let userData = getUserData();
 
-    if (!userData?.main?.history) {
+    if (!userData?.version) {
       console.warn('No user data found. Initializing data...');
       userData = hardResetUserData();
     } else {

@@ -333,6 +333,8 @@ const Home: React.FC = () => {
           lastWinDate={lastWinDate}
           turnStats={turnStats}
           onShare={getShareStatus}
+          gameMode={gameMode}
+          correctAnswer={correctAnswer}
         />
         <BugReportModal
           isOpen={bugModalDisc.isOpen}
@@ -358,7 +360,13 @@ const Home: React.FC = () => {
           resetLocalStorage={resetLocalStorage}
         />
         {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
-          <Link isExternal href={`${DICTIONARY_LINK}/word/${correctAnswer}`}>
+          <Link
+            isExternal
+            href={`${DICTIONARY_LINK}/word/${correctAnswer}`}
+            onClick={() => {
+              sendEvent(GTAG_EVENTS.openDictionary);
+            }}
+          >
             <HStack
               bg={gameStatus === GameStatus.win ? 'green.500' : 'blue.500'}
               px={[3, 4]}

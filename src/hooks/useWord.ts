@@ -17,6 +17,7 @@ import {
 } from '../constants';
 import IncompleteWordError from '../lib/errors/IncompleteWordError';
 import GameMode from '../types/GameMode';
+import GameStatus from '../types/GameStatus';
 import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
@@ -142,10 +143,12 @@ const useWord = (): UseWordResponse => {
       gameModeTitle = 'Saltong Mini';
     }
 
-    return `${gameModeTitle} ${gameId} (${history.length}/${numTries})
+    return `${gameModeTitle} ${gameId} (${
+      gameData.gameStatus === GameStatus.win ? history.length : 'X'
+    }/${numTries})
 ${grid}
 
-${DOMAIN}`;
+${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
   }, [gameData, gameMode, numTries, colorMode]);
 
   const letterStatuses = useMemo(() => {
