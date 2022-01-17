@@ -95,6 +95,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
             {typeof window !== 'undefined' && (
               <Button
                 onClick={() => {
+                  sendEvent(GTAG_EVENTS.sharedResult);
                   window?.navigator?.share({
                     title: 'Saltong',
                     text: onShare(),
