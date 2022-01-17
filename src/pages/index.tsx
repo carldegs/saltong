@@ -28,7 +28,7 @@ import {
 } from '@chakra-ui/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { DICTIONARY_LINK } from '../constants';
@@ -68,6 +68,8 @@ const Home: React.FC = () => {
     letterStatuses,
     correctAnswer,
     gameMode,
+    firstVisit,
+    setFirstVisit,
   } = useWord();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
   // Move all disclosures to context
@@ -107,6 +109,13 @@ const Home: React.FC = () => {
     },
     [endGameModalDisc, solve, toast, gameMode]
   );
+
+  useEffect(() => {
+    if (firstVisit) {
+      rulesModalDisc.onOpen();
+      setFirstVisit(false);
+    }
+  }, [firstVisit, rulesModalDisc, setFirstVisit]);
 
   return (
     <>

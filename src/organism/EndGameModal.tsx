@@ -92,25 +92,27 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
             justifyContent="center"
             mt={8}
           >
-            {/* {navigator?.share && (
+            {typeof window !== 'undefined' && (
               <Button
                 onClick={() => {
-                  navigator.share({
-                    title: 'Saltong!',
+                  window?.navigator?.share({
+                    title: 'Saltong',
                     text: onShare(),
                   });
                 }}
+                colorScheme="green"
+                size="lg"
               >
-                SHARE
+                Share
               </Button>
-            )} */}
+            )}
             <Button
               onClick={() => {
                 onCopy();
                 sendEvent(GTAG_EVENTS.sharedResult);
               }}
             >
-              {hasCopied ? 'COPIED' : 'COPY'}
+              {hasCopied ? 'COPIED' : 'Copy Result'}
             </Button>
           </HStack>
         </ModalBody>

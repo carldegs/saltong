@@ -1,6 +1,13 @@
 import { useColorMode } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import {
   DEFAULT_USER_GAME_DATA,
@@ -14,6 +21,7 @@ import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
   addAnswer,
+  getUserData,
   initialize,
   resetUserData,
   setEndGame,
@@ -29,11 +37,14 @@ interface UseWordResponse extends UserGameData {
   getShareStatus: () => string;
   letterStatuses: Record<string, LetterStatus>;
   gameMode: GameMode;
+  firstVisit: boolean;
+  setFirstVisit: Dispatch<SetStateAction<boolean>>;
 }
 
 const useWord = (): UseWordResponse => {
   const { colorMode } = useColorMode();
   const router = useRouter();
+  const [firstVisit, setFirstVisit] = useState(false);
 
   const gameMode = useMemo(() => {
     let { slug } = router.query;
@@ -172,6 +183,10 @@ ${DOMAIN}`;
 
   useEffect(() => {
     const init = async () => {
+      const initUserData: UserData = getUserData();
+      if (!initUserData?.version) {
+        setFirstVisit(true);
+      }
       const newUserData = initialize();
       setUserData(newUserData);
     };
@@ -187,6 +202,8 @@ ${DOMAIN}`;
     getShareStatus,
     letterStatuses,
     gameMode,
+    firstVisit,
+    setFirstVisit,
     ...gameData,
   };
 };
