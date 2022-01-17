@@ -1,3 +1,5 @@
+import semver from 'semver';
+
 import { MIN_SUPPORTED_VERSION } from '../constants';
 
 export const parseVersion = (version: string): number[] =>
@@ -30,8 +32,5 @@ export const isSameVersion = (
 };
 
 export const isSupportedVersion = (gameVersion: string): boolean => {
-  const gver = parseVersion(gameVersion);
-  const mver = parseVersion(MIN_SUPPORTED_VERSION);
-
-  return !(gver[0] < mver[0] || gver[1] < mver[1] || gver[2] < mver[2]);
+  return semver.satisfies(gameVersion, `>=${MIN_SUPPORTED_VERSION}`);
 };
