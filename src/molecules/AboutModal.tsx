@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Button,
+  Divider,
   Heading,
   HStack,
   Link,
@@ -28,7 +29,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
       <ModalContent>
         <ModalCloseButton />
         <ModalBody my={8}>
-          <Stack alignItems="center" spacing={6}>
+          <Stack alignItems="center" spacing={2}>
             <HStack alignItems="end">
               <Heading size="lg">Saltong</Heading>
               <Text>{VERSION}</Text>
@@ -39,34 +40,50 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                 Wordle <ExternalLinkIcon />
               </Link>
             </Text>
-            <Text textAlign="center">
+            <Text textAlign="center" pb={4}>
               Word list parsed from{' '}
               <Link isExternal href="https://tagalog.pinoydictionary.com/">
                 tagalog.pinoydictionary.com
               </Link>
               <ExternalLinkIcon />
             </Text>
-            <Text>A project by Carl de Guia</Text>
-            <HStack spacing={4}>
+            <Divider />
+            <Text fontWeight="bold" pt={4}>
+              A project by Carl de Guia
+            </Text>
+            <Stack spacing={2} alignItems="center">
+              <HStack spacing={4}>
+                <Link
+                  isExternal
+                  href="https://github.com/carldegs/saltong"
+                  onClick={() => {
+                    sendEvent(GTAG_EVENTS.openLinkedin);
+                  }}
+                >
+                  <Button colorScheme="gray">GitHub</Button>
+                </Link>
+                <Link
+                  isExternal
+                  href="https://www.linkedin.com/in/carl-justin-de-guia-b40a1b97/"
+                  onClick={() => {
+                    sendEvent(GTAG_EVENTS.openLinkedin);
+                  }}
+                >
+                  <Button colorScheme="linkedin">LinkedIn</Button>
+                </Link>
+              </HStack>
               <Link
                 isExternal
-                href="https://github.com/carldegs/saltong"
+                href="https://ko-fi.com/carldegs"
                 onClick={() => {
-                  sendEvent(GTAG_EVENTS.openLinkedin);
+                  sendEvent(GTAG_EVENTS.openDonate);
                 }}
               >
-                <Button colorScheme="gray">GitHub</Button>
+                <Button size="sm" variant="ghost">
+                  Donate
+                </Button>
               </Link>
-              <Link
-                isExternal
-                href="https://www.linkedin.com/in/carl-justin-de-guia-b40a1b97/"
-                onClick={() => {
-                  sendEvent(GTAG_EVENTS.openLinkedin);
-                }}
-              >
-                <Button colorScheme="linkedin">LinkedIn</Button>
-              </Link>
-            </HStack>
+            </Stack>
           </Stack>
         </ModalBody>
       </ModalContent>

@@ -22,14 +22,18 @@ import LetterStatus from '../types/LetterStatus';
 import UserData, { UserGameData } from '../types/UserData';
 import {
   addAnswer,
+  getTimeSolved,
   getUserData,
   initialize,
   resetUserData,
   setEndGame,
   solveWord,
+  updateGameStartDate,
 } from '../utils';
 
-// TODO: Change to context?
+export interface OnShareOptions {
+  showTimeSolved: boolean;
+}
 interface UseWordResponse extends UserGameData {
   wordLength: number;
   numTries: number;
@@ -40,6 +44,7 @@ interface UseWordResponse extends UserGameData {
   gameMode: GameMode;
   firstVisit: boolean;
   setFirstVisit: Dispatch<SetStateAction<boolean>>;
+  timeSolved?: string;
 }
 
 const useWord = (): UseWordResponse => {
@@ -80,6 +85,11 @@ const useWord = (): UseWordResponse => {
   });
   const gameData = userData[gameMode];
 
+  const timeSolved = useMemo(
+    () => getTimeSolved(gameData?.gameStartDate, gameData?.lastWinDate),
+    [gameData.gameStartDate, gameData.lastWinDate]
+  );
+
   const solve = useCallback(
     (answer: string) => {
       if (answer.length !== wordLength) {
@@ -90,6 +100,10 @@ const useWord = (): UseWordResponse => {
 
       const result = solveWord(splitValues, gameMode);
       let newUserData = addAnswer(result, gameMode);
+
+      if (newUserData[gameMode].history.length === 1) {
+        newUserData = updateGameStartDate(gameMode);
+      }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       if (!result.find(([_, status]) => status !== LetterStatus.correct)) {
@@ -111,45 +125,61 @@ const useWord = (): UseWordResponse => {
     setUserData(userData);
   }, []);
 
-  const getShareStatus = useCallback(() => {
-    const { history, gameId } = gameData;
-    const grid = history
-      .map(({ word }) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const answer = word.map(([_, status]) => status);
+  const getShareStatus = useCallback(
+    (options?: Partial<OnShareOptions>) => {
+      const { showTimeSolved } = options || {};
+      const { history, gameId } = gameData;
+      const grid = history
+        .map(({ word }) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const answer = word.map(([_, status]) => status);
 
-        return answer
-          .map((letterStatus) => {
-            switch (letterStatus) {
-              case LetterStatus.correct:
-                return '🟩';
-              case LetterStatus.wrongSpot:
-                return '🟨';
-              case LetterStatus.wrong:
-                return colorMode === 'dark' ? '⬛' : '⬜';
-            }
-          })
-          .join('');
-      })
-      .join('\n');
+          return answer
+            .map((letterStatus) => {
+              switch (letterStatus) {
+                case LetterStatus.correct:
+                  return '🟩';
+                case LetterStatus.wrongSpot:
+                  return '🟨';
+                case LetterStatus.wrong:
+                  return colorMode === 'dark' ? '⬛' : '⬜';
+              }
+            })
+            .join('');
+        })
+        .join('\n');
 
-    let gameModeTitle = 'Saltong';
+      let gameModeTitle = 'Saltong';
 
-    if (gameMode === GameMode.max) {
-      gameModeTitle = 'Saltong Max';
-    }
+      if (gameMode === GameMode.max) {
+        gameModeTitle = 'Saltong Max';
+      }
 
-    if (gameMode === GameMode.mini) {
-      gameModeTitle = 'Saltong Mini';
-    }
+      if (gameMode === GameMode.mini) {
+        gameModeTitle = 'Saltong Mini';
+      }
 
-    return `${gameModeTitle} ${gameId} (${
-      gameData.gameStatus === GameStatus.win ? history.length : 'X'
-    }/${numTries})
+      const scoreText = `${
+        gameData.gameStatus === GameStatus.win ? history.length : 'X'
+      }/${numTries}`;
+
+      const timeSolvedText =
+        showTimeSolved && timeSolved ? `⌛${timeSolved}` : '';
+
+      const winStateText = `\n🏅${scoreText}  ${timeSolvedText}`;
+
+      return `${gameModeTitle} ${gameId}${
+        gameData.gameStatus === GameStatus.win
+          ? winStateText
+          : ` (${scoreText})`
+      }
+
 ${grid}
 
 ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
-  }, [gameData, gameMode, numTries, colorMode]);
+    },
+    [gameData, gameMode, numTries, colorMode, timeSolved]
+  );
 
   const letterStatuses = useMemo(() => {
     const { history } = gameData;
@@ -185,16 +215,12 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
   }, [gameData]);
 
   useEffect(() => {
-    const init = async () => {
-      const initUserData: UserData = getUserData();
-      if (!initUserData?.version) {
-        setFirstVisit(true);
-      }
-      const newUserData = initialize();
-      setUserData(newUserData);
-    };
-
-    init();
+    const initUserData: UserData = getUserData();
+    if (!initUserData?.version) {
+      setFirstVisit(true);
+    }
+    const newUserData = initialize();
+    setUserData(newUserData);
   }, []);
 
   return {
@@ -207,6 +233,7 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
     gameMode,
     firstVisit,
     setFirstVisit,
+    timeSolved,
     ...gameData,
   };
 };

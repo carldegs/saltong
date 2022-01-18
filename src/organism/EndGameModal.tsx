@@ -1,9 +1,18 @@
-import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
+  ChevronDownIcon,
+  ExternalLinkIcon,
+  QuestionOutlineIcon,
+} from '@chakra-ui/icons';
+import {
+  Box,
   Button,
+  ButtonGroup,
   Divider,
   Flex,
+  FormControl,
+  FormLabel,
   Heading,
+  IconButton,
   Link,
   Modal,
   ModalBody,
@@ -12,22 +21,32 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverTrigger,
+  Spacer,
   Stack,
   Stat,
   StatGroup,
-  StatHelpText,
   StatLabel,
   StatNumber,
+  Switch,
   Text,
   useClipboard,
 } from '@chakra-ui/react';
+import { formatDuration } from 'date-fns';
 import { useRouter } from 'next/router';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
+import { OnShareOptions } from '../hooks/useWord';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
+import { getCountdownToNextDay } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 interface EndGameModalProps extends Omit<ModalProps, 'children'> {
@@ -40,7 +59,8 @@ interface EndGameModalProps extends Omit<ModalProps, 'children'> {
   turnStats: number[];
   gameMode: GameMode;
   correctAnswer?: string;
-  onShare: () => string;
+  onShare: (options?: Partial<OnShareOptions>) => string;
+  timeSolved?: string;
 }
 // TODO: Create list of emotes for header
 
@@ -52,22 +72,46 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
   numPlayed,
   numWins,
   winStreak,
-  longestWinStreak,
-  lastWinDate,
   turnStats,
   gameMode,
   correctAnswer,
+  timeSolved,
 }) => {
+  const [showTimeSolved, setShowTimeSolved] = useState(true);
   const router = useRouter();
-  const { hasCopied, onCopy } = useClipboard(onShare());
-  const showShareButton = typeof window !== 'undefined';
+  const shareMessage = useMemo(
+    () => onShare({ showTimeSolved }),
+    [showTimeSolved, onShare]
+  );
+  const { hasCopied, onCopy } = useClipboard(shareMessage);
+  const showShareButton =
+    typeof window !== 'undefined' && !!window?.navigator?.share;
   const showGraph = useMemo(
     () => !!turnStats.find((stat) => !!stat),
     [turnStats]
   );
+  const [timer, setTimer] = useState(undefined);
+  const [countdown, setCountdown] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      const newTimer = setInterval(() => {
+        setCountdown(formatDuration(getCountdownToNextDay()));
+      }, 1000);
+      setTimer(newTimer);
+    }
+  }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={() => {
+        clearInterval(timer);
+        setTimer(undefined);
+        onClose();
+      }}
+      size="lg"
+    >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -78,28 +122,42 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
           <Stack spacing={4}>
             <StatGroup>
               <Stat>
-                <StatLabel>Number of Wins</StatLabel>
+                <StatLabel>Wins</StatLabel>
                 <StatNumber>{numWins}</StatNumber>
-                <StatHelpText>out of {numPlayed}</StatHelpText>
               </Stat>
 
-              <Stat flexGrow={1}>
+              <Stat>
                 <StatLabel>Win Rate</StatLabel>
                 <StatNumber>
                   {numPlayed > 0 ? ((numWins / numPlayed) * 100).toFixed(0) : 0}
                   %
                 </StatNumber>
-                <StatHelpText>
-                  Last won{' '}
-                  <Text whiteSpace="nowrap">{lastWinDate.split('T')[0]}</Text>
-                </StatHelpText>
               </Stat>
 
               <Stat>
                 <StatLabel>Win Streak</StatLabel>
                 <StatNumber>{winStreak}</StatNumber>
-                <StatHelpText>Longest: {longestWinStreak}</StatHelpText>
               </Stat>
+              {gameStatus === GameStatus.win && (
+                <Stat>
+                  <StatLabel>
+                    Time{' '}
+                    <Popover>
+                      <PopoverTrigger>
+                        <QuestionOutlineIcon mb="3px" />
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <PopoverArrow />
+                        <PopoverCloseButton />
+                        <PopoverBody>
+                          From time of first guess to time solved
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </StatLabel>
+                  <StatNumber>{timeSolved}</StatNumber>
+                </Stat>
+              )}
             </StatGroup>
             {showGraph && (
               <>
@@ -119,23 +177,58 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                 alignItems="center"
                 justifyContent="center"
                 flexGrow={1}
-                px={2}
               >
                 {showShareButton && (
-                  <Button
-                    onClick={() => {
-                      sendEvent(GTAG_EVENTS.sharedResult);
-                      window?.navigator?.share({
-                        title: 'Saltong',
-                        text: onShare(),
-                      });
-                    }}
-                    colorScheme="green"
-                    size="lg"
-                    isFullWidth
-                  >
-                    Share
-                  </Button>
+                  <ButtonGroup isAttached>
+                    <Button
+                      onClick={() => {
+                        sendEvent(GTAG_EVENTS.sharedResult);
+                        window?.navigator?.share({
+                          title: 'Saltong',
+                          text: shareMessage,
+                        });
+                      }}
+                      colorScheme="green"
+                      size="lg"
+                      isFullWidth
+                    >
+                      Share
+                    </Button>
+                    <Popover>
+                      <PopoverTrigger>
+                        <IconButton
+                          icon={<ChevronDownIcon />}
+                          aria-label="chevron-down"
+                          size="lg"
+                          colorScheme="green"
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <PopoverArrow />
+                        <PopoverBody>
+                          <FormControl
+                            display="flex"
+                            alignItems="center"
+                            px={3}
+                            py={3}
+                            borderRadius={4}
+                          >
+                            <FormLabel htmlFor="email-alerts" mb="0">
+                              Include time solved
+                            </FormLabel>
+                            <Spacer />
+                            <Switch
+                              id="email-alerts"
+                              onChange={(e) => {
+                                setShowTimeSolved(e.target.checked);
+                              }}
+                              isChecked={showTimeSolved}
+                            />
+                          </FormControl>
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </ButtonGroup>
                 )}
                 <Button
                   onClick={() => {
@@ -144,6 +237,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                   }}
                   variant={showShareButton ? 'ghost' : 'solid'}
                   isFullWidth
+                  size={showShareButton ? 'sm' : 'md'}
                 >
                   {hasCopied ? 'COPIED' : 'Copy Result'}
                 </Button>
@@ -216,6 +310,14 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                       View Definition <ExternalLinkIcon ml={2} />
                     </Button>
                   </Link>
+                  {isOpen && (
+                    <Text>
+                      Next word in{' '}
+                      <Box as="span" fontWeight="bold">
+                        {countdown}
+                      </Box>
+                    </Text>
+                  )}
                 </Stack>
               </>
             )}

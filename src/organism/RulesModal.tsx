@@ -144,6 +144,8 @@ const RulesModal: React.FC<RulesModalProps> = ({
               wordLength={wordLength}
             />
             <Text pb={4}>The letters are not in the word in any spot.</Text>
+            <Divider />
+            <Text>A new word will be avaiable each day.</Text>
           </Stack>
         </ModalBody>
       </ModalContent>

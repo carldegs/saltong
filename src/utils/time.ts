@@ -1,4 +1,9 @@
-import { startOfTomorrow, intervalToDuration, addHours } from 'date-fns';
+import {
+  startOfTomorrow,
+  intervalToDuration,
+  addHours,
+  isSameDay,
+} from 'date-fns';
 
 export const getCountdownToNextDay = () =>
   intervalToDuration({
@@ -22,4 +27,37 @@ export const correctTimezone = (dateStr: string) => {
   const newDate = addHours(date, diffTimezone);
 
   return newDate;
+};
+
+export const padDuration = (duration: Duration) =>
+  Object.fromEntries(
+    Object.entries(duration).map(([key, value]) => [
+      key,
+      ('00' + value).slice(-2),
+    ])
+  ) as Record<keyof Duration, string>;
+
+export const getTimeSolved = (
+  start: string | Date,
+  end: string | Date
+): string => {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (!isSameDay(startDate, endDate)) {
+    return undefined;
+  }
+
+  const duration = intervalToDuration({
+    start: new Date(start),
+    end: new Date(end),
+  });
+
+  return `${duration.hours ? `${duration.hours}h ` : ''}${
+    duration.minutes ? `${duration.minutes}m ` : ''
+  }${
+    duration.seconds || (!duration.hours && !duration.minutes)
+      ? `${duration.seconds}s`
+      : ''
+  }`;
 };

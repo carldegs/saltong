@@ -70,6 +70,7 @@ const Home: React.FC = () => {
     gameMode,
     firstVisit,
     setFirstVisit,
+    timeSolved,
   } = useWord();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
   // Move all disclosures to context
@@ -335,6 +336,7 @@ const Home: React.FC = () => {
           onShare={getShareStatus}
           gameMode={gameMode}
           correctAnswer={correctAnswer}
+          timeSolved={timeSolved}
         />
         <BugReportModal
           isOpen={bugModalDisc.isOpen}
