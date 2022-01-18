@@ -1,3 +1,4 @@
+import { isSameDay } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getNumArr } from '.';
@@ -15,11 +16,7 @@ export const isValidGame = (date: string) => {
   const now = new Date();
   const gameDate = new Date(date);
 
-  return (
-    gameDate.getFullYear() === now.getFullYear() &&
-    gameDate.getMonth() === now.getMonth() &&
-    gameDate.getDate() === now.getDate()
-  );
+  return isSameDay(now, gameDate);
 };
 
 function checkWindow<T = void>(callback: () => T) {
@@ -87,6 +84,23 @@ export const hardResetUserData = () =>
     };
     setUserData(userData);
     return userData;
+  });
+
+export const updateGameStartDate = (gameMode: GameMode) =>
+  checkWindow(() => {
+    let newUserData: UserData = getUserData();
+
+    newUserData = {
+      ...newUserData,
+      [gameMode]: {
+        ...newUserData[gameMode],
+        gameStartDate: new Date().toISOString(),
+      },
+    };
+
+    setUserData(newUserData);
+
+    return newUserData;
   });
 
 export const hardResetUserDataIfOutdatedVersion = (userData: UserData) => {
