@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { Hydrate } from 'react-query/hydration';
 
 import { KeyboardProvider } from '../context/KeyboardContext';
+import { NewDomainModal } from '../organism/NewDomainModal';
 import theme from '../theme';
 import { sendPageViewEvent } from '../utils/gtag';
 
@@ -33,6 +34,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider theme={theme}>
           <KeyboardProvider>
+            <NewDomainModal />
             <Component {...pageProps} />
           </KeyboardProvider>
         </ChakraProvider>

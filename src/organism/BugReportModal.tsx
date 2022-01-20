@@ -18,12 +18,16 @@ import {
 
 import { TWITTER_LINK } from '../constants';
 import { getUserData } from '../utils';
+import ResetDataAlert from './ResetDataAlert';
 
-type BugReportModalInterface = Omit<ModalProps, 'children'>;
+interface BugReportModalInterface extends Omit<ModalProps, 'children'> {
+  resetLocalStorage: () => void;
+}
 
 const BugReportModal: React.FC<BugReportModalInterface> = ({
   onClose,
   isOpen,
+  resetLocalStorage,
 }) => {
   const data = Buffer.from(JSON.stringify(getUserData() || {})).toString(
     'base64'
@@ -33,6 +37,11 @@ const BugReportModal: React.FC<BugReportModalInterface> = ({
 
   return (
     <>
+      <ResetDataAlert
+        isOpen={resetDialogDisc.isOpen}
+        onClose={resetDialogDisc.onClose}
+        resetLocalStorage={resetLocalStorage}
+      />
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent>

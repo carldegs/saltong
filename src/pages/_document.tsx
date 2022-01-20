@@ -21,7 +21,7 @@ export default class Document extends NextDocument {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
           
-            gtag('config', 'G-VTW6KRNHBJ');
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
           `,
             }}
           />
