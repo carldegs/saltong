@@ -8,9 +8,14 @@ import { getNumArr } from '../utils';
 interface LetterBoxRowProps {
   word?: UserGameHistory['word'];
   wordLength: number;
+  parentKey?: string | number;
 }
 
-const LetterBoxRow: React.FC<LetterBoxRowProps> = ({ word, wordLength }) => {
+const LetterBoxRow: React.FC<LetterBoxRowProps> = ({
+  word,
+  wordLength,
+  parentKey,
+}) => {
   const letterListData = useMemo(() => {
     return word?.length
       ? word.map(([letter, status], key) => ({
@@ -28,7 +33,7 @@ const LetterBoxRow: React.FC<LetterBoxRowProps> = ({ word, wordLength }) => {
   return (
     <HStack spacing={[2, 3]}>
       {letterListData.map(({ letter, status, key }) => (
-        <LetterBox status={status} key={key}>
+        <LetterBox status={status} key={`${parentKey}-${key}`}>
           {letter}
         </LetterBox>
       ))}

@@ -1,5 +1,5 @@
-export const VERSION = 'v1.2.0';
-export const DOMAIN = 'saltong.vercel.app';
+export const VERSION = 'v1.2.1';
+export const DOMAIN = 'saltong.carldegs.com';
 export const MIN_SUPPORTED_VERSION = 'v0.2.3';
 
 export const DISCORD_LINK = 'https://discord.gg/zr9u2yf2md';

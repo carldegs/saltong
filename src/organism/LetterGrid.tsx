@@ -31,9 +31,14 @@ const LetterGrid: React.FC<LetterGridProps> = ({
             wordLength={wordLength}
             word={i < tries?.length && tries[i]}
             key={i}
+            parentKey={i}
           />
         ) : (
-          <EditableLetterBoxRow wordLength={wordLength} onSolve={onSolve} />
+          <EditableLetterBoxRow
+            wordLength={wordLength}
+            onSolve={onSolve}
+            key={i}
+          />
         )
       )}
     </Stack>

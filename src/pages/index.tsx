@@ -41,7 +41,6 @@ import BugReportModal from '../organism/BugReportModal';
 import DebugCodeModal from '../organism/DebugCodeModal';
 import EndGameModal from '../organism/EndGameModal';
 import LetterGrid from '../organism/LetterGrid';
-import ResetDataAlert from '../organism/ResetDataAlert';
 import RulesModal from '../organism/RulesModal';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
@@ -79,7 +78,6 @@ const Home: React.FC = () => {
   const aboutModalDisc = useDisclosure();
   const rulesModalDisc = useDisclosure();
   const debugModalDisc = useDisclosure();
-  const resetAlertDisc = useDisclosure();
   const [showAlert, setShowAlert] = useState(true);
   const toast = useToast();
   const { colorMode, toggleColorMode } = useColorMode();
@@ -341,6 +339,7 @@ const Home: React.FC = () => {
         <BugReportModal
           isOpen={bugModalDisc.isOpen}
           onClose={bugModalDisc.onClose}
+          resetLocalStorage={resetLocalStorage}
         />
         <AboutModal
           isOpen={aboutModalDisc.isOpen}
@@ -355,11 +354,6 @@ const Home: React.FC = () => {
         <DebugCodeModal
           isOpen={debugModalDisc.isOpen}
           onClose={debugModalDisc.onClose}
-        />
-        <ResetDataAlert
-          isOpen={resetAlertDisc.isOpen}
-          onClose={resetAlertDisc.onClose}
-          resetLocalStorage={resetLocalStorage}
         />
         {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
           <Link
