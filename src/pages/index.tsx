@@ -232,6 +232,14 @@ const Home: React.FC = () => {
                       Saltong Max
                     </MenuItem>
                   )}
+                  {gameMode !== GameMode.hex && (
+                    <MenuItem
+                      icon={<EmojiWrapper value="🐝" />}
+                      onClick={() => router.push(`/${GameMode.hex}`)}
+                    >
+                      Saltong Hex
+                    </MenuItem>
+                  )}
                 </MenuGroup>
                 <MenuDivider />
                 <MenuGroup title="UI Settings">

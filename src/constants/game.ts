@@ -26,3 +26,15 @@ export const DEFAULT_USER_GAME_DATA: UserGameData = {
   gameStartDate: '',
   gameId: 0,
 };
+
+export const HEX_RANK = [
+  { name: 'baguhan', percentage: 0 },
+  { name: 'mabuti', percentage: 0.01 },
+  { name: 'marunong', percentage: 0.03 },
+  { name: 'magaling', percentage: 0.05 },
+  { name: 'mahusay', percentage: 0.1 },
+  { name: 'bihasa', percentage: 0.2 },
+  { name: 'bigatin', percentage: 0.3 },
+  { name: 'dakila', percentage: 0.45 },
+  { name: 'bathala', percentage: 0.6 },
+];
