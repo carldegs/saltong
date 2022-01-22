@@ -105,7 +105,12 @@ export const analyzeWord = (rootWord: string) => {
       );
       const maxScore = getMaxScore(finalWords);
 
-      return { centerLetter, numWords: finalWords.length, maxScore };
+      return {
+        centerLetter,
+        numWords: finalWords.length,
+        maxScore,
+        wordList: finalWords.map(({ word }) => word),
+      };
     }),
   };
 };

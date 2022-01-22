@@ -1,5 +1,4 @@
-/* eslint-disable jsx-a11y/no-autofocus */
-import { ChevronDownIcon, ExternalLinkIcon } from '@chakra-ui/icons';
+import { ExternalLinkIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
   Box,
   Container,
@@ -7,34 +6,39 @@ import {
   Grid,
   Heading,
   HStack,
+  IconButton,
   Link,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
   SimpleGrid,
-  Spacer,
   Text,
-  useBreakpointValue,
-  useDisclosure,
   useToast,
   UseToastOptions,
 } from '@chakra-ui/react';
 import Head from 'next/head';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { HEX_RANK } from '../../constants';
+import { useDisclosures } from '../../context/DisclosuresContext';
 import { useKeyboard } from '../../context/KeyboardContext';
+import HexAnswerList from '../../molecules/HexAnswerList';
 import HexInput from '../../molecules/HexInput';
 import Hexboard from '../../molecules/Hexboard';
+import RankStatusBar from '../../molecules/RankStatusBar';
+import GameMenu from '../../organism/GameMenu';
+import HexRulesModal from '../../organism/HexRulesModal';
+import GameMode from '../../types/GameMode';
 import { HexGameWordList } from '../../types/HexGameData';
-import { getHexWordList, getRank, isPangram } from '../../utils/hex';
+import {
+  analyzeWord,
+  getHexRootWordIndex,
+  getHexWordList,
+  getRank,
+  isPangram,
+} from '../../utils/hex';
 
-const rootWord = 'hatsing';
-const cLetter = 'h';
+const rootWord = 'balwarte';
+const cLetter = 't';
+const ANALYSIS_MODE = false;
+
 const HexPage: React.FC = () => {
-  const numWordsShown = useBreakpointValue([5, 8]);
   const toast = useToast();
   const keyboardRef = useKeyboard();
   const [answers, setAnswers] = useState<
@@ -51,7 +55,6 @@ const HexPage: React.FC = () => {
     []
   );
   const rank = useMemo(() => getRank(score, maxScore), [score, maxScore]);
-  const answeredPopoverDisc = useDisclosure();
 
   const letters = useMemo(
     () =>
@@ -66,6 +69,7 @@ const HexPage: React.FC = () => {
       if (!answer) {
         return;
       }
+      answer = answer.toLowerCase();
 
       const match = list.find(({ word }) => word === answer);
       const hasAnswered = answers.findIndex(({ word }) => word === answer) >= 0;
@@ -115,6 +119,14 @@ const HexPage: React.FC = () => {
     },
     [list, keyboardRef, answers, toast, centerLetter]
   );
+  const { hexRulesModal } = useDisclosures();
+
+  useEffect(() => {
+    if (ANALYSIS_MODE && process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log(getHexRootWordIndex(rootWord), analyzeWord(rootWord));
+    }
+  }, []);
 
   return (
     <>
@@ -122,17 +134,28 @@ const HexPage: React.FC = () => {
         <title>Saltong HEX</title>
       </Head>
 
+      <HexRulesModal
+        isOpen={hexRulesModal.isOpen}
+        onClose={hexRulesModal.onClose}
+        maxScore={maxScore}
+        wordList={list}
+      />
+
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">
         <HStack my={4} w="full">
           <Flex flex={1} flexDir="row">
-            X
+            Beta Test
           </Flex>
           <Box>
             <Heading size="lg" textAlign="center" textTransform="capitalize">
               {`Saltong Hex`}
             </Heading>
-            <Text fontSize={['sm', 'md']} textAlign="center">
-              A Filipino clone of{' '}
+            <Text
+              fontSize={['sm', 'md']}
+              textAlign="center"
+              maxW={['150px', '300px']}
+            >
+              A Filipino clone of the{' '}
               <Link
                 isExternal
                 href="https://www.nytimes.com/puzzles/spelling-bee"
@@ -141,141 +164,27 @@ const HexPage: React.FC = () => {
               </Link>
             </Text>
           </Box>
-          <HStack flex={1} flexDir="row-reverse" spacing={4}>
-            X
+          <HStack flex={1} justifyContent="flex-end" spacing={4}>
+            <IconButton
+              aria-label="help"
+              icon={<QuestionOutlineIcon />}
+              onClick={hexRulesModal.onOpen}
+              display={['none', 'inherit']}
+            />
+
+            <GameMenu
+              gameMode={GameMode.hex}
+              resetLocalStorage={() => {
+                // TODO: Add reset func
+                // eslint-disable-next-line no-console
+                console.log('reset');
+              }}
+            />
           </HStack>
         </HStack>
-        <Box pos="relative" w="full" maxW={['350px', '500px']} mt={4}>
-          <Flex w="full" alignItems="center" zIndex={1} pos="relative">
-            {HEX_RANK.map(({ name }, i) => {
-              const isCurrRank = name === rank.name;
-              const isPastRank = i < rank.index;
-              const size = isCurrRank ? 8 : 3;
-              return (
-                <>
-                  <Flex
-                    w={size}
-                    h={size}
-                    bg={isCurrRank || isPastRank ? 'purple.600' : 'gray.600'}
-                    borderRadius={20}
-                    key={name}
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text
-                      textAlign="center"
-                      fontWeight="bold"
-                      fontSize={score > 100 ? 'sm' : 'lg'}
-                    >
-                      {isCurrRank && score}
-                    </Text>
-                  </Flex>
-                  {i < HEX_RANK.length - 1 && <Spacer />}
-                </>
-              );
-            })}
-          </Flex>
-          <Box
-            pos="absolute"
-            left={`${rank.index * (100 / HEX_RANK.length)}%`}
-            w="fit-content"
-          >
-            <Text
-              textAlign="center"
-              ml="-50%"
-              mt={1}
-              size="lg"
-              fontWeight="bold"
-              color="purple.300"
-            >
-              {rank.name.toUpperCase()}
-            </Text>
-          </Box>
-          <Box
-            pos="absolute"
-            h="2px"
-            bg="purple.600"
-            w={`${rank.index * (100 / HEX_RANK.length + 1)}%`}
-            top="48%"
-            zIndex={0}
-          />
-          <Box
-            pos="absolute"
-            h="2px"
-            bg="gray.600"
-            w="full"
-            top="48%"
-            zIndex={-1}
-          />
-        </Box>
+        <RankStatusBar rank={rank} score={score} />
         <Grid w="full" gridTemplateRows="auto 1fr auto" h="full" mt={12}>
-          <Popover
-            autoFocus={false}
-            isOpen={answeredPopoverDisc.isOpen}
-            onClose={answeredPopoverDisc.onClose}
-          >
-            <PopoverTrigger>
-              <HStack
-                w="full"
-                border="1px solid white"
-                px={3}
-                py={3}
-                borderRadius={12}
-                minH="50px"
-                alignItems="center"
-                onClick={answeredPopoverDisc.onToggle}
-                maxW="550px"
-                mx="auto"
-                cursor="pointer"
-              >
-                <HStack spacing={2} flexGrow={1} maxW="500px" overflow="hidden">
-                  {answers
-                    .slice()
-                    .reverse()
-                    .slice(0, numWordsShown)
-                    .map(({ word, isPangram }) => (
-                      <Text
-                        textAlign="center"
-                        key={`answer-shown-${word}`}
-                        fontWeight={isPangram && 'bold'}
-                        color={isPangram && 'purple.400'}
-                      >
-                        {word}
-                      </Text>
-                    ))}
-                </HStack>
-                <ChevronDownIcon
-                  fontSize="xl"
-                  transform={answeredPopoverDisc.isOpen && 'rotate(180deg)'}
-                />
-              </HStack>
-            </PopoverTrigger>
-            <PopoverContent w={['xs', 'sm', 'lg']}>
-              <PopoverHeader textAlign="center">
-                {answers.length} words found
-              </PopoverHeader>
-              <PopoverBody>
-                {answers.length ? (
-                  <SimpleGrid columns={[3, 6]} spacing={2}>
-                    {answers.map(({ word, isPangram }) => (
-                      <Text
-                        key={`answer-list-${word}`}
-                        textAlign="center"
-                        fontWeight={isPangram && 'bold'}
-                        color={isPangram && 'purple.400'}
-                      >
-                        {word}
-                      </Text>
-                    ))}
-                  </SimpleGrid>
-                ) : (
-                  <Text textAlign="center" py={2}>
-                    No Answers Yet
-                  </Text>
-                )}
-              </PopoverBody>
-            </PopoverContent>
-          </Popover>
+          <HexAnswerList answers={answers} />
           <Flex maxH="500px" h="full" w="full" alignItems="center">
             <HexInput
               onSolve={solve}
@@ -292,19 +201,24 @@ const HexPage: React.FC = () => {
         </Grid>
       </Container>
 
-      {/* <SimpleGrid columns={12} spacing={4}>
-        {list.map(({ word, score, isPangram }) => (
-          <Text
-            key={word}
-            textAlign="center"
-            color={isPangram && 'purple.200'}
-            fontWeight={isPangram && 'bold'}
-            textDecoration={answers.indexOf(word) >= 0 && 'line-through'}
-          >
-            {word} ({score})
-          </Text>
-        ))}
-      </SimpleGrid> */}
+      {ANALYSIS_MODE && process.env.NODE_ENV === 'development' && (
+        <SimpleGrid columns={[4, 12]} spacing={4}>
+          {list.map(({ word, score, isPangram }) => (
+            <Text
+              key={word}
+              textAlign="center"
+              color={isPangram && 'purple.200'}
+              fontWeight={isPangram && 'bold'}
+              textDecoration={
+                answers.findIndex((answer) => answer.word === word) >= 0 &&
+                'line-through'
+              }
+            >
+              {word} ({score})
+            </Text>
+          ))}
+        </SimpleGrid>
+      )}
     </>
   );
 };

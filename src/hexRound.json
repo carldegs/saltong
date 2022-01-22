@@ -1,7 +1,13 @@
 {
   "2022-01-21": {
-    "rootWordId": 3,
-    "centerLetter": "A",
+    "rootWordId": 166,
+    "centerLetter": "e",
+    "date": "2022-01-19T00:00:00.000Z",
+    "gameId": 1
+  },
+  "2022-01-25": {
+    "rootWordId": 1481,
+    "centerLetter": "t",
     "date": "2022-01-19T00:00:00.000Z",
     "gameId": 1
   }
