@@ -12,7 +12,19 @@ import {
   useDisclosure,
   Text,
   useColorModeValue,
+  Box,
+  IconButton,
+  Icon,
+  Flex,
+  MenuButton,
+  Menu,
+  MenuOptionGroup,
+  MenuItemOption,
+  MenuList,
 } from '@chakra-ui/react';
+import orderBy from 'lodash/orderBy';
+import { SortAscending } from 'phosphor-react';
+import { useMemo, useState } from 'react';
 
 interface HexAnswerListProps {
   answers: {
@@ -21,17 +33,48 @@ interface HexAnswerListProps {
   }[];
 }
 
+enum WordListSortBy {
+  guessOrder = 'Guess Order',
+  alphabetical = 'Alphabetical',
+  numberOfLetters = 'Word length',
+}
+
+enum SortDirection {
+  asc = 'Ascending',
+  desc = 'Descending',
+}
+
 const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
   const numWordsShown = useBreakpointValue([5, 8]);
   const answeredPopoverDisc = useDisclosure();
   const textColor = useColorModeValue('gray.400', 'gray.600');
   const borderColor = useColorModeValue('gray.600', 'gray.300');
+  const [wordListSortBy, setWordListSortBy] = useState(
+    WordListSortBy.guessOrder
+  );
+  const [sortDir, setSortDir] = useState(SortDirection.desc);
+  const sortedAnswers = useMemo(() => {
+    const ans = answers.map((obj) => ({ ...obj, length: obj.word.length }));
+    const order = sortDir === SortDirection.asc ? 'asc' : 'desc';
+
+    switch (wordListSortBy) {
+      case WordListSortBy.guessOrder:
+        return sortDir === SortDirection.asc
+          ? answers
+          : answers.slice().reverse();
+      case WordListSortBy.numberOfLetters:
+        return orderBy(ans, ['length', 'word'], [order, order]);
+      case WordListSortBy.alphabetical:
+        return orderBy(answers, ['word'], [order]);
+    }
+  }, [answers, wordListSortBy, sortDir]);
 
   return (
     <Popover
       autoFocus={false}
       isOpen={answeredPopoverDisc.isOpen}
       onClose={answeredPopoverDisc.onClose}
+      closeOnBlur={false}
     >
       <PopoverTrigger>
         <HStack
@@ -72,13 +115,49 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
         </HStack>
       </PopoverTrigger>
       <PopoverContent w={['xs', 'sm', 'lg']}>
-        <PopoverHeader textAlign="center">
-          {answers.length} words found
+        <PopoverHeader>
+          <Flex w="full" justifyContent="space-between" alignItems="center">
+            <Box w="40px" />
+            <Text fontWeight="bold">
+              {answers.length} word{answers.length > 1 ? 's' : ''} found
+            </Text>
+            <Menu closeOnSelect={false}>
+              <MenuButton
+                as={IconButton}
+                icon={<Icon as={SortAscending} weight="bold" />}
+                aria-label="sort-words"
+              />
+              <MenuList>
+                <MenuOptionGroup
+                  title="Sort by"
+                  value={wordListSortBy}
+                  onChange={(str) => setWordListSortBy(str as WordListSortBy)}
+                >
+                  {Object.values(WordListSortBy).map((value) => (
+                    <MenuItemOption value={value} key={value}>
+                      {value}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+                <MenuOptionGroup
+                  title="Order"
+                  value={sortDir}
+                  onChange={(str) => setSortDir(str as SortDirection)}
+                >
+                  {Object.values(SortDirection).map((value) => (
+                    <MenuItemOption value={value} key={value}>
+                      {value}
+                    </MenuItemOption>
+                  ))}
+                </MenuOptionGroup>
+              </MenuList>
+            </Menu>
+          </Flex>
         </PopoverHeader>
         <PopoverBody>
-          {answers.length ? (
+          {sortedAnswers?.length ? (
             <SimpleGrid columns={[3, 6]} spacing={2}>
-              {answers.map(({ word, isPangram }) => (
+              {sortedAnswers.map(({ word, isPangram }) => (
                 <Text
                   key={`answer-list-${word}`}
                   textAlign="center"

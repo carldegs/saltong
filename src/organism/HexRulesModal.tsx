@@ -23,6 +23,7 @@ import {
   Td,
   Th,
   Tbody,
+  OrderedList,
 } from '@chakra-ui/react';
 
 import { HEX_RANK } from '../constants';
@@ -195,6 +196,24 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({
                       Number of Pangrams:{' '}
                       {wordList.filter(({ isPangram }) => isPangram).length}
                     </Text>
+                    <Text fontWeight="bold" mt={4}>
+                      Tips
+                    </Text>
+                    <Box pl={2}>
+                      <OrderedList>
+                        <ListItem>There can be more than one pangram.</ListItem>
+                        <ListItem>The shuffle button is your friend.</ListItem>
+                        <ListItem>
+                          Look for words that you can make every time certain
+                          common letters appear. (BA can make you BABA and
+                          BABABA. BABABA BA? BABABA.)
+                        </ListItem>
+                        <ListItem>
+                          Find words where you can add prefixes and suffixes
+                          (i-, -in, -an)
+                        </ListItem>
+                      </OrderedList>
+                    </Box>
                   </AccordionPanel>
                 </Stack>
               </AccordionItem>

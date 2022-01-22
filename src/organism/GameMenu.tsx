@@ -1,5 +1,6 @@
 import { HamburgerIcon } from '@chakra-ui/icons';
 import {
+  Icon,
   IconButton,
   Menu,
   MenuButton,
@@ -11,6 +12,7 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
+import { Info } from 'phosphor-react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { useDisclosures } from '../context/DisclosuresContext';
@@ -54,7 +56,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
               ? disc.hexRulesModal.onOpen
               : disc.rulesModal.onOpen
           }
-          icon={<EmojiWrapper value="❓" />}
+          icon={<Icon as={Info} weight="bold" />}
           display={['inherit', 'none']}
         >
           How to Play
