@@ -28,13 +28,13 @@ export const DEFAULT_USER_GAME_DATA: UserGameData = {
 };
 
 export const HEX_RANK = [
-  { name: 'baguhan', percentage: 0 },
-  { name: 'mabuti', percentage: 0.01 },
-  { name: 'marunong', percentage: 0.03 },
-  { name: 'magaling', percentage: 0.05 },
-  { name: 'mahusay', percentage: 0.1 },
-  { name: 'bihasa', percentage: 0.2 },
-  { name: 'bigatin', percentage: 0.3 },
-  { name: 'dakila', percentage: 0.45 },
-  { name: 'bathala', percentage: 0.6 },
+  { name: 'baguhan', percentage: 0, icon: '👶' },
+  { name: 'mabuti', percentage: 0.01, icon: '🤷' },
+  { name: 'marunong', percentage: 0.03, icon: '🤔' },
+  { name: 'magaling', percentage: 0.05, icon: '🤓' },
+  { name: 'mahusay', percentage: 0.1, icon: '👌' },
+  { name: 'bihasa', percentage: 0.2, icon: '👏' },
+  { name: 'bigatin', percentage: 0.3, icon: '💪' },
+  { name: 'dakila', percentage: 0.45, icon: '🙌' },
+  { name: 'bathala', percentage: 0.6, icon: '⚡' },
 ];

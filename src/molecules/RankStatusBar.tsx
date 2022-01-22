@@ -34,6 +34,7 @@ const RankStatusBar: React.FC<RankStatusBarProps> = ({ rank, score }) => {
                   textAlign="center"
                   fontWeight="bold"
                   fontSize={score > 100 ? 'sm' : 'lg'}
+                  color="white"
                 >
                   {isCurrRank && score}
                 </Text>

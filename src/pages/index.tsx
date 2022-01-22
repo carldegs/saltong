@@ -106,27 +106,17 @@ const Home: React.FC = () => {
       {showAlert && (
         <Alert status="success">
           <Text>
-            BITIN? Try{' '}
+            Kulang sa challenge? Try{' '}
             <Link
               onClick={() => {
-                router.push(`/${GameMode.mini}`);
+                router.push(`/${GameMode.hex}`);
               }}
               fontWeight="bold"
               color={colorMode === 'dark' ? 'green.200' : 'green.600'}
             >
-              Saltong Mini
+              Saltong Hex
             </Link>
-            , a 4-word puzzle and{' '}
-            <Link
-              onClick={() => {
-                router.push(`/${GameMode.max}`);
-              }}
-              fontWeight="bold"
-              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
-            >
-              Saltong Max
-            </Link>
-            , a 7-word puzzle!
+            , with new rounds every Tuesday and Friday.
           </Text>
           <CloseButton
             position="absolute"

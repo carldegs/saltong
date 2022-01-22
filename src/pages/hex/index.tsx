@@ -24,6 +24,7 @@ import Hexboard from '../../molecules/Hexboard';
 import RankStatusBar from '../../molecules/RankStatusBar';
 import GameMenu from '../../organism/GameMenu';
 import HexRulesModal from '../../organism/HexRulesModal';
+import HexShareModal from '../../organism/HexShareModal';
 import GameMode from '../../types/GameMode';
 import { HexGameWordList } from '../../types/HexGameData';
 import {
@@ -55,7 +56,7 @@ const HexPage: React.FC = () => {
     []
   );
   const rank = useMemo(() => getRank(score, maxScore), [score, maxScore]);
-
+  const gameId = 0;
   const letters = useMemo(
     () =>
       Array.from(new Set(Array.from(rootWord))).filter(
@@ -119,7 +120,7 @@ const HexPage: React.FC = () => {
     },
     [list, keyboardRef, answers, toast, centerLetter]
   );
-  const { hexRulesModal } = useDisclosures();
+  const { hexRulesModal, hexShareModal } = useDisclosures();
 
   useEffect(() => {
     if (ANALYSIS_MODE && process.env.NODE_ENV === 'development') {
@@ -139,6 +140,14 @@ const HexPage: React.FC = () => {
         onClose={hexRulesModal.onClose}
         maxScore={maxScore}
         wordList={list}
+      />
+      <HexShareModal
+        isOpen={hexShareModal.isOpen}
+        onClose={hexShareModal.onClose}
+        rank={rank}
+        score={score}
+        gameId={gameId}
+        numWords={answers.length}
       />
 
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">

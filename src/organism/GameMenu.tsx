@@ -59,7 +59,14 @@ const GameMenu: React.FC<GameMenuProps> = ({
         >
           How to Play
         </MenuItem>
-        {gameMode !== GameMode.hex && (
+        {gameMode === GameMode.hex ? (
+          <MenuItem
+            onClick={disc.hexShareModal.onOpen}
+            icon={<EmojiWrapper value="⭐" />}
+          >
+            Share Results
+          </MenuItem>
+        ) : (
           <MenuItem
             isDisabled={gameStatus === GameStatus.playing}
             onClick={disc.endGameModal.onOpen}

@@ -5,6 +5,7 @@ import ContextNoProviderError from '../lib/errors/ContextNoProviderError';
 
 interface DisclosuresContextParams {
   endGameModal: UseDisclosureReturn;
+  hexShareModal: UseDisclosureReturn;
   bugReportModal: UseDisclosureReturn;
   aboutModal: UseDisclosureReturn;
   rulesModal: UseDisclosureReturn;
@@ -35,6 +36,7 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
   const debugModal = useDisclosure();
   const privacyPolicyModal = useDisclosure();
   const resetDataDialog = useDisclosure();
+  const hexShareModal = useDisclosure();
 
   const value = {
     endGameModal,
@@ -45,6 +47,7 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
     debugModal,
     privacyPolicyModal,
     resetDataDialog,
+    hexShareModal,
   };
 
   return (
