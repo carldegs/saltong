@@ -11,6 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import Head from 'next/head';
+import { useEffect } from 'react';
 
 import { useDisclosures } from '../../context/DisclosuresContext';
 import { useHexGame } from '../../context/HexGameContext';
@@ -36,8 +37,17 @@ const HexPage: React.FC = () => {
     centerLetter,
     letters,
     resetLocalStorage,
+    firstVisit,
+    setFirstVisit,
   } = useHexGame();
   const { hexRulesModal, hexShareModal, bugReportModal } = useDisclosures();
+
+  useEffect(() => {
+    if (firstVisit) {
+      hexRulesModal.onOpen();
+      setFirstVisit(false);
+    }
+  }, [firstVisit, hexRulesModal, setFirstVisit]);
 
   return (
     <>
