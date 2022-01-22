@@ -281,6 +281,17 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                       Saltong Max
                     </Button>
                   )}
+                  {gameMode !== GameMode.hex && (
+                    <Button
+                      onClick={() => {
+                        router.push(`/${GameMode.hex}`);
+                        onClose();
+                      }}
+                      colorScheme="yellow"
+                    >
+                      Saltong Hex
+                    </Button>
+                  )}
                 </Stack>
               </Stack>
             </Flex>

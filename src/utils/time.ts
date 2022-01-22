@@ -3,6 +3,7 @@ import {
   intervalToDuration,
   addHours,
   isSameDay,
+  format,
 } from 'date-fns';
 
 export const getCountdownToNextDay = () =>
@@ -61,3 +62,6 @@ export const getTimeSolved = (
       : ''
   }`;
 };
+
+export const getDateString = (date: Date | string = new Date()) =>
+  format(new Date(date), 'yyyy-MM-dd');

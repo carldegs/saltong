@@ -1,8 +1,4 @@
-import {
-  ExternalLinkIcon,
-  HamburgerIcon,
-  QuestionOutlineIcon,
-} from '@chakra-ui/icons';
+import { ExternalLinkIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
   Alert,
   Box,
@@ -13,38 +9,28 @@ import {
   HStack,
   IconButton,
   Link,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuGroup,
-  MenuItem,
-  MenuItemOption,
-  MenuList,
   Spacer,
   Text,
   useColorMode,
-  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import EmojiWrapper from '../atoms/EmojiWrapper';
 import { DICTIONARY_LINK } from '../constants';
-import { useKeyboard } from '../context/KeyboardContext';
+import { useDisclosures } from '../context/DisclosuresContext';
 import useWord from '../hooks/useWord';
-import AboutModal from '../molecules/AboutModal';
 import GameStatusPanel from '../molecules/GameStatusPanel';
 import Keyboard from '../molecules/Keyboard';
 import BugReportModal from '../organism/BugReportModal';
-import DebugCodeModal from '../organism/DebugCodeModal';
 import EndGameModal from '../organism/EndGameModal';
+import GameMenu from '../organism/GameMenu';
 import LetterGrid from '../organism/LetterGrid';
 import RulesModal from '../organism/RulesModal';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
-import { delay, getUserData } from '../utils';
+import { delay } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 const Home: React.FC = () => {
@@ -72,16 +58,10 @@ const Home: React.FC = () => {
     timeSolved,
   } = useWord();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
-  // Move all disclosures to context
-  const endGameModalDisc = useDisclosure();
-  const bugModalDisc = useDisclosure();
-  const aboutModalDisc = useDisclosure();
-  const rulesModalDisc = useDisclosure();
-  const debugModalDisc = useDisclosure();
+  const disc = useDisclosures();
   const [showAlert, setShowAlert] = useState(true);
   const toast = useToast();
-  const { colorMode, toggleColorMode } = useColorMode();
-  const keyboardRef = useKeyboard();
+  const { colorMode } = useColorMode();
 
   const onSolve = useCallback(
     async (answer: string) => {
@@ -89,7 +69,7 @@ const Home: React.FC = () => {
         const { gameStatus } = solve(answer);
         await delay(200);
         if (gameStatus !== GameStatus.playing) {
-          endGameModalDisc.onOpen();
+          disc.endGameModal.onOpen();
           sendEvent(
             `${GTAG_EVENTS.completedRound}${
               gameMode !== GameMode.main ? `_${gameMode}` : ''
@@ -106,15 +86,15 @@ const Home: React.FC = () => {
         });
       }
     },
-    [endGameModalDisc, solve, toast, gameMode]
+    [disc.endGameModal, solve, toast, gameMode]
   );
 
   useEffect(() => {
     if (firstVisit) {
-      rulesModalDisc.onOpen();
+      disc.rulesModal.onOpen();
       setFirstVisit(false);
     }
-  }, [firstVisit, rulesModalDisc, setFirstVisit]);
+  }, [firstVisit, disc.rulesModal, setFirstVisit]);
 
   return (
     <>
@@ -126,27 +106,17 @@ const Home: React.FC = () => {
       {showAlert && (
         <Alert status="success">
           <Text>
-            BITIN? Try{' '}
+            Kulang sa challenge? Try{' '}
             <Link
               onClick={() => {
-                router.push(`/${GameMode.mini}`);
+                router.push(`/${GameMode.hex}`);
               }}
               fontWeight="bold"
               color={colorMode === 'dark' ? 'green.200' : 'green.600'}
             >
-              Saltong Mini
+              Saltong Hex
             </Link>
-            , a 4-word puzzle and{' '}
-            <Link
-              onClick={() => {
-                router.push(`/${GameMode.max}`);
-              }}
-              fontWeight="bold"
-              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
-            >
-              Saltong Max
-            </Link>
-            , a 7-word puzzle!
+            , with new rounds every Tuesday and Friday.
           </Text>
           <CloseButton
             position="absolute"
@@ -175,155 +145,24 @@ const Home: React.FC = () => {
             </Text>
           </Box>
           <HStack flex={1} flexDir="row-reverse" spacing={4}>
-            <Menu
-              onClose={() => {
-                keyboardRef.current?.focus();
-              }}
-            >
-              <MenuButton
-                as={IconButton}
-                aria-label="Options"
-                icon={<HamburgerIcon />}
-                variant="outline"
-              />
-              <MenuList>
-                <MenuItem
-                  onClick={rulesModalDisc.onOpen}
-                  icon={<EmojiWrapper value="❓" />}
-                  display={['inherit', 'none']}
-                >
-                  How to Play
-                </MenuItem>
-                <MenuItem
-                  isDisabled={gameStatus === GameStatus.playing}
-                  onClick={endGameModalDisc.onOpen}
-                  title={
-                    gameStatus === GameStatus.playing
-                      ? 'Enabled once solved/game ended'
-                      : ''
-                  }
-                  icon={<EmojiWrapper value="📈" />}
-                >
-                  View Stats/ Share Results
-                </MenuItem>
-                <MenuDivider />
-                <MenuGroup title="Other Game Modes">
-                  {gameMode !== GameMode.mini && (
-                    <MenuItem
-                      icon={<EmojiWrapper value="🟢" />}
-                      onClick={() => router.push(`/${GameMode.mini}`)}
-                    >
-                      Saltong Mini
-                    </MenuItem>
-                  )}
-                  {gameMode !== GameMode.main && (
-                    <MenuItem
-                      icon={<EmojiWrapper value="🟡" />}
-                      onClick={() => router.push(`/`)}
-                    >
-                      Saltong
-                    </MenuItem>
-                  )}
-                  {gameMode !== GameMode.max && (
-                    <MenuItem
-                      icon={<EmojiWrapper value="🔴" />}
-                      onClick={() => router.push(`/${GameMode.max}`)}
-                    >
-                      Saltong Max
-                    </MenuItem>
-                  )}
-                </MenuGroup>
-                <MenuDivider />
-                <MenuGroup title="UI Settings">
-                  <MenuItemOption
-                    isChecked={colorMode === 'dark'}
-                    onClick={toggleColorMode}
-                    closeOnSelect={false}
-                  >
-                    Dark Mode
-                  </MenuItemOption>
-                  {/* <MenuItemOption
-                    isChecked={colorMode === 'dark'}
-                    onClick={toggleColorMode}
-                    closeOnSelect={false}
-                  >
-                    Color Blind Mode (High Contrast)
-                  </MenuItemOption> */}
-                </MenuGroup>
-                <MenuDivider />
-                <MenuGroup title="Settings">
-                  <MenuItem
-                    onClick={bugModalDisc.onOpen}
-                    icon={<EmojiWrapper value="🐛" />}
-                  >
-                    Report Bug
-                  </MenuItem>
-                  <MenuItem
-                    onClick={bugModalDisc.onOpen}
-                    icon={<EmojiWrapper value="🔃" />}
-                  >
-                    Reset Data
-                  </MenuItem>
-                  <MenuItem
-                    onClick={aboutModalDisc.onOpen}
-                    icon={<EmojiWrapper value="❓" />}
-                  >
-                    About
-                  </MenuItem>
-                </MenuGroup>
-                {process.env.NODE_ENV === 'development' && (
-                  <>
-                    <MenuDivider />
-                    <MenuGroup title="Debug Mode">
-                      <MenuItem
-                        onClick={() => {
-                          resetLocalStorage();
-                        }}
-                        icon={<EmojiWrapper value="🧼" />}
-                      >
-                        Clear LocalStorage
-                      </MenuItem>
-                      <MenuItem
-                        onClick={endGameModalDisc.onOpen}
-                        icon={<EmojiWrapper value="👁️‍🗨️" />}
-                      >
-                        Show End Game Modal
-                      </MenuItem>
-                      <MenuItem
-                        onClick={() => {
-                          // eslint-disable-next-line no-console
-                          console.log(getUserData());
-                        }}
-                        icon={<EmojiWrapper value="📃" />}
-                      >
-                        Log User Data
-                      </MenuItem>
-
-                      <MenuItem
-                        onClick={debugModalDisc.onOpen}
-                        icon={<EmojiWrapper value="🔍" />}
-                      >
-                        Debug Code
-                      </MenuItem>
-                    </MenuGroup>
-                  </>
-                )}
-              </MenuList>
-            </Menu>
-
+            <GameMenu
+              gameStatus={gameStatus}
+              resetLocalStorage={resetLocalStorage}
+              gameMode={gameMode}
+            />
             <Spacer maxW="0" />
 
             <IconButton
               aria-label="help"
               icon={<QuestionOutlineIcon />}
-              onClick={rulesModalDisc.onOpen}
+              onClick={disc.rulesModal.onOpen}
               display={['none', 'inherit']}
             />
           </HStack>
         </HStack>
         <EndGameModal
-          isOpen={endGameModalDisc.isOpen}
-          onClose={endGameModalDisc.onClose}
+          isOpen={disc.endGameModal.isOpen}
+          onClose={disc.endGameModal.onClose}
           gameStatus={gameStatus}
           numWins={numWins}
           numPlayed={numPlayed}
@@ -336,24 +175,17 @@ const Home: React.FC = () => {
           correctAnswer={correctAnswer}
           timeSolved={timeSolved}
         />
+        {/* TODO: Move to ModalWrapper once game data changed to context */}
         <BugReportModal
-          isOpen={bugModalDisc.isOpen}
-          onClose={bugModalDisc.onClose}
+          isOpen={disc.bugReportModal.isOpen}
+          onClose={disc.bugReportModal.onClose}
           resetLocalStorage={resetLocalStorage}
         />
-        <AboutModal
-          isOpen={aboutModalDisc.isOpen}
-          onClose={aboutModalDisc.onClose}
-        />
         <RulesModal
-          isOpen={rulesModalDisc.isOpen}
-          onClose={rulesModalDisc.onClose}
+          isOpen={disc.rulesModal.isOpen}
+          onClose={disc.rulesModal.onClose}
           wordLength={wordLength}
           numTries={numTries}
-        />
-        <DebugCodeModal
-          isOpen={debugModalDisc.isOpen}
-          onClose={debugModalDisc.onClose}
         />
         {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
           <Link

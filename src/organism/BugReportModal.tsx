@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 
 import { TWITTER_LINK } from '../constants';
+import { useHexGame } from '../context/HexGameContext';
 import { getUserData } from '../utils';
 import ResetDataAlert from './ResetDataAlert';
 
@@ -29,9 +30,13 @@ const BugReportModal: React.FC<BugReportModalInterface> = ({
   isOpen,
   resetLocalStorage,
 }) => {
-  const data = Buffer.from(JSON.stringify(getUserData() || {})).toString(
-    'base64'
-  );
+  const { list, ...hexData } = useHexGame();
+  const data = Buffer.from(
+    JSON.stringify({
+      orig: getUserData() || {},
+      hex: hexData || {},
+    })
+  ).toString('base64');
   const { hasCopied, onCopy } = useClipboard(data);
   const resetDialogDisc = useDisclosure();
 

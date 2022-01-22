@@ -39,15 +39,24 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
         <ModalContent>
           <ModalCloseButton />
           <ModalBody my={8}>
-            <Stack alignItems="center" spacing={2}>
+            <Stack alignItems="center" spacing={4}>
               <HStack alignItems="end">
                 <Heading size="lg">Saltong</Heading>
                 <Text>{VERSION}</Text>
               </HStack>
-              <Text>
-                Based on the word game{' '}
+              <Text textAlign="center">
+                Saltong, Saltong Mini, and Saltong Max is based on the word game{' '}
                 <Link isExternal href="https://www.powerlanguage.co.uk/wordle/">
                   Wordle <ExternalLinkIcon />
+                </Link>
+              </Text>
+              <Text textAlign="center">
+                Saltong Hex is based on NYT&apos;s word game,{' '}
+                <Link
+                  isExternal
+                  href="https://www.nytimes.com/puzzles/spelling-bee"
+                >
+                  Spelling Bee <ExternalLinkIcon />
                 </Link>
               </Text>
               <Text textAlign="center">

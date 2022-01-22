@@ -1,5 +1,6 @@
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
+import { HexGameData, HexGameState } from '../types/HexGameData';
 import { UserGameData } from '../types/UserData';
 
 export const NUM_TRIES = {
@@ -26,3 +27,36 @@ export const DEFAULT_USER_GAME_DATA: UserGameData = {
   gameStartDate: '',
   gameId: 0,
 };
+
+export const DEFAULT_HEX_STATE: HexGameState = {
+  prevRootWordId: -1,
+  prevCenterLetter: '',
+  rootWordId: -1,
+  centerLetter: '',
+  gameId: 0,
+  scores: {},
+  score: 0,
+  gameStartDate: '',
+  guessedWords: [],
+  version: '',
+  uuid: '',
+};
+
+export const DEFAULT_HEX_GAME_DATA: HexGameData = {
+  rootWordId: -1,
+  centerLetter: '',
+  date: '',
+  gameId: 0,
+};
+
+export const HEX_RANK = [
+  { name: 'baguhan', percentage: 0, icon: '👶' },
+  { name: 'mabuti', percentage: 0.01, icon: '🤷' },
+  { name: 'marunong', percentage: 0.03, icon: '🤔' },
+  { name: 'magaling', percentage: 0.05, icon: '🤓' },
+  { name: 'mahusay', percentage: 0.1, icon: '👌' },
+  { name: 'bihasa', percentage: 0.2, icon: '👏' },
+  { name: 'bigatin', percentage: 0.3, icon: '💪' },
+  { name: 'dakila', percentage: 0.45, icon: '🙌' },
+  { name: 'bathala', percentage: 0.6, icon: '⚡' },
+];

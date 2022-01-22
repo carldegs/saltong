@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Hydrate } from 'react-query/hydration';
 
+import { DisclosuresProvider } from '../context/DisclosuresContext';
+import { HexGameProvider } from '../context/HexGameContext';
 import { KeyboardProvider } from '../context/KeyboardContext';
-import { NewDomainModal } from '../organism/NewDomainModal';
+import ModalWrapper from '../organism/ModalWrapper';
 import theme from '../theme';
 import { sendPageViewEvent } from '../utils/gtag';
 
@@ -33,10 +35,15 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     <QueryClientProvider client={queryClientRef.current}>
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider theme={theme}>
-          <KeyboardProvider>
-            <NewDomainModal />
-            <Component {...pageProps} />
-          </KeyboardProvider>
+          <DisclosuresProvider>
+            <KeyboardProvider>
+              <HexGameProvider>
+                <ModalWrapper>
+                  <Component {...pageProps} />
+                </ModalWrapper>
+              </HexGameProvider>
+            </KeyboardProvider>
+          </DisclosuresProvider>
         </ChakraProvider>
       </Hydrate>
       <ReactQueryDevtools initialIsOpen={false} />
