@@ -1,9 +1,4 @@
 import {
-  ChevronDownIcon,
-  ExternalLinkIcon,
-  QuestionOutlineIcon,
-} from '@chakra-ui/icons';
-import {
   Box,
   Button,
   ButtonGroup,
@@ -12,6 +7,7 @@ import {
   FormControl,
   FormLabel,
   Heading,
+  Icon,
   IconButton,
   Link,
   Modal,
@@ -39,6 +35,12 @@ import {
 } from '@chakra-ui/react';
 import { formatDuration } from 'date-fns';
 import { useRouter } from 'next/router';
+import {
+  ShareNetwork,
+  DotsThreeVertical,
+  ArrowSquareOut,
+  Question,
+} from 'phosphor-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
@@ -78,10 +80,11 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
   timeSolved,
 }) => {
   const [showTimeSolved, setShowTimeSolved] = useState(true);
+  const [showLink, setShowLink] = useState(true);
   const router = useRouter();
   const shareMessage = useMemo(
-    () => onShare({ showTimeSolved }),
-    [showTimeSolved, onShare]
+    () => onShare({ showTimeSolved, showLink }),
+    [showTimeSolved, onShare, showLink]
   );
   const { hasCopied, onCopy } = useClipboard(shareMessage);
   const showShareButton =
@@ -144,7 +147,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                     Time{' '}
                     <Popover>
                       <PopoverTrigger>
-                        <QuestionOutlineIcon mb="3px" />
+                        <Icon as={Question} mb={1.5} weight="bold" />
                       </PopoverTrigger>
                       <PopoverContent>
                         <PopoverArrow />
@@ -192,15 +195,23 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                       size="lg"
                       isFullWidth
                     >
+                      <Icon as={ShareNetwork} weight="bold" mr={2} />
                       Share
                     </Button>
                     <Popover>
                       <PopoverTrigger>
                         <IconButton
-                          icon={<ChevronDownIcon />}
+                          icon={
+                            <Icon
+                              as={DotsThreeVertical}
+                              weight="bold"
+                              fontSize="20px"
+                            />
+                          }
                           aria-label="chevron-down"
                           size="lg"
                           colorScheme="green"
+                          ml="0.5px"
                         />
                       </PopoverTrigger>
                       <PopoverContent>
@@ -223,6 +234,25 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                                 setShowTimeSolved(e.target.checked);
                               }}
                               isChecked={showTimeSolved}
+                            />
+                          </FormControl>
+                          <FormControl
+                            display="flex"
+                            alignItems="center"
+                            px={3}
+                            py={3}
+                            borderRadius={4}
+                          >
+                            <FormLabel htmlFor="email-alerts" mb="0">
+                              Include link
+                            </FormLabel>
+                            <Spacer />
+                            <Switch
+                              id="include-link"
+                              onChange={(e) => {
+                                setShowLink(e.target.checked);
+                              }}
+                              isChecked={showLink}
                             />
                           </FormControl>
                         </PopoverBody>
@@ -318,7 +348,8 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                         sendEvent(GTAG_EVENTS.openDictionary);
                       }}
                     >
-                      View Definition <ExternalLinkIcon ml={2} />
+                      View Definition{' '}
+                      <Icon as={ArrowSquareOut} weight="bold" ml={2} />
                     </Button>
                   </Link>
                   {isOpen && (

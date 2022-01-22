@@ -33,6 +33,7 @@ import {
 
 export interface OnShareOptions {
   showTimeSolved: boolean;
+  showLink: boolean;
 }
 interface UseWordResponse extends UserGameData {
   wordLength: number;
