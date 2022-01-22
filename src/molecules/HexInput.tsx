@@ -60,24 +60,22 @@ const HexInput: React.FC<HexInputProps> = ({
         )}
         {values
           .split('')
-          .map((value, key) => ({ value, key: `edit-${key}` }))
+          .map((value, key) => ({ value, key: `edit-${value}-${key}` }))
           .map(({ value, key }) => (
-            <>
-              <LetterBox
-                bg={
-                  centerLetter === value.toLowerCase()
-                    ? 'purple.500'
-                    : 'purple.200'
-                }
-                color={
-                  centerLetter === value.toLowerCase()
-                    ? 'purple.100'
-                    : 'purple.900'
-                }
-                key={key}
-                value={value}
-              />
-            </>
+            <LetterBox
+              bg={
+                centerLetter === value.toLowerCase()
+                  ? 'purple.500'
+                  : 'purple.200'
+              }
+              color={
+                centerLetter === value.toLowerCase()
+                  ? 'purple.100'
+                  : 'purple.900'
+              }
+              key={key}
+              value={value}
+            />
           ))}
       </HStack>
 

@@ -85,7 +85,7 @@ const HexShareModal: React.FC<HexShareModalProps> = ({
 
               <Stat>
                 <StatNumber textTransform="uppercase">{numWords}</StatNumber>
-                <StatLabel>Number of Words</StatLabel>
+                <StatLabel>Guessed words</StatLabel>
               </Stat>
             </StatGroup>
 

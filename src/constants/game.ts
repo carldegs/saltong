@@ -1,5 +1,6 @@
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
+import { HexGameData, HexGameState } from '../types/HexGameData';
 import { UserGameData } from '../types/UserData';
 
 export const NUM_TRIES = {
@@ -24,6 +25,27 @@ export const DEFAULT_USER_GAME_DATA: UserGameData = {
   turnStats: [],
   gameStatus: GameStatus.playing,
   gameStartDate: '',
+  gameId: 0,
+};
+
+export const DEFAULT_HEX_STATE: HexGameState = {
+  prevRootWordId: -1,
+  prevCenterLetter: '',
+  rootWordId: -1,
+  centerLetter: '',
+  gameId: 0,
+  scores: {},
+  score: 0,
+  gameStartDate: '',
+  guessedWords: [],
+  version: '',
+  uuid: '',
+};
+
+export const DEFAULT_HEX_GAME_DATA: HexGameData = {
+  rootWordId: -1,
+  centerLetter: '',
+  date: '',
   gameId: 0,
 };
 

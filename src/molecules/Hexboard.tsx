@@ -40,17 +40,7 @@ const Hexboard: React.FC<HexboardProps> = ({
   ...stackProps
 }) => {
   const eventRef = useKeyboard();
-  const [edgeKeysInfo, setEdgeKeysInfo] = useState<HexboardKeyData[]>(
-    letters
-      .map(
-        (char) =>
-          ({
-            value: char,
-            label: char.toUpperCase(),
-          } as HexboardKeyData)
-      )
-      .sort(() => Math.random() - 0.5)
-  );
+  const [edgeKeysInfo, setEdgeKeysInfo] = useState<HexboardKeyData[]>([]);
   const centerKeyInfo = useMemo(
     () =>
       ({
@@ -64,6 +54,20 @@ const Hexboard: React.FC<HexboardProps> = ({
   useEffect(() => {
     eventRef?.current.focus();
   }, [eventRef]);
+
+  useEffect(() => {
+    setEdgeKeysInfo(
+      letters
+        .map(
+          (char) =>
+            ({
+              value: char,
+              label: char.toUpperCase(),
+            } as HexboardKeyData)
+        )
+        .sort(() => Math.random() - 0.5)
+    );
+  }, [letters]);
 
   return (
     <Stack {...stackProps}>

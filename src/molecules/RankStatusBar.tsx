@@ -1,4 +1,5 @@
 import { Box, Flex, Spacer, Text } from '@chakra-ui/react';
+import { Fragment } from 'react';
 
 import { HEX_RANK } from '../constants';
 
@@ -20,13 +21,12 @@ const RankStatusBar: React.FC<RankStatusBarProps> = ({ rank, score }) => {
           const isPastRank = i < rank.index;
           const size = isCurrRank ? 8 : 3;
           return (
-            <>
+            <Fragment key={`${name}-${percentage}`}>
               <Flex
                 w={size}
                 h={size}
                 bg={isCurrRank || isPastRank ? 'purple.600' : 'gray.600'}
                 borderRadius={20}
-                key={`${name}-${percentage}`}
                 alignItems="center"
                 justifyContent="center"
               >
@@ -40,7 +40,7 @@ const RankStatusBar: React.FC<RankStatusBarProps> = ({ rank, score }) => {
                 </Text>
               </Flex>
               {i < HEX_RANK.length - 1 && <Spacer />}
-            </>
+            </Fragment>
           );
         })}
       </Flex>

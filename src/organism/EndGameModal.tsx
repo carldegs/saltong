@@ -287,7 +287,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                         router.push(`/${GameMode.hex}`);
                         onClose();
                       }}
-                      colorScheme="red"
+                      colorScheme="yellow"
                     >
                       Saltong Hex
                     </Button>

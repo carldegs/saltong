@@ -18,9 +18,8 @@ export interface HexGameState extends Omit<HexGameData, 'date'> {
     }
   >;
   score: number;
-  maxScore: number;
   gameStartDate: string;
-  guessedWords: string[];
+  guessedWords: { word: string; isPangram: boolean }[];
   version: string;
   uuid: string;
 }

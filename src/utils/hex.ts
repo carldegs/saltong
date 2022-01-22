@@ -1,3 +1,12 @@
+import {
+  addDays,
+  closestTo,
+  isFriday,
+  isTuesday,
+  previousFriday,
+  previousTuesday,
+} from 'date-fns';
+
 import { HEX_RANK } from '../constants';
 import groupedDict from '../dict.json';
 import blacklist from '../hexBlacklist.json';
@@ -6,6 +15,9 @@ import { HexGameWordList, HexGameWordListItem } from '../types/HexGameData';
 
 export const getHexRootWordIndex = (rootWord: string) =>
   rootWords.indexOf(rootWord);
+
+export const getHexRootWord = (rootWordIndex: number) =>
+  rootWords[rootWordIndex];
 
 export const getFlatDict = () => {
   let flattenedDict: string[] = [];
@@ -148,4 +160,21 @@ export const getRank = (score: number, maxScore: number) => {
     ...HEX_RANK[upperLimitIndex - 1],
     index: upperLimitIndex - 1,
   };
+};
+
+export const getCurrGameDate = (date: string | Date = new Date()) => {
+  date = new Date(date);
+
+  if (isTuesday(date) || isFriday(date)) {
+    return date;
+  }
+
+  return closestTo(date, [previousTuesday(date), previousFriday(date)]);
+};
+
+export const getPrevGameDate = (currGameDate?: string | Date) => {
+  currGameDate = new Date(currGameDate || getCurrGameDate(new Date()));
+  const date = addDays(currGameDate, -1);
+
+  return closestTo(date, [previousTuesday(date), previousFriday(date)]);
 };

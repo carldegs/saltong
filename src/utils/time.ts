@@ -63,5 +63,5 @@ export const getTimeSolved = (
   }`;
 };
 
-export const getDateString = (date: Date | string) =>
+export const getDateString = (date: Date | string = new Date()) =>
   format(new Date(date), 'yyyy-MM-dd');
