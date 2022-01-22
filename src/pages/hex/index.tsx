@@ -18,6 +18,7 @@ import HexAnswerList from '../../molecules/HexAnswerList';
 import HexInput from '../../molecules/HexInput';
 import Hexboard from '../../molecules/Hexboard';
 import RankStatusBar from '../../molecules/RankStatusBar';
+import BugReportModal from '../../organism/BugReportModal';
 import GameMenu from '../../organism/GameMenu';
 import HexRulesModal from '../../organism/HexRulesModal';
 import HexShareModal from '../../organism/HexShareModal';
@@ -34,8 +35,9 @@ const HexPage: React.FC = () => {
     solve,
     centerLetter,
     letters,
+    resetLocalStorage,
   } = useHexGame();
-  const { hexRulesModal, hexShareModal } = useDisclosures();
+  const { hexRulesModal, hexShareModal, bugReportModal } = useDisclosures();
 
   return (
     <>
@@ -56,6 +58,11 @@ const HexPage: React.FC = () => {
         score={score}
         gameId={gameId}
         numWords={guessedWords.length}
+      />
+      <BugReportModal
+        isOpen={bugReportModal.isOpen}
+        onClose={bugReportModal.onClose}
+        resetLocalStorage={resetLocalStorage}
       />
 
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">

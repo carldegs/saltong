@@ -142,7 +142,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
             Report Bug
           </MenuItem>
           <MenuItem
-            onClick={disc.resetDataDialog.onOpen}
+            onClick={disc.bugReportModal.onOpen}
             icon={<EmojiWrapper value="🔃" />}
           >
             Reset Data

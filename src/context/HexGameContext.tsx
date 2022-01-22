@@ -59,6 +59,7 @@ interface useHexGameProps extends HexGameState {
     percentage: number;
     icon: string;
   };
+  resetLocalStorage: () => void;
 }
 
 const DEFAULT_DATA: useHexGameProps = {
@@ -74,6 +75,7 @@ const DEFAULT_DATA: useHexGameProps = {
     ...HEX_RANK[0],
     index: 0,
   },
+  resetLocalStorage: () => undefined,
 };
 
 const HexGameContext = createContext<useHexGameProps>(DEFAULT_DATA);
@@ -184,6 +186,10 @@ export const HexGameProvider: React.FC = ({ children }) => {
     [keyboardRef, list, maxScore, state.centerLetter, state.guessedWords, toast]
   );
 
+  const resetLocalStorage = useCallback(() => {
+    setState(DEFAULT_HEX_STATE);
+  }, []);
+
   useEffect(() => {
     let persistState = getPersistState();
     const currGameDate = getCurrGameDate();
@@ -263,6 +269,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
     solve,
     rank,
     letters,
+    resetLocalStorage,
   };
 
   return (
