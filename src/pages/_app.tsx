@@ -1,4 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
+import '@fontsource/ibm-plex-sans';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef } from 'react';
