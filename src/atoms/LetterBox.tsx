@@ -40,7 +40,11 @@ const LetterBox: React.FC<LetterBoxProps> = ({
       {...bprops}
       {...boxProps}
     >
-      <Heading textAlign="center" fontSize={['2xl', '3xl']}>
+      <Heading
+        textAlign="center"
+        fontSize={['2xl', '3xl']}
+        onContextMenu={(e) => e.preventDefault()}
+      >
         {value?.toUpperCase() || children}
       </Heading>
     </Flex>

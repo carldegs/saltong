@@ -1,0 +1,60 @@
+{
+  "name": "Saltong",
+  "short_name": "Saltong",
+  "description": "Filipino clone of Wordle",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#38a169",
+  "theme_color": "#38a169",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Saltong Mini",
+      "short_name": "Saltong Mini",
+      "description": "The 4-letter version of Saltong",
+      "url": "/mini",
+      "icons": [
+        {
+          "src": "/mini.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Saltong Max",
+      "short_name": "Saltong Max",
+      "description": "The 7-letter version of Saltong",
+      "url": "/max",
+      "icons": [
+        {
+          "src": "/max.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Saltong Hex",
+      "short_name": "Saltong Hex",
+      "description": "Saltong based on NYT's Spelling Bee",
+      "url": "/hex",
+      "icons": [
+        {
+          "src": "/hex.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

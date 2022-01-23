@@ -49,6 +49,7 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
       alignItems="center"
       justifyContent="center"
       cursor={isDisabled ? 'wait' : 'pointer'}
+      onContextMenu={(e) => e.preventDefault()}
       {...getStyle(status, { isDisabled })}
     >
       {isDisabled ? <Spinner /> : label}
