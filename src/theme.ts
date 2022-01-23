@@ -12,6 +12,10 @@ const theme = extendTheme({
       },
     },
   },
+  fonts: {
+    heading: 'IBM Plex Sans',
+    body: 'IBM Plex Sans',
+  },
 });
 
 export default theme;

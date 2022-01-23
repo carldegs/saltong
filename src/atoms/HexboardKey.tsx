@@ -88,11 +88,13 @@ const HexboardKey: React.FC<HexboardKeyProps> = ({
           ...(hexAfterProps as any),
         }}
         cursor="pointer"
+        onContextMenu={(e) => e.preventDefault()}
       >
         <Heading
           color={isCenterLetter ? 'purple.900' : 'gray.900'}
           textAlign="center"
           fontSize={['4xl', '5xl']}
+          onContextMenu={(e) => e.preventDefault()}
         >
           {label}
         </Heading>

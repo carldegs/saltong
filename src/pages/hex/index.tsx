@@ -53,6 +53,8 @@ const HexPage: React.FC = () => {
     <>
       <Head>
         <title>Saltong HEX</title>
+        <meta name="theme-color" content="#6B46C1" />
+        <meta name="apple-mobile-web-app-status-bar" content="#6B46C1" />
       </Head>
 
       <HexRulesModal

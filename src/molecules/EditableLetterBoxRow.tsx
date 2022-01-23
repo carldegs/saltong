@@ -89,6 +89,7 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
             onSolve(values);
           }
         }}
+        onContextMenu={(e) => e.preventDefault()}
         inputMode="none"
       />
     </>

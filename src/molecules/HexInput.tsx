@@ -103,6 +103,7 @@ const HexInput: React.FC<HexInputProps> = ({
             return;
           }
         }}
+        onContextMenu={(e) => e.preventDefault()}
         inputMode="none"
       />
     </>
