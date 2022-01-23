@@ -1,10 +1,10 @@
-import { BoxProps, Heading, Flex } from '@chakra-ui/layout';
+import { Heading, Flex, FlexProps } from '@chakra-ui/layout';
 import { useMemo } from 'react';
 
 import useLetterStatusColor from '../hooks/useLetterStatusColor';
 import LetterStatus from '../types/LetterStatus';
 
-interface LetterBoxProps extends Omit<BoxProps, 'onChange'> {
+interface LetterBoxProps extends Omit<FlexProps, 'onChange'> {
   status?: LetterStatus;
   editable?: boolean;
   onChange?: (e: string) => void;
@@ -21,6 +21,7 @@ const LetterBox: React.FC<LetterBoxProps> = ({
   onFocus,
   onBlur,
   submitOnEnter,
+  fontSize,
   ...boxProps
 }) => {
   const { getStyle } = useLetterStatusColor();
@@ -42,7 +43,7 @@ const LetterBox: React.FC<LetterBoxProps> = ({
     >
       <Heading
         textAlign="center"
-        fontSize={['2xl', '3xl']}
+        fontSize={fontSize || ['2xl', '3xl']}
         onContextMenu={(e) => e.preventDefault()}
       >
         {value?.toUpperCase() || children}

@@ -5,7 +5,7 @@ import {
   VisuallyHiddenInput,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
 import { useKeyboard } from '../context/KeyboardContext';
@@ -41,6 +41,9 @@ const HexInput: React.FC<HexInputProps> = ({
     }
   }, [route, prevRoute, keyboardRef]);
 
+  const isLongWord = useMemo(() => values.length >= 9, [values]);
+  const isLongerWord = useMemo(() => values.length >= 12, [values]);
+
   return (
     <>
       <HStack
@@ -58,25 +61,50 @@ const HexInput: React.FC<HexInputProps> = ({
             Enter Word
           </Heading>
         )}
-        {values
-          .split('')
-          .map((value, key) => ({ value, key: `edit-${value}-${key}` }))
-          .map(({ value, key }) => (
-            <LetterBox
-              bg={
-                centerLetter === value.toLowerCase()
-                  ? 'purple.500'
-                  : 'purple.200'
+        <HStack
+          spacing={1}
+          {...(isLongWord
+            ? {
+                bg: 'purple.500',
+                px: 4,
+                py: 3,
+                borderRadius: 12,
               }
-              color={
-                centerLetter === value.toLowerCase()
-                  ? 'purple.100'
-                  : 'purple.900'
-              }
-              key={key}
-              value={value}
-            />
-          ))}
+            : {})}
+        >
+          {values
+            .split('')
+            .map((value, key) => ({ value, key: `edit-${value}-${key}` }))
+            .map(({ value, key }) =>
+              isLongWord ? (
+                <Heading
+                  color={
+                    centerLetter === value.toLowerCase()
+                      ? 'purple.100'
+                      : 'purple.900'
+                  }
+                  fontSize={[isLongerWord ? 'xl' : '2xl', '3xl']}
+                >
+                  {value.toUpperCase()}
+                </Heading>
+              ) : (
+                <LetterBox
+                  bg={
+                    centerLetter === value.toLowerCase()
+                      ? 'purple.500'
+                      : 'purple.200'
+                  }
+                  color={
+                    centerLetter === value.toLowerCase()
+                      ? 'purple.100'
+                      : 'purple.900'
+                  }
+                  key={key}
+                  value={value}
+                />
+              )
+            )}
+        </HStack>
       </HStack>
 
       <VisuallyHiddenInput
