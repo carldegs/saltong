@@ -12,7 +12,15 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import { Info } from 'phosphor-react';
+import {
+  Bug,
+  ChartBar,
+  ClockCounterClockwise,
+  Info,
+  Question,
+  ShareNetwork,
+  SkipBack,
+} from 'phosphor-react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { useDisclosures } from '../context/DisclosuresContext';
@@ -57,14 +65,13 @@ const GameMenu: React.FC<GameMenuProps> = ({
               : disc.rulesModal.onOpen
           }
           icon={<Icon as={Info} weight="bold" />}
-          display={['inherit', 'none']}
         >
           How to Play
         </MenuItem>
         {gameMode === GameMode.hex ? (
           <MenuItem
             onClick={disc.hexShareModal.onOpen}
-            icon={<EmojiWrapper value="⭐" />}
+            icon={<Icon as={ShareNetwork} weight="bold" />}
           >
             Share Results
           </MenuItem>
@@ -77,9 +84,17 @@ const GameMenu: React.FC<GameMenuProps> = ({
                 ? 'Enabled once solved/game ended'
                 : ''
             }
-            icon={<EmojiWrapper value="📈" />}
+            icon={<Icon as={ChartBar} weight="bold" />}
           >
             View Stats/ Share Results
+          </MenuItem>
+        )}
+        {gameMode === GameMode.hex && (
+          <MenuItem
+            icon={<Icon as={SkipBack} weight="bold" />}
+            onClick={disc.hexPrevAnsModal.onOpen}
+          >
+            Previous Answers
           </MenuItem>
         )}
         <MenuDivider />
@@ -139,19 +154,19 @@ const GameMenu: React.FC<GameMenuProps> = ({
         <MenuGroup title="Settings">
           <MenuItem
             onClick={disc.bugReportModal.onOpen}
-            icon={<EmojiWrapper value="🐛" />}
+            icon={<Icon as={Bug} weight="bold" />}
           >
             Report Bug
           </MenuItem>
           <MenuItem
             onClick={disc.bugReportModal.onOpen}
-            icon={<EmojiWrapper value="🔃" />}
+            icon={<Icon as={ClockCounterClockwise} weight="bold" />}
           >
             Reset Data
           </MenuItem>
           <MenuItem
             onClick={disc.aboutModal.onOpen}
-            icon={<EmojiWrapper value="❓" />}
+            icon={<Icon as={Question} weight="bold" />}
           >
             About
           </MenuItem>

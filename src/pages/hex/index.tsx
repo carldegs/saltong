@@ -23,6 +23,7 @@ import BugReportModal from '../../organism/BugReportModal';
 import GameMenu from '../../organism/GameMenu';
 import HexRulesModal from '../../organism/HexRulesModal';
 import HexShareModal from '../../organism/HexShareModal';
+import PrevAnswersModal from '../../organism/PrevAnswersModal';
 import GameMode from '../../types/GameMode';
 
 const HexPage: React.FC = () => {
@@ -40,7 +41,8 @@ const HexPage: React.FC = () => {
     firstVisit,
     setFirstVisit,
   } = useHexGame();
-  const { hexRulesModal, hexShareModal, bugReportModal } = useDisclosures();
+  const { hexRulesModal, hexShareModal, bugReportModal, hexPrevAnsModal } =
+    useDisclosures();
 
   useEffect(() => {
     if (firstVisit) {
@@ -75,6 +77,10 @@ const HexPage: React.FC = () => {
         isOpen={bugReportModal.isOpen}
         onClose={bugReportModal.onClose}
         resetLocalStorage={resetLocalStorage}
+      />
+      <PrevAnswersModal
+        isOpen={hexPrevAnsModal.isOpen}
+        onClose={hexPrevAnsModal.onClose}
       />
 
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">

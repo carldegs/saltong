@@ -152,7 +152,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
           ...defaultToast,
         });
       } else if (match?.word && !hasAnswered) {
-        const currDateStr = getDateString();
+        const currDateStr = getDateString(getCurrGameDate());
         setState((curr) => ({
           ...curr,
           guessedWords: [

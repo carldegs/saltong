@@ -1,4 +1,4 @@
-export const VERSION = 'v1.3.9';
+export const VERSION = 'v1.4.0';
 export const DOMAIN = 'saltong.carldegs.com';
 export const MIN_SUPPORTED_VERSION = 'v0.2.3';
 
