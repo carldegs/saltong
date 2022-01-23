@@ -9,6 +9,7 @@ const theme = extendTheme({
     global: {
       html: {
         height: '100vh',
+        overflowX: 'hidden',
       },
     },
   },

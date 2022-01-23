@@ -45,7 +45,7 @@ enum SortDirection {
 }
 
 const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
-  const numWordsShown = useBreakpointValue([5, 8]);
+  const numWordsShown = useBreakpointValue([4, 8]);
   const answeredPopoverDisc = useDisclosure();
   const textColor = useColorModeValue('gray.400', 'gray.600');
   const borderColor = useColorModeValue('gray.600', 'gray.300');
@@ -114,7 +114,7 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
           />
         </HStack>
       </PopoverTrigger>
-      <PopoverContent w={['xs', 'sm', 'lg']}>
+      <PopoverContent w={['sm', 'lg']}>
         <PopoverHeader>
           <Flex w="full" justifyContent="space-between" alignItems="center">
             <Box w="40px" />
@@ -156,7 +156,7 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
         </PopoverHeader>
         <PopoverBody>
           {sortedAnswers?.length ? (
-            <SimpleGrid columns={[3, 6]} spacing={2}>
+            <SimpleGrid columns={[3, 4]} spacing={2}>
               {sortedAnswers.map(({ word, isPangram }) => (
                 <Text
                   key={`answer-list-${word}`}
