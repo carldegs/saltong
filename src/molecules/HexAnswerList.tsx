@@ -31,6 +31,7 @@ interface HexAnswerListProps {
     word: string;
     isPangram: boolean;
   }[];
+  title?: string;
 }
 
 enum WordListSortBy {

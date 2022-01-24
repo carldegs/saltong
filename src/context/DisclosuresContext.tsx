@@ -13,6 +13,7 @@ interface DisclosuresContextParams {
   debugModal: UseDisclosureReturn;
   privacyPolicyModal: UseDisclosureReturn;
   resetDataDialog: UseDisclosureReturn;
+  hexPrevAnsModal: UseDisclosureReturn;
 }
 
 const DisclosuresContext = createContext<Partial<DisclosuresContextParams>>({});
@@ -37,6 +38,7 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
   const privacyPolicyModal = useDisclosure();
   const resetDataDialog = useDisclosure();
   const hexShareModal = useDisclosure();
+  const hexPrevAnsModal = useDisclosure();
 
   const value = {
     endGameModal,
@@ -48,6 +50,7 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
     privacyPolicyModal,
     resetDataDialog,
     hexShareModal,
+    hexPrevAnsModal,
   };
 
   return (

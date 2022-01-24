@@ -65,7 +65,7 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({
                   <AccordionPanel pl={4} pb={4}>
                     <UnorderedList spacing={1}>
                       <ListItem>
-                        Words must be four to eight letters long.
+                        Words must be four to nineteen letters long.
                       </ListItem>
                       <ListItem>Words must contain the center letter.</ListItem>
                       <ListItem>Letters can be used more than once.</ListItem>
