@@ -1,3 +1,4 @@
+import GameMode from './GameMode';
 import GameStatus from './GameStatus';
 import LetterStatus from './LetterStatus';
 
@@ -20,10 +21,8 @@ export interface UserGameData {
   correctAnswer?: string;
 }
 
-interface UserData {
-  main: UserGameData;
-  mini: UserGameData;
-  max: UserGameData;
+interface UserData
+  extends Record<Exclude<GameMode, GameMode.hex>, UserGameData> {
   version: string;
   uuid?: string;
 }

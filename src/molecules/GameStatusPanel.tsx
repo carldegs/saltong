@@ -1,13 +1,11 @@
+import { Flex, Heading, Text } from '@chakra-ui/layout';
 import {
-  Flex,
-  Heading,
   Popover,
   PopoverArrow,
   PopoverContent,
   PopoverProps,
   PopoverTrigger,
-  Text,
-} from '@chakra-ui/react';
+} from '@chakra-ui/popover';
 import { formatDuration } from 'date-fns';
 import { useState } from 'react';
 

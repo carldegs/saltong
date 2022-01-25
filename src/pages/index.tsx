@@ -9,29 +9,33 @@ import {
   HStack,
   IconButton,
   Link,
+  Skeleton,
   Spacer,
+  Spinner,
   Text,
   useColorMode,
   useToast,
 } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
-import useWord from '../hooks/useWord';
+import { useGame } from '../context/GameContext';
 import GameStatusPanel from '../molecules/GameStatusPanel';
 import Keyboard from '../molecules/Keyboard';
-import BugReportModal from '../organism/BugReportModal';
-import EndGameModal from '../organism/EndGameModal';
 import GameMenu from '../organism/GameMenu';
 import LetterGrid from '../organism/LetterGrid';
-import RulesModal from '../organism/RulesModal';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { delay } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
+
+const EndGameModal = dynamic(() => import('../organism/EndGameModal'));
+const BugReportModal = dynamic(() => import('../organism/BugReportModal'));
+const RulesModal = dynamic(() => import('../organism/RulesModal'));
 
 const Home: React.FC = () => {
   const router = useRouter();
@@ -41,22 +45,17 @@ const Home: React.FC = () => {
     history,
     solve,
     resetLocalStorage,
-    getShareStatus,
     gameStatus,
-    numWins,
-    numPlayed,
-    winStreak,
-    longestWinStreak,
-    lastWinDate,
-    turnStats,
     gameId,
     letterStatuses,
     correctAnswer,
     gameMode,
     firstVisit,
     setFirstVisit,
-    timeSolved,
-  } = useWord();
+    isLoading,
+    isError,
+    fetchError,
+  } = useGame();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
   const disc = useDisclosures();
   const [showAlert, setShowAlert] = useState(true);
@@ -131,7 +130,9 @@ const Home: React.FC = () => {
       <Container centerContent maxW="container.xl">
         <HStack my={4} w="full">
           <Flex flex={1} flexDir="row">
-            <GameStatusPanel gameId={gameId} />
+            <Skeleton isLoaded={!isLoading}>
+              <GameStatusPanel gameId={gameId} />
+            </Skeleton>
           </Flex>
           <Box>
             <Heading size="lg" textAlign="center" textTransform="capitalize">
@@ -160,71 +161,84 @@ const Home: React.FC = () => {
             />
           </HStack>
         </HStack>
-        <EndGameModal
-          isOpen={disc.endGameModal.isOpen}
-          onClose={disc.endGameModal.onClose}
-          gameStatus={gameStatus}
-          numWins={numWins}
-          numPlayed={numPlayed}
-          winStreak={winStreak}
-          longestWinStreak={longestWinStreak}
-          lastWinDate={lastWinDate}
-          turnStats={turnStats}
-          onShare={getShareStatus}
-          gameMode={gameMode}
-          correctAnswer={correctAnswer}
-          timeSolved={timeSolved}
-        />
-        {/* TODO: Move to ModalWrapper once game data changed to context */}
-        <BugReportModal
-          isOpen={disc.bugReportModal.isOpen}
-          onClose={disc.bugReportModal.onClose}
-          resetLocalStorage={resetLocalStorage}
-        />
-        <RulesModal
-          isOpen={disc.rulesModal.isOpen}
-          onClose={disc.rulesModal.onClose}
-          wordLength={wordLength}
-          numTries={numTries}
-        />
-        {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
-          <Link
-            isExternal
-            href={`${DICTIONARY_LINK}/word/${correctAnswer}`}
-            onClick={() => {
-              sendEvent(GTAG_EVENTS.openDictionary);
-            }}
+        {isLoading && (
+          <Flex
+            w="full"
+            h="calc(100vh - 150px)"
+            size="lg"
+            alignItems="center"
+            justifyContent="center"
           >
-            <HStack
-              bg={gameStatus === GameStatus.win ? 'green.500' : 'blue.500'}
-              px={[3, 4]}
-              py={[1, 2]}
-              borderRadius={4}
-              letterSpacing="10px"
-            >
-              <Heading fontSize={['2xl', '3xl']} textAlign="center" mr="-10px">
-                {correctAnswer.toUpperCase()}
-              </Heading>
-              {/* <ExternalLinkIcon /> */}
-            </HStack>
-          </Link>
+            <Spinner colorScheme="purple" />
+          </Flex>
         )}
-        <LetterGrid
-          numTries={numTries}
-          wordLength={wordLength}
-          tries={tries}
-          onSolve={onSolve}
-          gameStatus={gameStatus}
-          mt={['4', '8']}
-        />
-        <Keyboard
-          letterStatuses={letterStatuses}
-          mt={8}
-          pos="fixed"
-          bottom={['10px', '32px']}
-          onEnter={onSolve}
-          maxLength={wordLength}
-        />
+        {isError && (
+          <Flex w="full" h="full" alignItems="center" justifyContent="center">
+            <Text>{fetchError.message || 'Error in fetching json'}</Text>
+          </Flex>
+        )}
+        {!(isLoading || isError) && (
+          <>
+            <EndGameModal
+              isOpen={disc.endGameModal.isOpen}
+              onClose={disc.endGameModal.onClose}
+            />
+            {/* TODO: Move to ModalWrapper once game data changed to context */}
+            <BugReportModal
+              isOpen={disc.bugReportModal.isOpen}
+              onClose={disc.bugReportModal.onClose}
+              resetLocalStorage={resetLocalStorage}
+            />
+            <RulesModal
+              isOpen={disc.rulesModal.isOpen}
+              onClose={disc.rulesModal.onClose}
+              wordLength={wordLength}
+              numTries={numTries}
+            />
+            {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
+              <Link
+                isExternal
+                href={`${DICTIONARY_LINK}/word/${correctAnswer}`}
+                onClick={() => {
+                  sendEvent(GTAG_EVENTS.openDictionary);
+                }}
+              >
+                <HStack
+                  bg={gameStatus === GameStatus.win ? 'green.500' : 'blue.500'}
+                  px={[3, 4]}
+                  py={[1, 2]}
+                  borderRadius={4}
+                  letterSpacing="10px"
+                >
+                  <Heading
+                    fontSize={['2xl', '3xl']}
+                    textAlign="center"
+                    mr="-10px"
+                  >
+                    {correctAnswer.toUpperCase()}
+                  </Heading>
+                  {/* <ExternalLinkIcon /> */}
+                </HStack>
+              </Link>
+            )}
+            <LetterGrid
+              numTries={numTries}
+              wordLength={wordLength}
+              tries={tries}
+              onSolve={onSolve}
+              gameStatus={gameStatus}
+              mt={['4', '8']}
+            />
+            <Keyboard
+              letterStatuses={letterStatuses}
+              mt={8}
+              pos="fixed"
+              bottom={['10px', '32px']}
+              onEnter={onSolve}
+              maxLength={wordLength}
+            />
+          </>
+        )}
       </Container>
     </>
   );

@@ -1,5 +1,6 @@
+import { useOutsideClick } from '@chakra-ui/hooks';
 import { HStack } from '@chakra-ui/layout';
-import { useOutsideClick, VisuallyHiddenInput } from '@chakra-ui/react';
+import { VisuallyHiddenInput } from '@chakra-ui/visually-hidden';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo, useState } from 'react';
 

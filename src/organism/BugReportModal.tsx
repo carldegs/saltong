@@ -1,8 +1,7 @@
+import { Button } from '@chakra-ui/button';
+import { useClipboard, useDisclosure } from '@chakra-ui/hooks';
+import { Divider, HStack, Stack, Link, Text } from '@chakra-ui/layout';
 import {
-  Button,
-  Divider,
-  HStack,
-  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,15 +9,11 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  Stack,
-  Text,
-  useClipboard,
-  useDisclosure,
-} from '@chakra-ui/react';
+} from '@chakra-ui/modal';
 
 import { TWITTER_LINK } from '../constants';
-import { useHexGame } from '../context/HexGameContext';
-import { getUserData } from '../utils';
+import { getPersistState as getGamePersistState } from '../context/GameContext';
+import { getPersistState as getHexGamePersistState } from '../context/HexGameContext';
 import ResetDataAlert from './ResetDataAlert';
 
 interface BugReportModalInterface extends Omit<ModalProps, 'children'> {
@@ -30,11 +25,10 @@ const BugReportModal: React.FC<BugReportModalInterface> = ({
   isOpen,
   resetLocalStorage,
 }) => {
-  const { list, ...hexData } = useHexGame();
   const data = Buffer.from(
     JSON.stringify({
-      orig: getUserData() || {},
-      hex: hexData || {},
+      orig: getGamePersistState() || {},
+      hex: getHexGamePersistState() || {},
     })
   ).toString('base64');
   const { hasCopied, onCopy } = useClipboard(data);

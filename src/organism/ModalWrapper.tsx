@@ -1,7 +1,10 @@
+import dynamic from 'next/dynamic';
+
 import { useDisclosures } from '../context/DisclosuresContext';
-import AboutModal from '../molecules/AboutModal';
-import DebugCodeModal from './DebugCodeModal';
-import { NewDomainModal } from './NewDomainModal';
+
+const AboutModal = dynamic(() => import('../molecules/AboutModal'));
+const DebugCodeModal = dynamic(() => import('./DebugCodeModal'));
+const NewDomainModal = dynamic(() => import('./NewDomainModal'));
 
 const ModalWrapper: React.FC = ({ children }) => {
   const disc = useDisclosures();

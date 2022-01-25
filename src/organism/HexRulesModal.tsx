@@ -27,21 +27,13 @@ import {
 } from '@chakra-ui/react';
 
 import { HEX_RANK } from '../constants';
-import { HexGameWordListItem } from '../types/HexGameData';
+import { useHexGame } from '../context/HexGameContext';
 
-interface HexRulesModalProps extends Omit<ModalProps, 'children'> {
-  maxScore: number;
-  wordList: HexGameWordListItem[];
-}
+type HexRulesModalProps = Omit<ModalProps, 'children'>;
 
-const HexRulesModal: React.FC<HexRulesModalProps> = ({
-  isOpen,
-  onClose,
-  maxScore,
-  wordList,
-}) => {
+const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
   const isDarkMode = useColorModeValue(false, true);
-
+  const { maxScore, list: wordList } = useHexGame();
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay />

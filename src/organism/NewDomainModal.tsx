@@ -14,7 +14,7 @@ import useImport from '../hooks/useImport';
 
 const REDIRECT_TIME = 30;
 
-export const NewDomainModal = () => {
+const NewDomainModal = () => {
   const [timeLeft, setTimeLeft] = useState(REDIRECT_TIME);
   const { isPrevDomain, onRedirect } = useImport();
 
@@ -76,3 +76,5 @@ export const NewDomainModal = () => {
     </Modal>
   );
 };
+
+export default NewDomainModal;

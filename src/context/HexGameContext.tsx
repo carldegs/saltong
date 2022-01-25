@@ -1,4 +1,4 @@
-import { useToast, UseToastOptions } from '@chakra-ui/react';
+import { useToast, UseToastOptions } from '@chakra-ui/toast';
 import { isSameDay } from 'date-fns';
 import {
   createContext,
@@ -18,8 +18,13 @@ import {
   HEX_RANK,
   VERSION,
 } from '../constants';
-import hexRound from '../hexRound.json';
+import ApiError from '../lib/errors/ApiError';
 import ContextNoProviderError from '../lib/errors/ContextNoProviderError';
+import useQueryBlacklist from '../queries/useQueryBlacklist';
+import useQueryDictionary from '../queries/useQueryDictionary';
+import useQueryRootWords from '../queries/useQueryRootWords';
+import useQueryRoundData from '../queries/useQueryRoundData';
+import GameMode from '../types/GameMode';
 import {
   HexGameData,
   HexGameState,
@@ -39,10 +44,10 @@ import { useKeyboard } from './KeyboardContext';
 
 const LOCAL_HEX_DATA = 'saltong-hex-data';
 
-const getPersistState = () =>
+export const getPersistState = () =>
   JSON.parse(localStorage.getItem(LOCAL_HEX_DATA) || '{}') as HexGameState;
 
-const setPersistState = (gameState: HexGameState) =>
+export const setPersistState = (gameState: HexGameState) =>
   localStorage.setItem(LOCAL_HEX_DATA, JSON.stringify(gameState));
 
 interface useHexGameProps extends HexGameState {
@@ -60,6 +65,9 @@ interface useHexGameProps extends HexGameState {
     icon: string;
   };
   resetLocalStorage: () => void;
+  isLoading: boolean;
+  isError: boolean;
+  fetchError?: ApiError;
 }
 
 const DEFAULT_DATA: useHexGameProps = {
@@ -76,6 +84,9 @@ const DEFAULT_DATA: useHexGameProps = {
     index: 0,
   },
   resetLocalStorage: () => undefined,
+  isLoading: false,
+  isError: false,
+  fetchError: undefined,
 };
 
 const HexGameContext = createContext<useHexGameProps>(DEFAULT_DATA);
@@ -91,13 +102,58 @@ export const useHexGame = () => {
 };
 
 export const HexGameProvider: React.FC = ({ children }) => {
+  const { data: hexRound, ...roundQueryData } = useQueryRoundData(GameMode.hex);
+  const { data: rootWords, ...rootWordsQueryData } = useQueryRootWords();
+  const { data: blacklist, ...blacklistQueryData } = useQueryBlacklist();
+  const { data: dict, ...dictQueryData } = useQueryDictionary();
+
+  const isLoading = useMemo(
+    () =>
+      roundQueryData.isLoading ||
+      rootWordsQueryData.isLoading ||
+      blacklistQueryData.isLoading ||
+      dictQueryData.isLoading,
+    [
+      roundQueryData.isLoading,
+      rootWordsQueryData.isLoading,
+      blacklistQueryData.isLoading,
+      dictQueryData.isLoading,
+    ]
+  );
+  const isError = useMemo(
+    () =>
+      roundQueryData.isError ||
+      rootWordsQueryData.isError ||
+      blacklistQueryData.isError ||
+      dictQueryData.isError,
+    [
+      roundQueryData.isError,
+      rootWordsQueryData.isError,
+      blacklistQueryData.isError,
+      dictQueryData.isError,
+    ]
+  );
+
+  const fetchError = useMemo(
+    () =>
+      roundQueryData.error ||
+      rootWordsQueryData.error ||
+      blacklistQueryData.error ||
+      dictQueryData.error,
+    [
+      roundQueryData.error,
+      rootWordsQueryData.error,
+      blacklistQueryData.error,
+      dictQueryData.error,
+    ]
+  );
   const toast = useToast();
   const keyboardRef = useKeyboard();
   const [state, setState] = useState(DEFAULT_HEX_STATE);
   const [firstVisit, setFirstVisit] = useState(false);
   const rootWord = useMemo(
-    () => getHexRootWord(state.rootWordId) || '',
-    [state.rootWordId]
+    () => getHexRootWord(state.rootWordId, rootWords) || '',
+    [rootWords, state.rootWordId]
   );
   const { list, maxScore } = useMemo(
     () =>
@@ -105,8 +161,14 @@ export const HexGameProvider: React.FC = ({ children }) => {
         ? ({
             list: [],
           } as HexGameWordList)
-        : getHexWordList(rootWord, state.centerLetter),
-    [rootWord, state.centerLetter]
+        : getHexWordList(
+            rootWord,
+            state.centerLetter,
+            rootWords,
+            blacklist,
+            dict
+          ),
+    [blacklist, dict, rootWord, rootWords, state.centerLetter]
   );
   const rank = useMemo(
     () => getRank(state.score, maxScore),
@@ -191,15 +253,18 @@ export const HexGameProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    if (isLoading || isError) {
+      return;
+    }
+
     let persistState = getPersistState();
     const currGameDate = getCurrGameDate();
-    const { gameId, rootWordId, centerLetter }: HexGameData =
-      hexRound[getDateString(currGameDate)];
-    const {
-      rootWordId: prevRootWordId,
-      centerLetter: prevCenterLetter,
-    }: HexGameData =
-      hexRound[getDateString(getPrevGameDate())] || DEFAULT_HEX_GAME_DATA;
+    const { gameId, rootWordId, centerLetter } = hexRound[
+      getDateString(currGameDate)
+    ] as HexGameData;
+    const { rootWordId: prevRootWordId, centerLetter: prevCenterLetter } =
+      (hexRound[getDateString(getPrevGameDate())] as HexGameData) ||
+      DEFAULT_HEX_GAME_DATA;
 
     // Check if first visit, else update state
     if (!persistState?.version) {
@@ -228,10 +293,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
     }
 
     // Check if game is outdated
-    if (
-      !isSameDay(getCurrGameDate(persistState.gameStartDate), currGameDate) ||
-      persistState.rootWordId !== rootWordId
-    ) {
+    if (!isSameDay(getCurrGameDate(persistState.gameStartDate), currGameDate)) {
       persistState = {
         ...persistState,
         prevRootWordId: persistState.rootWordId,
@@ -253,11 +315,14 @@ export const HexGameProvider: React.FC = ({ children }) => {
       };
     }
     setState(persistState);
-  }, [setFirstVisit]);
+  }, [hexRound, isLoading, isError]);
 
   useEffect(() => {
+    if (isLoading || isError) {
+      return;
+    }
     setPersistState(state);
-  }, [state]);
+  }, [isError, isLoading, state]);
 
   const value = {
     ...state,
@@ -270,6 +335,9 @@ export const HexGameProvider: React.FC = ({ children }) => {
     rank,
     letters,
     resetLocalStorage,
+    isLoading,
+    isError,
+    fetchError,
   };
 
   return (

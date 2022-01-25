@@ -1,5 +1,4 @@
-import { Box, Container, Grid } from '@chakra-ui/layout';
-import { BoxProps, GridProps } from '@chakra-ui/react';
+import { Box, Container, Grid, BoxProps, GridProps } from '@chakra-ui/layout';
 import Head from 'next/head';
 import React from 'react';
 import { useState } from 'react';
