@@ -1,5 +1,6 @@
 import { HamburgerIcon } from '@chakra-ui/icons';
 import {
+  Button,
   Icon,
   IconButton,
   Menu,
@@ -10,6 +11,7 @@ import {
   MenuItemOption,
   MenuList,
   useColorMode,
+  Link,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import {
@@ -24,10 +26,12 @@ import {
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { useDisclosures } from '../context/DisclosuresContext';
+import { getPersistState as getGamePersistData } from '../context/GameContext';
+import { getPersistState as getHexGamePersistData } from '../context/HexGameContext';
 import { useKeyboard } from '../context/KeyboardContext';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
-import { getUserData } from '../utils';
+import { sendEvent, GTAG_EVENTS } from '../utils';
 
 interface GameMenuProps {
   gameStatus?: GameStatus;
@@ -171,6 +175,24 @@ const GameMenu: React.FC<GameMenuProps> = ({
             About
           </MenuItem>
         </MenuGroup>
+
+        <Link
+          isExternal
+          href="https://ko-fi.com/carldegs"
+          onClick={() => {
+            sendEvent(GTAG_EVENTS.openDonate);
+          }}
+          pt={3}
+        >
+          <Button
+            size="sm"
+            variant="ghost"
+            opacity={0.03}
+            _hover={{ opacity: 0.1 }}
+          >
+            Help keep the site running!
+          </Button>
+        </Link>
         {process.env.NODE_ENV === 'development' && (
           <>
             <MenuDivider />
@@ -193,7 +215,10 @@ const GameMenu: React.FC<GameMenuProps> = ({
                 <MenuItem
                   onClick={() => {
                     // eslint-disable-next-line no-console
-                    console.log(getUserData());
+                    console.log({
+                      game: getGamePersistData(),
+                      hex: getHexGamePersistData(),
+                    });
                   }}
                   icon={<EmojiWrapper value="📃" />}
                 >

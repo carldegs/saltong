@@ -17,8 +17,8 @@ import {
 } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 
+import { setPersistState } from '../context/GameContext';
 import UserData from '../types/UserData';
-import { setUserData } from '../utils';
 
 const DebugCodeModal: React.FC<Omit<ModalProps, 'children'>> = ({
   onClose,
@@ -78,7 +78,8 @@ const DebugCodeModal: React.FC<Omit<ModalProps, 'children'>> = ({
 
             <Button
               onClick={() => {
-                setUserData(decodedData as UserData);
+                // TODO: handle hex
+                setPersistState(decodedData as UserData);
               }}
             >
               Import Data

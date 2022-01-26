@@ -1,4 +1,4 @@
-import { BoxProps } from '@chakra-ui/react';
+import { BoxProps } from '@chakra-ui/layout';
 
 export const DESKTOP_BREAKPOINT = 'lg';
 

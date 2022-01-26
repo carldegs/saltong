@@ -1,9 +1,9 @@
-import { useToast } from '@chakra-ui/react';
+import { useToast } from '@chakra-ui/toast';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 
+import { getPersistState, setPersistState } from '../context/GameContext';
 import UserData from '../types/UserData';
-import { getUserData, setUserData } from '../utils';
 
 const useImport = () => {
   const [isPrevDomain, setIsPrevDomain] = useState(false);
@@ -12,7 +12,7 @@ const useImport = () => {
   const toast = useToast();
 
   const onRedirect = useCallback(() => {
-    const data = Buffer.from(JSON.stringify(getUserData() || {})).toString(
+    const data = Buffer.from(JSON.stringify(getPersistState() || {})).toString(
       'base64'
     );
     window.location.replace(
@@ -30,7 +30,7 @@ const useImport = () => {
 
   useEffect(() => {
     if (importfile) {
-      const currData = getUserData();
+      const currData = getPersistState();
       const importedData: UserData = JSON.parse(
         Buffer.from(importfile as string, 'base64').toString('ascii')
       );
@@ -39,7 +39,7 @@ const useImport = () => {
         const isCurrDataEmpty = !currData?.main?.numPlayed;
 
         if (isCurrDataEmpty) {
-          setUserData(importedData);
+          setPersistState(importedData);
         }
 
         router.replace(`/${router?.query?.slug || ''}`).then(() => {

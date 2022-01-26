@@ -44,47 +44,34 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
-import { OnShareOptions } from '../hooks/useWord';
+import { useGame } from '../context/GameContext';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { getCountdownToNextDay } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
-interface EndGameModalProps extends Omit<ModalProps, 'children'> {
-  gameStatus: GameStatus;
-  numWins: number;
-  numPlayed: number;
-  winStreak: number;
-  longestWinStreak: number;
-  lastWinDate: string;
-  turnStats: number[];
-  gameMode: GameMode;
-  correctAnswer?: string;
-  onShare: (options?: Partial<OnShareOptions>) => string;
-  timeSolved?: string;
-}
+type EndGameModalProps = Omit<ModalProps, 'children'>;
 // TODO: Create list of emotes for header
 
-const EndGameModal: React.FC<EndGameModalProps> = ({
-  isOpen,
-  onClose,
-  gameStatus,
-  onShare,
-  numPlayed,
-  numWins,
-  winStreak,
-  turnStats,
-  gameMode,
-  correctAnswer,
-  timeSolved,
-}) => {
+const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
+  const {
+    gameStatus,
+    getShareStatus,
+    numPlayed,
+    numWins,
+    winStreak,
+    turnStats,
+    gameMode,
+    correctAnswer,
+    timeSolved,
+  } = useGame();
   const [showTimeSolved, setShowTimeSolved] = useState(true);
   const [showLink, setShowLink] = useState(true);
   const router = useRouter();
   const shareMessage = useMemo(
-    () => onShare({ showTimeSolved, showLink }),
-    [showTimeSolved, onShare, showLink]
+    () => getShareStatus({ showTimeSolved, showLink }),
+    [showTimeSolved, getShareStatus, showLink]
   );
   const { hasCopied, onCopy } = useClipboard(shareMessage);
   const showShareButton =
@@ -147,7 +134,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({
                     Time{' '}
                     <Popover>
                       <PopoverTrigger>
-                        <Icon as={Question} mb={1.5} weight="bold" />
+                        <Icon as={Question} weight="bold" />
                       </PopoverTrigger>
                       <PopoverContent>
                         <PopoverArrow />

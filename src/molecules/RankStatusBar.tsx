@@ -53,7 +53,7 @@ const RankStatusBar: React.FC<RankStatusBarProps> = ({ rank, score }) => {
           textAlign="center"
           ml="-50%"
           mt={1}
-          size="lg"
+          fontSize="lg"
           fontWeight="bold"
           color="purple.300"
         >

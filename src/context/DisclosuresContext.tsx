@@ -1,4 +1,4 @@
-import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/react';
+import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/hooks';
 import { createContext, useContext } from 'react';
 
 import ContextNoProviderError from '../lib/errors/ContextNoProviderError';

@@ -1,4 +1,5 @@
-import { Button, Flex, Heading, Text } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/button';
+import { Flex, Heading, Text } from '@chakra-ui/layout';
 import { useRouter } from 'next/router';
 
 const Custom404: React.FC = () => {

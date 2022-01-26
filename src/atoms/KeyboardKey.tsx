@@ -1,4 +1,5 @@
-import { Flex, Spinner } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/layout';
+import { Spinner } from '@chakra-ui/spinner';
 import { ReactElement, useState } from 'react';
 
 import useLetterStatusColor from '../hooks/useLetterStatusColor';

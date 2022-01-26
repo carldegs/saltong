@@ -1,21 +1,23 @@
+import { Button } from '@chakra-ui/button';
+import { useDisclosure } from '@chakra-ui/hooks';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import {
   Box,
-  Button,
   Divider,
   Heading,
   HStack,
   Link,
+  Stack,
+  Text,
+} from '@chakra-ui/layout';
+import {
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalOverlay,
   ModalProps,
-  Stack,
-  Text,
-  useDisclosure,
-} from '@chakra-ui/react';
+} from '@chakra-ui/modal';
 import React from 'react';
 
 import { VERSION } from '../constants';
@@ -73,9 +75,9 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
               </Box>
               <Divider />
               <Text fontWeight="bold" pt={4} pb={2}>
-                A project by Carl de Guia
+                A Project by Carl de Guia
               </Text>
-              <Stack spacing={2} alignItems="center">
+              <Stack spacing={6} alignItems="center">
                 <HStack spacing={4}>
                   <Link
                     isExternal
@@ -107,7 +109,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                   }}
                 >
                   <Button size="sm" variant="ghost">
-                    Donate
+                    Contribute to keep the site running!
                   </Button>
                 </Link>
               </Stack>

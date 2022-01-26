@@ -8,29 +8,33 @@ import {
 } from 'date-fns';
 
 import { HEX_RANK } from '../constants';
-import groupedDict from '../dict.json';
-import blacklist from '../hexBlacklist.json';
-import rootWords from '../root_words.json';
 import { HexGameWordList, HexGameWordListItem } from '../types/HexGameData';
 
-export const getHexRootWordIndex = (rootWord: string) =>
-  rootWords.indexOf(rootWord);
+export const getHexRootWordIndex = (
+  rootWord: string,
+  rootWords: string[] = []
+) => rootWords.indexOf(rootWord);
 
-export const getHexRootWord = (rootWordIndex: number) =>
-  rootWords[rootWordIndex];
+export const getHexRootWord = (
+  rootWordIndex: number,
+  rootWords: string[] = []
+) => (rootWordIndex >= 0 ? rootWords[rootWordIndex] : '');
 
-export const getFlatDict = () => {
+export const getFlatDict = (groupedDict: Record<number, string[]> = {}) => {
   let flattenedDict: string[] = [];
   Object.values(groupedDict).forEach((wordGroup) =>
-    wordGroup.forEach((word) => {
+    (wordGroup || []).forEach((word) => {
       flattenedDict = [...flattenedDict, word];
     })
   );
   return flattenedDict;
 };
 
-export const getSubsetWordList = (rootWord: string) =>
-  getFlatDict().filter((word) =>
+export const getSubsetWordList = (
+  rootWord: string,
+  groupedDict: Record<number, string[]> = {}
+) =>
+  getFlatDict(groupedDict).filter((word) =>
     Array.from(word).every((letter) => rootWord.indexOf(letter) >= 0)
   );
 
@@ -57,7 +61,10 @@ export const getFinalWordList = (
   centerLetter: string
 ) => subsetWordList.filter((word) => isValidFinalWord(word, centerLetter));
 
-export const getHexGameWordList = (words: string[]): HexGameWordListItem[] =>
+export const getHexGameWordList = (
+  words: string[],
+  blacklist: string[] = []
+): HexGameWordListItem[] =>
   words
     .filter((word) => !blacklist.includes(word))
     .map((word) => ({
@@ -78,14 +85,17 @@ export const getMaxScore = (finalWordList: HexGameWordListItem[]) => {
 
 export const getHexWordList = (
   rootWordOrIndex: number | string,
-  centerLetter?: string
+  centerLetter: string,
+  rootWords: string[] = [],
+  blacklist: string[] = [],
+  groupedDict: Record<number, string[]> = {}
 ): HexGameWordList => {
   const rootWord =
     typeof rootWordOrIndex === 'number'
       ? rootWords[rootWordOrIndex]
       : rootWordOrIndex;
 
-  const initWordList = getSubsetWordList(rootWord);
+  const initWordList = getSubsetWordList(rootWord, groupedDict);
   const letterScores = getLetterScores(initWordList);
 
   const finalCenterLetter =
@@ -94,7 +104,10 @@ export const getHexWordList = (
       letterScores[a] < letterScores[b] ? a : b
     );
 
-  const list = getHexGameWordList(getFinalWordList(initWordList, centerLetter));
+  const list = getHexGameWordList(
+    getFinalWordList(initWordList, centerLetter),
+    blacklist
+  );
 
   const maxScore = getMaxScore(list);
 
@@ -102,28 +115,6 @@ export const getHexWordList = (
     list,
     centerLetter: finalCenterLetter,
     maxScore,
-  };
-};
-
-export const analyzeWord = (rootWord: string) => {
-  const iniWordList = getSubsetWordList(rootWord);
-  const hexList = getHexGameWordList(iniWordList);
-
-  return {
-    rootWord,
-    info: Array.from(rootWord).map((centerLetter) => {
-      const finalWords = hexList.filter(({ word }) =>
-        isValidFinalWord(word, centerLetter)
-      );
-      const maxScore = getMaxScore(finalWords);
-
-      return {
-        centerLetter,
-        numWords: finalWords.length,
-        maxScore,
-        wordList: finalWords.map(({ word }) => word),
-      };
-    }),
   };
 };
 

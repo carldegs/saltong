@@ -1,10 +1,5 @@
-import {
-  Box,
-  Flex,
-  BoxProps,
-  Heading,
-  useBreakpointValue,
-} from '@chakra-ui/react';
+import { BoxProps, Box, Flex, Heading } from '@chakra-ui/layout';
+import { useBreakpointValue } from '@chakra-ui/media-query';
 import { ReactElement, useMemo } from 'react';
 
 import {

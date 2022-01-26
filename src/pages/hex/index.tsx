@@ -8,8 +8,11 @@ import {
   HStack,
   IconButton,
   Link,
+  Skeleton,
+  Spinner,
   Text,
 } from '@chakra-ui/react';
+import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useEffect } from 'react';
 
@@ -19,17 +22,18 @@ import HexAnswerList from '../../molecules/HexAnswerList';
 import HexInput from '../../molecules/HexInput';
 import Hexboard from '../../molecules/Hexboard';
 import RankStatusBar from '../../molecules/RankStatusBar';
-import BugReportModal from '../../organism/BugReportModal';
 import GameMenu from '../../organism/GameMenu';
-import HexRulesModal from '../../organism/HexRulesModal';
-import HexShareModal from '../../organism/HexShareModal';
-import PrevAnswersModal from '../../organism/PrevAnswersModal';
 import GameMode from '../../types/GameMode';
+
+const HexRulesModal = dynamic(() => import('../../organism/HexRulesModal'));
+const BugReportModal = dynamic(() => import('../../organism/BugReportModal'));
+const HexShareModal = dynamic(() => import('../../organism/HexShareModal'));
+const PrevAnswersModal = dynamic(
+  () => import('../../organism/PrevAnswersModal')
+);
 
 const HexPage: React.FC = () => {
   const {
-    maxScore,
-    list,
     rank,
     score,
     gameId,
@@ -40,6 +44,9 @@ const HexPage: React.FC = () => {
     resetLocalStorage,
     firstVisit,
     setFirstVisit,
+    isLoading,
+    isError,
+    fetchError,
   } = useHexGame();
   const { hexRulesModal, hexShareModal, bugReportModal, hexPrevAnsModal } =
     useDisclosures();
@@ -59,36 +66,40 @@ const HexPage: React.FC = () => {
         <meta name="apple-mobile-web-app-status-bar" content="#6B46C1" />
       </Head>
 
-      <HexRulesModal
-        isOpen={hexRulesModal.isOpen}
-        onClose={hexRulesModal.onClose}
-        maxScore={maxScore}
-        wordList={list}
-      />
-      <HexShareModal
-        isOpen={hexShareModal.isOpen}
-        onClose={hexShareModal.onClose}
-        rank={rank}
-        score={score}
-        gameId={gameId}
-        numWords={guessedWords.length}
-      />
-      <BugReportModal
-        isOpen={bugReportModal.isOpen}
-        onClose={bugReportModal.onClose}
-        resetLocalStorage={resetLocalStorage}
-      />
-      <PrevAnswersModal
-        isOpen={hexPrevAnsModal.isOpen}
-        onClose={hexPrevAnsModal.onClose}
-      />
+      {!(isLoading || isError) && (
+        <>
+          <HexRulesModal
+            isOpen={hexRulesModal.isOpen}
+            onClose={hexRulesModal.onClose}
+          />
+          <HexShareModal
+            isOpen={hexShareModal.isOpen}
+            onClose={hexShareModal.onClose}
+            rank={rank}
+            score={score}
+            gameId={gameId}
+            numWords={guessedWords.length}
+          />
+          <BugReportModal
+            isOpen={bugReportModal.isOpen}
+            onClose={bugReportModal.onClose}
+            resetLocalStorage={resetLocalStorage}
+          />
+          <PrevAnswersModal
+            isOpen={hexPrevAnsModal.isOpen}
+            onClose={hexPrevAnsModal.onClose}
+          />
+        </>
+      )}
 
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">
         <HStack my={4} w="full">
           <Flex flex={1} flexDir="row">
-            <Text cursor="default" fontSize={['md', 'lg']} textAlign="center">
-              Game #{gameId}
-            </Text>
+            <Skeleton isLoaded={!isLoading}>
+              <Text cursor="default" fontSize={['md', 'lg']} textAlign="center">
+                Game #{gameId}
+              </Text>
+            </Skeleton>
           </Flex>
           <Box>
             <Heading size="lg" textAlign="center" textTransform="capitalize">
@@ -126,23 +137,44 @@ const HexPage: React.FC = () => {
             />
           </HStack>
         </HStack>
-        <RankStatusBar rank={rank} score={score} />
-        <Grid w="full" gridTemplateRows="auto 1fr auto" h="full" mt={12}>
-          <HexAnswerList answers={guessedWords} />
-          <Flex maxH="500px" h="full" w="full" alignItems="center">
-            <HexInput
-              onSolve={solve}
-              centerLetter={centerLetter}
-              letters={letters}
-            />
+
+        {isLoading && (
+          <Flex
+            w="full"
+            h="calc(100vh - 150px)"
+            size="lg"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Spinner colorScheme="purple" />
           </Flex>
-          <Hexboard
-            letters={letters}
-            onEnter={solve}
-            centerLetter={centerLetter}
-            mx="auto"
-          />
-        </Grid>
+        )}
+        {isError && (
+          <Flex w="full" h="full" alignItems="center" justifyContent="center">
+            <Text>{fetchError.message || 'Error in fetching json'}</Text>
+          </Flex>
+        )}
+        {!(isLoading || isError) && (
+          <>
+            <RankStatusBar rank={rank} score={score} />
+            <Grid w="full" gridTemplateRows="auto 1fr auto" h="full" mt={12}>
+              <HexAnswerList answers={guessedWords} />
+              <Flex maxH="500px" h="full" w="full" alignItems="center">
+                <HexInput
+                  onSolve={solve}
+                  centerLetter={centerLetter}
+                  letters={letters}
+                />
+              </Flex>
+              <Hexboard
+                letters={letters}
+                onEnter={solve}
+                centerLetter={centerLetter}
+                mx="auto"
+              />
+            </Grid>
+          </>
+        )}
       </Container>
     </>
   );

@@ -1,15 +1,15 @@
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { HexGameData, HexGameState } from '../types/HexGameData';
-import { UserGameData } from '../types/UserData';
+import UserData, { UserGameData } from '../types/UserData';
 
-export const NUM_TRIES = {
+export const NUM_TRIES: Record<Exclude<GameMode, 'hex'>, number> = {
   [GameMode.main]: 6,
   [GameMode.mini]: 5,
   [GameMode.max]: 8,
 };
 
-export const WORD_LENGTH = {
+export const WORD_LENGTH: Record<Exclude<GameMode, 'hex'>, number> = {
   [GameMode.main]: 5,
   [GameMode.mini]: 4,
   [GameMode.max]: 7,
@@ -26,6 +26,14 @@ export const DEFAULT_USER_GAME_DATA: UserGameData = {
   gameStatus: GameStatus.playing,
   gameStartDate: '',
   gameId: 0,
+};
+
+export const DEFAULT_USER_DATA: UserData = {
+  mini: DEFAULT_USER_GAME_DATA,
+  max: DEFAULT_USER_GAME_DATA,
+  main: DEFAULT_USER_GAME_DATA,
+  version: '',
+  uuid: '',
 };
 
 export const DEFAULT_HEX_STATE: HexGameState = {

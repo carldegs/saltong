@@ -1,5 +1,4 @@
-import { ButtonProps } from '@chakra-ui/button';
-import { Button } from '@chakra-ui/react';
+import { ButtonProps, Button } from '@chakra-ui/button';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 

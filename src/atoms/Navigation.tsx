@@ -1,5 +1,11 @@
-import { Box, Heading, Text } from '@chakra-ui/layout';
-import { Container, BoxProps, Spacer } from '@chakra-ui/react';
+import {
+  Box,
+  Heading,
+  Text,
+  Container,
+  BoxProps,
+  Spacer,
+} from '@chakra-ui/layout';
 import { useRouter } from 'next/router';
 
 const NAVBAR_HEIGHT = '60px';
