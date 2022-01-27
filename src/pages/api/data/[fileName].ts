@@ -9,6 +9,7 @@ const DataHandler = createApiHandler().get(async (req, res) => {
     const dir = path.resolve('./public', `json/${req.query.fileName}`);
     const file = await fs.promises.readFile(dir);
 
+    res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
     res.json(file);
   } catch (err) {
     throw new FileNotFoundError(req.query.fileName as string);

@@ -33,7 +33,7 @@ import LetterStatus from '../types/LetterStatus';
 import { RoundData } from '../types/RoundData';
 import UserData, { UserGameData } from '../types/UserData';
 import { UserGameHistory } from '../types/UserData';
-import { getDateString, getNumArr } from '../utils';
+import { getDateString, getNumArr, getTimeSolved } from '../utils';
 import { isSupportedVersion } from '../utils';
 
 const LOCAL_GAME_DATA = 'saltong-user-data';
@@ -174,7 +174,10 @@ export const GameProvider: React.FC = ({ children }) => {
 
     return statuses;
   }, [gameData]);
-  const timeSolved = '';
+  const timeSolved = useMemo(
+    () => getTimeSolved(gameData?.gameStartDate, gameData?.lastWinDate),
+    [gameData.gameStartDate, gameData.lastWinDate]
+  );
   const wordLength = useMemo(() => WORD_LENGTH[gameMode], [gameMode]);
   const numTries = useMemo(() => NUM_TRIES[gameMode], [gameMode]);
 
@@ -353,11 +356,11 @@ ${grid}
 
 ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
     },
-    [colorMode, gameData, gameMode, numTries]
+    [colorMode, gameData, gameMode, numTries, timeSolved]
   );
 
   useEffect(() => {
-    if (isLoading || isError) {
+    if (isLoading || isError || !Object.keys(roundData || {})?.length) {
       return;
     }
 
