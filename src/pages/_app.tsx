@@ -8,15 +8,19 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { Hydrate } from 'react-query/hydration';
 
 import { DisclosuresProvider } from '../context/DisclosuresContext';
-import { GameProvider } from '../context/GameContext';
-import { HexGameProvider } from '../context/HexGameContext';
 import { KeyboardProvider } from '../context/KeyboardContext';
 import ModalWrapper from '../organism/ModalWrapper';
 import theme from '../theme';
+import { AppPropsWithLayout } from '../types/NextPageWithLayout';
 import { sendPageViewEvent } from '../utils/gtag';
 
-const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
+const MyApp: React.FC<AppProps> = ({
+  Component,
+  pageProps,
+}: AppPropsWithLayout) => {
   const queryClientRef = useRef<QueryClient>();
+  const getLayout = Component.getLayout ?? ((page) => page);
+
   if (!queryClientRef.current) {
     queryClientRef.current = new QueryClient({
       defaultOptions: {
@@ -47,13 +51,9 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
         <ChakraProvider theme={theme}>
           <DisclosuresProvider>
             <KeyboardProvider>
-              <HexGameProvider>
-                <GameProvider>
-                  <ModalWrapper>
-                    <Component {...pageProps} />
-                  </ModalWrapper>
-                </GameProvider>
-              </HexGameProvider>
+              <ModalWrapper>
+                {getLayout(<Component {...pageProps} />)}
+              </ModalWrapper>
             </KeyboardProvider>
           </DisclosuresProvider>
         </ChakraProvider>

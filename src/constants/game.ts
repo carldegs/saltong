@@ -1,3 +1,4 @@
+import { DictionaryState } from '../types/Dictionary';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { HexGameData, HexGameState } from '../types/HexGameData';
@@ -36,10 +37,17 @@ export const DEFAULT_USER_DATA: UserData = {
   uuid: '',
 };
 
+export const DEFAULT_HEX_GAME_DATA: HexGameData = {
+  rootWord: '',
+  centerLetter: '',
+  date: '',
+  gameId: 0,
+};
+
 export const DEFAULT_HEX_STATE: HexGameState = {
-  prevRootWordId: -1,
+  prevRootWord: '',
   prevCenterLetter: '',
-  rootWordId: -1,
+  rootWord: '',
   centerLetter: '',
   gameId: 0,
   scores: {},
@@ -50,11 +58,9 @@ export const DEFAULT_HEX_STATE: HexGameState = {
   uuid: '',
 };
 
-export const DEFAULT_HEX_GAME_DATA: HexGameData = {
-  rootWordId: -1,
-  centerLetter: '',
-  date: '',
-  gameId: 0,
+export const DEFAULT_DICTIONARY_STATE: DictionaryState = {
+  version: '',
+  dictionary: {},
 };
 
 export const HEX_RANK = [

@@ -18,6 +18,7 @@ import {
   DEFAULT_USER_DATA,
   DEFAULT_USER_GAME_DATA,
   DOMAIN,
+  LOCAL_GAME_DATA,
   NUM_TRIES,
   VERSION,
   WORD_LENGTH,
@@ -33,18 +34,14 @@ import LetterStatus from '../types/LetterStatus';
 import { RoundData } from '../types/RoundData';
 import UserData, { UserGameData } from '../types/UserData';
 import { UserGameHistory } from '../types/UserData';
-import { getDateString, getNumArr, getTimeSolved } from '../utils';
+import { getNumArr, getTimeSolved } from '../utils';
 import { isSupportedVersion } from '../utils';
+import { getPersistState, setPersistState } from '../utils/local';
 
-const LOCAL_GAME_DATA = 'saltong-user-data';
+const getGamePersistState = () => getPersistState<UserData>(LOCAL_GAME_DATA);
 
-export const getPersistState = () => {
-  return JSON.parse(localStorage.getItem(LOCAL_GAME_DATA) || '{}') as UserData;
-};
-
-export const setPersistState = (gameState: UserData) => {
-  return localStorage.setItem(LOCAL_GAME_DATA, JSON.stringify(gameState));
-};
+const setGamePersistState = (gameState: UserData) =>
+  setPersistState<UserData>(LOCAL_GAME_DATA, gameState);
 
 export interface OnShareOptions {
   showTimeSolved: boolean;
@@ -187,8 +184,7 @@ export const GameProvider: React.FC = ({ children }) => {
         throw new IncompleteWordError(wordLength);
       }
       const answer = ans.toLowerCase();
-      const currDateStr = getDateString(new Date());
-      const { word: solution } = roundData[currDateStr] as RoundData;
+      const { word: solution } = roundData as RoundData;
       const selectedDict = dict[WORD_LENGTH[gameMode]];
 
       const isValidWord = !!selectedDict.find(
@@ -360,11 +356,11 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
   );
 
   useEffect(() => {
-    if (isLoading || isError || !Object.keys(roundData || {})?.length) {
+    if (isLoading || isError || !(roundData as RoundData)?.word) {
       return;
     }
 
-    let persistState = getPersistState();
+    let persistState = getGamePersistState();
     const currDate = new Date().toISOString();
 
     if (!persistState?.version || !isSupportedVersion(persistState.version)) {
@@ -413,7 +409,7 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
       };
     }
 
-    const currRound = roundData[getDateString(currDate)] as RoundData;
+    const currRound = roundData as RoundData;
     persistState = {
       ...persistState,
       [gameMode]: {
@@ -430,6 +426,20 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
       };
     }
 
+    // check if curr word is incorrect even if same game id
+    if (
+      (persistState[gameMode] as UserGameData).gameId === roundData.gameId &&
+      (persistState[gameMode] as UserGameData).correctAnswer !==
+        (roundData as RoundData).word
+    ) {
+      persistState = {
+        ...persistState,
+        [gameMode]: {
+          ...persistState[gameMode],
+          correctAnswer: (roundData as RoundData).word,
+        },
+      };
+    }
     setState(persistState);
   }, [gameMode, isError, isLoading, roundData]);
 
@@ -440,7 +450,7 @@ ${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
     if (isLoading || isError) {
       return;
     }
-    setPersistState(state);
+    setGamePersistState(state);
   }, [isError, isLoading, state]);
 
   const value: useGameProps = {

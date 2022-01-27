@@ -10,16 +10,6 @@ import {
 import { HEX_RANK } from '../constants';
 import { HexGameWordList, HexGameWordListItem } from '../types/HexGameData';
 
-export const getHexRootWordIndex = (
-  rootWord: string,
-  rootWords: string[] = []
-) => rootWords.indexOf(rootWord);
-
-export const getHexRootWord = (
-  rootWordIndex: number,
-  rootWords: string[] = []
-) => (rootWordIndex >= 0 ? rootWords[rootWordIndex] : '');
-
 export const getFlatDict = (groupedDict: Record<number, string[]> = {}) => {
   let flattenedDict: string[] = [];
   Object.values(groupedDict).forEach((wordGroup) =>
@@ -84,17 +74,11 @@ export const getMaxScore = (finalWordList: HexGameWordListItem[]) => {
 };
 
 export const getHexWordList = (
-  rootWordOrIndex: number | string,
+  rootWord: string,
   centerLetter: string,
-  rootWords: string[] = [],
   blacklist: string[] = [],
   groupedDict: Record<number, string[]> = {}
 ): HexGameWordList => {
-  const rootWord =
-    typeof rootWordOrIndex === 'number'
-      ? rootWords[rootWordOrIndex]
-      : rootWordOrIndex;
-
   const initWordList = getSubsetWordList(rootWord, groupedDict);
   const letterScores = getLetterScores(initWordList);
 
@@ -123,15 +107,6 @@ export const isPangram = (word: string) =>
 
 export const getWordScore = (word: string) =>
   (word.length === 4 ? 1 : word.length) + (isPangram(word) ? 7 : 0);
-
-export const logspace = (min: number, max: number, numSamples: number) => {
-  const t = (max / min) ** (1 / numSamples);
-  const samples = Array.from(Array(numSamples).keys()).map((i) =>
-    Math.round(min * t ** i)
-  );
-
-  return samples;
-};
 
 export const getRank = (score: number, maxScore: number) => {
   const percentageScore = score / maxScore;

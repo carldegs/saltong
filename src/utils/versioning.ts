@@ -1,6 +1,9 @@
 import semver from 'semver';
 
-import { MIN_SUPPORTED_VERSION } from '../constants';
+import {
+  MIN_SUPPORTED_DICTIONARY_VERSION,
+  MIN_SUPPORTED_VERSION,
+} from '../constants';
 
 export const parseVersion = (version: string): number[] =>
   version
@@ -33,4 +36,8 @@ export const isSameVersion = (
 
 export const isSupportedVersion = (gameVersion: string): boolean => {
   return semver.satisfies(gameVersion, `>=${MIN_SUPPORTED_VERSION}`);
+};
+
+export const isDictionaryUpToDate = (gameVersion: string): boolean => {
+  return semver.satisfies(gameVersion, `>=${MIN_SUPPORTED_DICTIONARY_VERSION}`);
 };

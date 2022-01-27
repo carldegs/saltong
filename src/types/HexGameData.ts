@@ -1,6 +1,6 @@
 // Saved in json file
 export interface HexGameData {
-  rootWordId: number;
+  rootWord: string;
   centerLetter: string;
   date: string;
   gameId: number;
@@ -8,7 +8,7 @@ export interface HexGameData {
 
 // Data type for localstorage
 export interface HexGameState extends Omit<HexGameData, 'date'> {
-  prevRootWordId: number;
+  prevRootWord: string;
   prevCenterLetter: string;
   scores: Record<
     string,
