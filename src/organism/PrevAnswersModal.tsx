@@ -16,24 +16,17 @@ import { useMemo } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
 import { useHexGame } from '../context/HexGameContext';
-import { getHexRootWord, getHexWordList } from '../utils/hex';
 
 const PrevAnswersModal: React.FC<Omit<ModalProps, 'children'>> = ({
   onClose,
   isOpen,
 }) => {
-  const { gameId, prevRootWordId, prevCenterLetter } = useHexGame();
-  const prevRootWord = useMemo(
-    () => getHexRootWord(prevRootWordId) || '',
-    [prevRootWordId]
+  const { gameId, getPrevData } = useHexGame();
+  const { prevRootWord, prevAnswers, prevCenterLetter } = useMemo(
+    () => getPrevData(),
+    [getPrevData]
   );
-  const { list, maxScore } = useMemo(
-    () =>
-      prevRootWord
-        ? getHexWordList(prevRootWord, prevCenterLetter)
-        : { list: [], maxScore: 0 },
-    [prevRootWord, prevCenterLetter]
-  );
+  const { list, maxScore } = prevAnswers;
   const letters = useMemo(
     () =>
       Array.from(new Set(prevRootWord.split(''))).sort(
@@ -42,7 +35,7 @@ const PrevAnswersModal: React.FC<Omit<ModalProps, 'children'>> = ({
     [prevRootWord]
   );
   const textColor = useColorModeValue('gray.400', 'gray.600');
-  const hasPrevRound = prevRootWordId && !!(gameId - 1);
+  const hasPrevRound = prevRootWord && !!(gameId - 1);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">

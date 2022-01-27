@@ -23,7 +23,7 @@ const MyApp: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
         queries: {
           retry: false,
           refetchOnWindowFocus: false,
-          cacheTime: 1000 * 60 * 60 * 1,
+          cacheTime: 1000 * 60 * 60 * 2,
         },
       },
     });

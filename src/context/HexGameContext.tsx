@@ -68,6 +68,11 @@ interface useHexGameProps extends HexGameState {
   isLoading: boolean;
   isError: boolean;
   fetchError?: ApiError;
+  getPrevData: () => {
+    prevRootWord: string;
+    prevAnswers: { list: HexGameWordListItem[]; maxScore: number };
+    prevCenterLetter: string;
+  };
 }
 
 const DEFAULT_DATA: useHexGameProps = {
@@ -87,6 +92,11 @@ const DEFAULT_DATA: useHexGameProps = {
   isLoading: false,
   isError: false,
   fetchError: undefined,
+  getPrevData: () => ({
+    prevRootWord: '',
+    prevCenterLetter: '',
+    prevAnswers: { list: [], maxScore: 0 },
+  }),
 };
 
 const HexGameContext = createContext<useHexGameProps>(DEFAULT_DATA);
@@ -155,6 +165,41 @@ export const HexGameProvider: React.FC = ({ children }) => {
     () => getHexRootWord(state.rootWordId, rootWords) || '',
     [rootWords, state.rootWordId]
   );
+  const getPrevData = useCallback(() => {
+    if (
+      state.prevRootWordId &&
+      state.prevCenterLetter &&
+      rootWords?.length &&
+      blacklist?.length &&
+      dict &&
+      dict[4]?.length
+    ) {
+      const prevRootWord = getHexRootWord(state.prevRootWordId, rootWords);
+      return {
+        prevCenterLetter: state.prevCenterLetter,
+        prevRootWord,
+        prevAnswers: getHexWordList(
+          prevRootWord,
+          state.prevCenterLetter,
+          rootWords,
+          blacklist,
+          dict
+        ),
+      };
+    }
+
+    return {
+      prevCenterLetter: '',
+      prevRootWord: '',
+      prevAnswers: { list: [], maxScore: 0 },
+    };
+  }, [
+    state.prevRootWordId,
+    rootWords,
+    state.prevCenterLetter,
+    blacklist,
+    dict,
+  ]);
   const { list, maxScore } = useMemo(
     () =>
       !rootWord
@@ -253,7 +298,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (isLoading || isError) {
+    if (isLoading || isError || !Object.keys(hexRound || {})?.length) {
       return;
     }
 
@@ -296,8 +341,8 @@ export const HexGameProvider: React.FC = ({ children }) => {
     if (!isSameDay(getCurrGameDate(persistState.gameStartDate), currGameDate)) {
       persistState = {
         ...persistState,
-        prevRootWordId: persistState.rootWordId,
-        prevCenterLetter: persistState.centerLetter,
+        prevRootWordId: prevRootWordId,
+        prevCenterLetter: prevCenterLetter,
         rootWordId,
         centerLetter,
         gameId,
@@ -331,6 +376,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
     list,
     maxScore,
     rootWord,
+    getPrevData,
     solve,
     rank,
     letters,

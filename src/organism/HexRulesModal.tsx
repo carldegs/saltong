@@ -24,9 +24,10 @@ import {
   Th,
   Tbody,
   OrderedList,
+  Link,
 } from '@chakra-ui/react';
 
-import { HEX_RANK } from '../constants';
+import { HEX_RANK, TWITTER_LINK } from '../constants';
 import { useHexGame } from '../context/HexGameContext';
 
 type HexRulesModalProps = Omit<ModalProps, 'children'>;
@@ -170,7 +171,6 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                   </AccordionPanel>
                 </Stack>
               </AccordionItem>
-
               <AccordionItem>
                 <Stack spacing={2}>
                   <h2>
@@ -206,6 +206,40 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                         </ListItem>
                       </OrderedList>
                     </Box>
+                  </AccordionPanel>
+                </Stack>
+              </AccordionItem>
+              <AccordionItem>
+                <Stack spacing={2}>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left">
+                        Issues?
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pl={4} pb={4}>
+                    <Text>
+                      Missing some words?{' '}
+                      <Link
+                        isExternal
+                        href={TWITTER_LINK}
+                        fontWeight="bold"
+                        color="blue.500"
+                      >
+                        Send a DM
+                      </Link>{' '}
+                      or send an e-mail at{' '}
+                      <Link
+                        isExternal
+                        href="mailto:carl@carldegs.com"
+                        fontWeight="bold"
+                        color="blue.500"
+                      >
+                        carl@carldegs.com
+                      </Link>{' '}
+                    </Text>
                   </AccordionPanel>
                 </Stack>
               </AccordionItem>

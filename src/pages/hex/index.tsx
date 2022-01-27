@@ -106,7 +106,7 @@ const HexPage: React.FC = () => {
               {`Saltong Hex`}
             </Heading>
             <Text
-              fontSize={['sm', 'md']}
+              fontSize={['xs', 'sm']}
               textAlign="center"
               maxW={['150px', '300px']}
             >
