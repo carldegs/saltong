@@ -14,10 +14,10 @@ import {
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { useEffect } from 'react';
+import { ReactElement, useEffect } from 'react';
 
 import { useDisclosures } from '../../context/DisclosuresContext';
-import { useHexGame } from '../../context/HexGameContext';
+import { HexGameProvider, useHexGame } from '../../context/HexGameContext';
 import HexAnswerList from '../../molecules/HexAnswerList';
 import HexInput from '../../molecules/HexInput';
 import Hexboard from '../../molecules/Hexboard';
@@ -178,6 +178,10 @@ const HexPage: React.FC = () => {
       </Container>
     </>
   );
+};
+
+(HexPage as any).getLayout = function getLayout(page: ReactElement) {
+  return <HexGameProvider>{page}</HexGameProvider>;
 };
 
 export default HexPage;

@@ -5,12 +5,20 @@ import ApiError from '../lib/errors/ApiError';
 import GameMode from '../types/GameMode';
 import { HexGameData } from '../types/HexGameData';
 import { RoundData } from '../types/RoundData';
+import { getCurrGameDate, getDateString } from '../utils';
 
-type Data = Record<string, RoundData | HexGameData>;
+type Data = RoundData | HexGameData;
 
-export const getRoundData = async (gameMode: GameMode) => {
+export const getRoundData = async (gameMode: GameMode, date?: string) => {
   try {
-    const { data } = await axios.get<Data>(`/api/data/${gameMode}Round.json`);
+    const { data } = await axios.get<Data>(
+      `/api/round/${gameMode}/${
+        date ||
+        getDateString(
+          gameMode === GameMode.hex ? getCurrGameDate() : new Date()
+        )
+      }`
+    );
 
     return data;
   } catch (err) {
@@ -22,11 +30,16 @@ export const getRoundData = async (gameMode: GameMode) => {
 
 const useQueryRoundData = (
   gameMode: GameMode,
+  date?: string,
   options?: UseQueryOptions<Data, ApiError>
 ) => {
-  return useQuery(['round', gameMode], () => getRoundData(gameMode), {
-    ...options,
-  });
+  return useQuery(
+    date ? ['round', gameMode, date] : ['round', gameMode],
+    () => getRoundData(gameMode, date),
+    {
+      ...options,
+    }
+  );
 };
 
 export default useQueryRoundData;

@@ -11,9 +11,8 @@ import {
   ModalProps,
 } from '@chakra-ui/modal';
 
-import { TWITTER_LINK } from '../constants';
-import { getPersistState as getGamePersistState } from '../context/GameContext';
-import { getPersistState as getHexGamePersistState } from '../context/HexGameContext';
+import { LOCAL_GAME_DATA, LOCAL_HEX_DATA, TWITTER_LINK } from '../constants';
+import { getPersistState } from '../utils/local';
 import ResetDataAlert from './ResetDataAlert';
 
 interface BugReportModalInterface extends Omit<ModalProps, 'children'> {
@@ -27,8 +26,8 @@ const BugReportModal: React.FC<BugReportModalInterface> = ({
 }) => {
   const data = Buffer.from(
     JSON.stringify({
-      orig: getGamePersistState() || {},
-      hex: getHexGamePersistState() || {},
+      orig: getPersistState(LOCAL_GAME_DATA) || {},
+      hex: getPersistState(LOCAL_HEX_DATA) || {},
     })
   ).toString('base64');
   const { hasCopied, onCopy } = useClipboard(data);

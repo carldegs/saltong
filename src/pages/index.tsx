@@ -19,11 +19,17 @@ import {
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
-import { useGame } from '../context/GameContext';
+import { GameProvider, useGame } from '../context/GameContext';
 import GameStatusPanel from '../molecules/GameStatusPanel';
 import Keyboard from '../molecules/Keyboard';
 import GameMenu from '../organism/GameMenu';
@@ -288,6 +294,10 @@ const Home: React.FC = () => {
       </Container>
     </>
   );
+};
+
+(Home as any).getLayout = function getLayout(page: ReactElement) {
+  return <GameProvider>{page}</GameProvider>;
 };
 
 export default Home;

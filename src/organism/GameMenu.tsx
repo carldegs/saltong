@@ -25,13 +25,13 @@ import {
 } from 'phosphor-react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
+import { LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
-import { getPersistState as getGamePersistData } from '../context/GameContext';
-import { getPersistState as getHexGamePersistData } from '../context/HexGameContext';
 import { useKeyboard } from '../context/KeyboardContext';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { sendEvent, GTAG_EVENTS } from '../utils';
+import { getPersistState } from '../utils/local';
 
 interface GameMenuProps {
   gameStatus?: GameStatus;
@@ -216,8 +216,8 @@ const GameMenu: React.FC<GameMenuProps> = ({
                   onClick={() => {
                     // eslint-disable-next-line no-console
                     console.log({
-                      game: getGamePersistData(),
-                      hex: getHexGamePersistData(),
+                      game: getPersistState(LOCAL_GAME_DATA),
+                      hex: getPersistState(LOCAL_HEX_DATA),
                     });
                   }}
                   icon={<EmojiWrapper value="📃" />}

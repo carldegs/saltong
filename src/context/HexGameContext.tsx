@@ -16,13 +16,13 @@ import {
   DEFAULT_HEX_GAME_DATA,
   DEFAULT_HEX_STATE,
   HEX_RANK,
+  LOCAL_HEX_DATA,
   VERSION,
 } from '../constants';
 import ApiError from '../lib/errors/ApiError';
 import ContextNoProviderError from '../lib/errors/ContextNoProviderError';
 import useQueryBlacklist from '../queries/useQueryBlacklist';
 import useQueryDictionary from '../queries/useQueryDictionary';
-import useQueryRootWords from '../queries/useQueryRootWords';
 import useQueryRoundData from '../queries/useQueryRoundData';
 import GameMode from '../types/GameMode';
 import {
@@ -34,21 +34,17 @@ import {
 import { getDateString } from '../utils';
 import {
   getCurrGameDate,
-  getHexRootWord,
   getHexWordList,
   getPrevGameDate,
   getRank,
   isPangram,
 } from '../utils/hex';
+import { getPersistState, setPersistState } from '../utils/local';
 import { useKeyboard } from './KeyboardContext';
 
-const LOCAL_HEX_DATA = 'saltong-hex-data';
-
-export const getPersistState = () =>
-  JSON.parse(localStorage.getItem(LOCAL_HEX_DATA) || '{}') as HexGameState;
-
-export const setPersistState = (gameState: HexGameState) =>
-  localStorage.setItem(LOCAL_HEX_DATA, JSON.stringify(gameState));
+const getHexPersistState = () => getPersistState<HexGameState>(LOCAL_HEX_DATA);
+const setHexPersistState = (gameState: HexGameState) =>
+  setPersistState(LOCAL_HEX_DATA, gameState);
 
 interface useHexGameProps extends HexGameState {
   firstVisit: boolean;
@@ -113,75 +109,71 @@ export const useHexGame = () => {
 
 export const HexGameProvider: React.FC = ({ children }) => {
   const { data: hexRound, ...roundQueryData } = useQueryRoundData(GameMode.hex);
-  const { data: rootWords, ...rootWordsQueryData } = useQueryRootWords();
+  const { data: prevHexRound, ...prevRoundQueryData } = useQueryRoundData(
+    GameMode.hex,
+    getDateString(getPrevGameDate())
+  );
   const { data: blacklist, ...blacklistQueryData } = useQueryBlacklist();
   const { data: dict, ...dictQueryData } = useQueryDictionary();
 
   const isLoading = useMemo(
     () =>
       roundQueryData.isLoading ||
-      rootWordsQueryData.isLoading ||
       blacklistQueryData.isLoading ||
-      dictQueryData.isLoading,
+      dictQueryData.isLoading ||
+      prevRoundQueryData.isLoading,
     [
       roundQueryData.isLoading,
-      rootWordsQueryData.isLoading,
       blacklistQueryData.isLoading,
       dictQueryData.isLoading,
+      prevRoundQueryData.isLoading,
     ]
   );
   const isError = useMemo(
     () =>
       roundQueryData.isError ||
-      rootWordsQueryData.isError ||
       blacklistQueryData.isError ||
-      dictQueryData.isError,
+      dictQueryData.isError ||
+      prevRoundQueryData.isError,
     [
       roundQueryData.isError,
-      rootWordsQueryData.isError,
       blacklistQueryData.isError,
       dictQueryData.isError,
+      prevRoundQueryData.isError,
     ]
   );
 
   const fetchError = useMemo(
     () =>
       roundQueryData.error ||
-      rootWordsQueryData.error ||
       blacklistQueryData.error ||
-      dictQueryData.error,
+      dictQueryData.error ||
+      prevRoundQueryData.error,
     [
       roundQueryData.error,
-      rootWordsQueryData.error,
       blacklistQueryData.error,
       dictQueryData.error,
+      prevRoundQueryData.error,
     ]
   );
   const toast = useToast();
   const keyboardRef = useKeyboard();
   const [state, setState] = useState(DEFAULT_HEX_STATE);
   const [firstVisit, setFirstVisit] = useState(false);
-  const rootWord = useMemo(
-    () => getHexRootWord(state.rootWordId, rootWords) || '',
-    [rootWords, state.rootWordId]
-  );
   const getPrevData = useCallback(() => {
     if (
-      state.prevRootWordId &&
+      state.prevRootWord &&
       state.prevCenterLetter &&
-      rootWords?.length &&
       blacklist?.length &&
       dict &&
       dict[4]?.length
     ) {
-      const prevRootWord = getHexRootWord(state.prevRootWordId, rootWords);
       return {
         prevCenterLetter: state.prevCenterLetter,
-        prevRootWord,
+        prevRootWord: state.prevRootWord,
         prevAnswers: getHexWordList(
-          prevRootWord,
+          state.prevRootWord,
           state.prevCenterLetter,
-          rootWords,
           blacklist,
           dict
         ),
@@ -193,27 +185,15 @@ export const HexGameProvider: React.FC = ({ children }) => {
       prevRootWord: '',
       prevAnswers: { list: [], maxScore: 0 },
     };
-  }, [
-    state.prevRootWordId,
-    rootWords,
-    state.prevCenterLetter,
-    blacklist,
-    dict,
-  ]);
+  }, [state.prevRootWord, state.prevCenterLetter, blacklist, dict]);
   const { list, maxScore } = useMemo(
     () =>
-      !rootWord
+      !state?.rootWord
         ? ({
             list: [],
           } as HexGameWordList)
-        : getHexWordList(
-            rootWord,
-            state.centerLetter,
-            rootWords,
-            blacklist,
-            dict
-          ),
-    [blacklist, dict, rootWord, rootWords, state.centerLetter]
+        : getHexWordList(state.rootWord, state.centerLetter, blacklist, dict),
+    [blacklist, dict, state.centerLetter, state.rootWord]
   );
   const rank = useMemo(
     () => getRank(state.score, maxScore),
@@ -221,10 +201,10 @@ export const HexGameProvider: React.FC = ({ children }) => {
   );
   const letters = useMemo(
     () =>
-      Array.from(new Set(Array.from(rootWord))).filter(
+      Array.from(new Set(Array.from(state.rootWord))).filter(
         (l) => l !== state.centerLetter
       ),
-    [state.centerLetter, rootWord]
+    [state.centerLetter, state.rootWord]
   );
 
   const solve = useCallback(
@@ -298,18 +278,20 @@ export const HexGameProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (isLoading || isError || !Object.keys(hexRound || {})?.length) {
+    if (
+      isLoading ||
+      isError ||
+      !(hexRound as HexGameData)?.rootWord ||
+      !(prevHexRound as HexGameData)?.rootWord
+    ) {
       return;
     }
 
-    let persistState = getPersistState();
+    let persistState = getHexPersistState();
     const currGameDate = getCurrGameDate();
-    const { gameId, rootWordId, centerLetter } = hexRound[
-      getDateString(currGameDate)
-    ] as HexGameData;
-    const { rootWordId: prevRootWordId, centerLetter: prevCenterLetter } =
-      (hexRound[getDateString(getPrevGameDate())] as HexGameData) ||
-      DEFAULT_HEX_GAME_DATA;
+    const { gameId, rootWord, centerLetter } = hexRound as HexGameData;
+    const { rootWord: prevRootWord, centerLetter: prevCenterLetter } =
+      (prevHexRound as HexGameData) || DEFAULT_HEX_GAME_DATA;
 
     // Check if first visit, else update state
     if (!persistState?.version) {
@@ -318,9 +300,9 @@ export const HexGameProvider: React.FC = ({ children }) => {
       // add current game and prev game
       persistState = {
         ...persistState,
-        prevRootWordId,
+        prevRootWord,
         prevCenterLetter,
-        rootWordId,
+        rootWord,
         centerLetter,
         gameId,
         scores: {
@@ -341,9 +323,9 @@ export const HexGameProvider: React.FC = ({ children }) => {
     if (!isSameDay(getCurrGameDate(persistState.gameStartDate), currGameDate)) {
       persistState = {
         ...persistState,
-        prevRootWordId: prevRootWordId,
-        prevCenterLetter: prevCenterLetter,
-        rootWordId,
+        prevRootWord,
+        prevCenterLetter,
+        rootWord,
         centerLetter,
         gameId,
         scores: {
@@ -359,14 +341,65 @@ export const HexGameProvider: React.FC = ({ children }) => {
         version: VERSION,
       };
     }
+
+    // Check if data still only includes rootWordId
+    if (!persistState?.rootWord && (persistState as any)?.rootWordId) {
+      persistState = {
+        ...persistState,
+        rootWord,
+        prevRootWord,
+      };
+    }
+
+    // Check if some data is incorrect even though same game id
+    if (persistState.rootWord !== (hexRound as HexGameData).rootWord) {
+      persistState = {
+        ...persistState,
+        rootWord: (hexRound as HexGameData).rootWord,
+      };
+    }
+
+    [
+      ['rootWord', false],
+      ['prevRootWord', true],
+      ['centerLetter', false],
+      ['prevCenterLetter', true],
+    ].forEach(([param, isPrev]: [string, boolean]) => {
+      if (isPrev) {
+        const prevParam = param
+          .replace('prev', '')
+          .replace('R', 'r')
+          .replace('C', 'c');
+
+        if (
+          persistState.gameId - 1 === prevHexRound.gameId &&
+          persistState[param] !== prevHexRound[prevParam]
+        ) {
+          persistState = {
+            ...persistState,
+            [param]: prevHexRound[prevParam],
+          };
+        }
+      } else if (
+        !isPrev &&
+        persistState.gameId === hexRound.gameId &&
+        persistState[param] !== hexRound[param]
+      ) {
+        persistState = {
+          ...persistState,
+          [param]: hexRound[param],
+        };
+      }
+    });
+
     setState(persistState);
-  }, [hexRound, isLoading, isError]);
+  }, [hexRound, isLoading, isError, prevHexRound]);
 
   useEffect(() => {
     if (isLoading || isError) {
       return;
     }
-    setPersistState(state);
+    setHexPersistState(state);
   }, [isError, isLoading, state]);
 
   const value = {
@@ -375,7 +408,6 @@ export const HexGameProvider: React.FC = ({ children }) => {
     setFirstVisit,
     list,
     maxScore,
-    rootWord,
     getPrevData,
     solve,
     rank,
