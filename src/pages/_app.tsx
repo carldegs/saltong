@@ -1,5 +1,4 @@
 import { ChakraProvider } from '@chakra-ui/provider';
-import '@fontsource/ibm-plex-sans';
 import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import React, { useEffect, useRef } from 'react';
@@ -8,6 +7,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 import { Hydrate } from 'react-query/hydration';
 
 import { DisclosuresProvider } from '../context/DisclosuresContext';
+import { HighContrastProvider } from '../context/HighContrastContext';
 import { KeyboardProvider } from '../context/KeyboardContext';
 import ModalWrapper from '../organism/ModalWrapper';
 import theme from '../theme';
@@ -50,11 +50,13 @@ const MyApp: React.FC<AppProps> = ({
       <Hydrate state={pageProps.dehydratedState}>
         <ChakraProvider theme={theme}>
           <DisclosuresProvider>
-            <KeyboardProvider>
-              <ModalWrapper>
-                {getLayout(<Component {...pageProps} />)}
-              </ModalWrapper>
-            </KeyboardProvider>
+            <HighContrastProvider>
+              <KeyboardProvider>
+                <ModalWrapper>
+                  {getLayout(<Component {...pageProps} />)}
+                </ModalWrapper>
+              </KeyboardProvider>
+            </HighContrastProvider>
           </DisclosuresProvider>
         </ChakraProvider>
       </Hydrate>

@@ -90,6 +90,7 @@ const HexboardKey: React.FC<HexboardKeyProps> = ({
           textAlign="center"
           fontSize={['4xl', '5xl']}
           onContextMenu={(e) => e.preventDefault()}
+          fontWeight="bold"
         >
           {label}
         </Heading>

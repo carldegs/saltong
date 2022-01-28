@@ -27,6 +27,7 @@ import {
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
+import { useHighContrast } from '../context/HighContrastContext';
 import { useKeyboard } from '../context/KeyboardContext';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
@@ -46,6 +47,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
 }) => {
   const keyboardRef = useKeyboard();
   const disc = useDisclosures();
+  const { isHighContrast, toggleHighContrast } = useHighContrast();
   const router = useRouter();
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -146,13 +148,13 @@ const GameMenu: React.FC<GameMenuProps> = ({
           >
             Dark Mode
           </MenuItemOption>
-          {/* <MenuItemOption
-                    isChecked={colorMode === 'dark'}
-                    onClick={toggleColorMode}
-                    closeOnSelect={false}
-                  >
-                    Color Blind Mode (High Contrast)
-                  </MenuItemOption> */}
+          <MenuItemOption
+            isChecked={isHighContrast}
+            onClick={toggleHighContrast}
+            closeOnSelect={false}
+          >
+            Color Blind Mode
+          </MenuItemOption>
         </MenuGroup>
         <MenuDivider />
         <MenuGroup title="Settings">
@@ -188,7 +190,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
             size="sm"
             variant="ghost"
             opacity={0.03}
-            _hover={{ opacity: 0.1 }}
+            _hover={{ opacity: 0.15 }}
           >
             Help keep the site running!
           </Button>

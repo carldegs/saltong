@@ -1,7 +1,7 @@
 import { Heading, Flex, FlexProps } from '@chakra-ui/layout';
-import { useMemo } from 'react';
+import { useStyleConfig } from '@chakra-ui/react';
 
-import useLetterStatusColor from '../hooks/useLetterStatusColor';
+import { useHighContrast } from '../context/HighContrastContext';
 import LetterStatus from '../types/LetterStatus';
 
 interface LetterBoxProps extends Omit<FlexProps, 'onChange'> {
@@ -24,23 +24,13 @@ const LetterBox: React.FC<LetterBoxProps> = ({
   fontSize,
   ...boxProps
 }) => {
-  const { getStyle } = useLetterStatusColor();
-
-  const bprops = useMemo(() => {
-    return getStyle(status);
-  }, [getStyle, status]);
+  const { isHighContrast } = useHighContrast();
+  const styles = useStyleConfig('LetterBox', {
+    variant: `${LetterStatus[status]}${isHighContrast ? 'High' : ''}`,
+  } as any);
 
   return (
-    <Flex
-      w={[10, 12]}
-      h={[10, 12]}
-      pos="relative"
-      borderRadius={4}
-      alignItems="center"
-      justifyContent="center"
-      {...bprops}
-      {...boxProps}
-    >
+    <Flex __css={styles} w={[10, 12]} h={[10, 12]} pos="relative" {...boxProps}>
       <Heading
         textAlign="center"
         fontSize={fontSize || ['2xl', '3xl']}

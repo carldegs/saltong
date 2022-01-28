@@ -20,49 +20,6 @@ export const getFlatDict = (groupedDict: Record<number, string[]> = {}) => {
   return flattenedDict;
 };
 
-export const getSubsetWordList = (
-  rootWord: string,
-  groupedDict: Record<number, string[]> = {}
-) =>
-  getFlatDict(groupedDict).filter((word) =>
-    Array.from(word).every((letter) => rootWord.indexOf(letter) >= 0)
-  );
-
-export const getLetterScores = (subsetWordList: string[]) => {
-  let letterScores: Record<string, number> = {};
-
-  subsetWordList.forEach((word) => {
-    Array.from(new Set(word)).forEach((letter) => {
-      letterScores = {
-        ...letterScores,
-        [letter]: (letterScores[letter] || 0) + 1,
-      };
-    });
-  });
-
-  return letterScores;
-};
-
-const isValidFinalWord = (word: string, centerLetter: string) =>
-  !!Array.from(word).find((letter) => letter === centerLetter);
-
-export const getFinalWordList = (
-  subsetWordList: string[],
-  centerLetter: string
-) => subsetWordList.filter((word) => isValidFinalWord(word, centerLetter));
-
-export const getHexGameWordList = (
-  words: string[],
-  blacklist: string[] = []
-): HexGameWordListItem[] =>
-  words
-    .filter((word) => !blacklist.includes(word))
-    .map((word) => ({
-      word,
-      score: getWordScore(word),
-      isPangram: isPangram(word),
-    }));
-
 export const getMaxScore = (finalWordList: HexGameWordListItem[]) => {
   let maxScore = 0;
 
@@ -79,25 +36,27 @@ export const getHexWordList = (
   blacklist: string[] = [],
   groupedDict: Record<number, string[]> = {}
 ): HexGameWordList => {
-  const initWordList = getSubsetWordList(rootWord, groupedDict);
-  const letterScores = getLetterScores(initWordList);
+  const list = getFlatDict(groupedDict)
+    .filter((word) => {
+      const letters = word.split('');
 
-  const finalCenterLetter =
-    centerLetter ||
-    Object.keys(letterScores).reduce((a, b) =>
-      letterScores[a] < letterScores[b] ? a : b
-    );
-
-  const list = getHexGameWordList(
-    getFinalWordList(initWordList, centerLetter),
-    blacklist
-  );
+      return (
+        letters.includes(centerLetter) &&
+        letters.every((letter) => rootWord.indexOf(letter) >= 0)
+      );
+    })
+    .filter((word) => !blacklist.includes(word))
+    .map((word) => ({
+      word,
+      score: getWordScore(word),
+      isPangram: isPangram(word),
+    }));
 
   const maxScore = getMaxScore(list);
 
   return {
     list,
-    centerLetter: finalCenterLetter,
+    centerLetter,
     maxScore,
   };
 };

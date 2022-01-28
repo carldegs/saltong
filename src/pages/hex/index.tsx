@@ -68,27 +68,35 @@ const HexPage: React.FC = () => {
 
       {!(isLoading || isError) && (
         <>
-          <HexRulesModal
-            isOpen={hexRulesModal.isOpen}
-            onClose={hexRulesModal.onClose}
-          />
-          <HexShareModal
-            isOpen={hexShareModal.isOpen}
-            onClose={hexShareModal.onClose}
-            rank={rank}
-            score={score}
-            gameId={gameId}
-            numWords={guessedWords.length}
-          />
-          <BugReportModal
-            isOpen={bugReportModal.isOpen}
-            onClose={bugReportModal.onClose}
-            resetLocalStorage={resetLocalStorage}
-          />
-          <PrevAnswersModal
-            isOpen={hexPrevAnsModal.isOpen}
-            onClose={hexPrevAnsModal.onClose}
-          />
+          {hexRulesModal.isOpen && (
+            <HexRulesModal
+              isOpen={hexRulesModal.isOpen}
+              onClose={hexRulesModal.onClose}
+            />
+          )}
+          {hexShareModal.isOpen && (
+            <HexShareModal
+              isOpen={hexShareModal.isOpen}
+              onClose={hexShareModal.onClose}
+              rank={rank}
+              score={score}
+              gameId={gameId}
+              numWords={guessedWords.length}
+            />
+          )}
+          {bugReportModal.isOpen && (
+            <BugReportModal
+              isOpen={bugReportModal.isOpen}
+              onClose={bugReportModal.onClose}
+              resetLocalStorage={resetLocalStorage}
+            />
+          )}
+          {hexPrevAnsModal.isOpen && (
+            <PrevAnswersModal
+              isOpen={hexPrevAnsModal.isOpen}
+              onClose={hexPrevAnsModal.onClose}
+            />
+          )}
         </>
       )}
 
