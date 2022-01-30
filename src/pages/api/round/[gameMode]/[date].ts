@@ -31,6 +31,7 @@ const RoundHandler = createApiHandler().get(async (req, res) => {
       throw new FileNotFoundError(fileName);
     }
 
+    res.setHeader('Cache-Control', 'max-age=0, s-maxage=86400');
     res.json(currRound);
   } catch (err) {
     throw new ApiError(500, err?.message);

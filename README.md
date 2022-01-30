@@ -123,8 +123,6 @@ Saltong was built with the following frameworks and libraries
 
 * [Next.js](https://nextjs.org/)
 * [Chakra UI](https://chakra-ui.com/) (UI Framework)
-* [React Hook Form](https://react-hook-form.com/) (Form Validation)
-* [Joi](https://joi.dev/api/) (Validation Schema)
 * [React Query](https://react-query.tanstack.com/) (Data Handling)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

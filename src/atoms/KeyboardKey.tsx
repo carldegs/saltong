@@ -1,8 +1,9 @@
 import { Flex } from '@chakra-ui/layout';
+import { useStyleConfig } from '@chakra-ui/react';
 import { Spinner } from '@chakra-ui/spinner';
 import { ReactElement, useState } from 'react';
 
-import useLetterStatusColor from '../hooks/useLetterStatusColor';
+import { useHighContrast } from '../context/HighContrastContext';
 import LetterStatus from '../types/LetterStatus';
 
 export interface KeyboardKeyData {
@@ -24,10 +25,17 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
   disableDelay,
 }) => {
   const [isDisabled, setDisabled] = useState(false);
-  const { getStyle } = useLetterStatusColor();
+  const { isHighContrast } = useHighContrast();
+
+  const styles = useStyleConfig('KeyboardKey', {
+    variant: isDisabled
+      ? 'disabled'
+      : `${LetterStatus[status]}${isHighContrast ? 'High' : ''}`,
+  } as any);
 
   return (
     <Flex
+      __css={styles}
       onClick={(e) => {
         if (isDisabled) {
           return;
@@ -42,16 +50,12 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
           }, disableDelay);
         }
       }}
-      borderRadius={6}
       w="full"
       maxW={value.length > 1 ? ['42px', '54px'] : ['32px', '43px']}
       minW={value.length > 1 ? ['42px', '54px'] : ['32px', '43px']}
       h="58px"
-      alignItems="center"
-      justifyContent="center"
       cursor={isDisabled ? 'wait' : 'pointer'}
       onContextMenu={(e) => e.preventDefault()}
-      {...getStyle(status, { isDisabled })}
     >
       {isDisabled ? <Spinner /> : label}
     </Flex>
