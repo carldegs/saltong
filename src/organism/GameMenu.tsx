@@ -189,8 +189,8 @@ const GameMenu: React.FC<GameMenuProps> = ({
           <Button
             size="sm"
             variant="ghost"
-            opacity={0.03}
-            _hover={{ opacity: 0.15 }}
+            opacity={0.1}
+            _hover={{ opacity: 0.3 }}
           >
             Help keep the site running!
           </Button>

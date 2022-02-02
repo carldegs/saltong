@@ -1,5 +1,8 @@
 import {
+  Box,
+  BoxProps,
   Divider,
+  IconButton,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -9,8 +12,11 @@ import {
   ModalProps,
   Stack,
   Text,
+  Tooltip,
 } from '@chakra-ui/react';
+import { useRef, useState } from 'react';
 
+import EmojiWrapper from '../atoms/EmojiWrapper';
 import LetterBoxRow from '../molecules/LetterBoxRow';
 import LetterStatus from '../types/LetterStatus';
 
@@ -104,48 +110,108 @@ const RulesModal: React.FC<RulesModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const [isFilipino, setFilipino] = useState(true);
+  const finalRef = useRef();
+  // TODO: Temp only.
+  const TranslatedText: React.FC<
+    { text: string; translation: string } & BoxProps
+  > = ({ text, translation, ...boxProps }) => (
+    <Box {...boxProps}>
+      <Text>{isFilipino ? translation : text}</Text>
+    </Box>
+  );
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      initialFocusRef={finalRef}
+      size="lg"
+    >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>How to Play</ModalHeader>
-        <ModalCloseButton />
+        <ModalHeader>
+          <TranslatedText text="How to Play" translation="Paano Laruin" />
+        </ModalHeader>
+
+        <Tooltip
+          label={
+            <Box>
+              <Text>Change Language</Text>
+              <Text>
+                <i>Baguhin ang Wika</i>
+              </Text>
+            </Box>
+          }
+          openDelay={500}
+        >
+          <IconButton
+            aria-label="language"
+            icon={<EmojiWrapper value={isFilipino ? '🇵🇭' : '🇺🇸'} />}
+            onClick={() => {
+              setFilipino((curr) => !curr);
+            }}
+            pos="absolute"
+            right="50px"
+            top="20px"
+          />
+        </Tooltip>
+        <ModalCloseButton ref={finalRef} />
         <ModalBody mb={4}>
           <Stack spacing={3}>
-            <Text>Guess the SALTONG in {numTries} tries.</Text>
-            <Text>
-              Each guess must be a valid {wordLength} letter word. Hit the enter
-              button to submit.
-            </Text>
-            <Text>
-              After each guess, the color of the tiles will change to show how
-              close your guess was to the word.
-            </Text>
+            <TranslatedText
+              text={`Guess the SALTONG in ${numTries} tries.`}
+              translation={`Hulaan ang SALTONG sa loob ng ${numTries} na tira.`}
+            />
+
+            <TranslatedText
+              text={`Each guess must be a valid ${wordLength} letter word. Hit the enter button to submit.`}
+              translation={`Ang bawat hulang salita ay dapat ${wordLength} letra ang haba. Pindutin ang Enter button para i-submit`}
+            />
+
+            <TranslatedText
+              text="After each guess, the color of the tiles will change to show how close your guess was to the word."
+              translation="Pagkatapos ng bawat tira, mag-iiba ang kulay ng mga tiles na nagpapakita kung gaano kalapit ang hula mo sa tamang sagot"
+            />
             <Divider />
-            <Text fontWeight="bold">Examples</Text>
+            <b>
+              <TranslatedText text="Examples" translation="Mga Halimbawa" />
+            </b>
             <LetterBoxRow
               word={EXAMPLE_1[wordLength]}
               wordLength={wordLength}
             />
-            <Text pb={4}>
-              The letter {EXAMPLE_1_LETTER[wordLength]} is in the word and in
-              the correct spot.
-            </Text>
+            <TranslatedText
+              pb={4}
+              text={`The letter ${EXAMPLE_1_LETTER[wordLength]} is in the word and in the correct spot.`}
+              translation={`Ang letrang ${EXAMPLE_1_LETTER[wordLength]} ay nasa salita at nasa tamang pwesto`}
+            />
             <LetterBoxRow
               word={EXAMPLE_2[wordLength]}
               wordLength={wordLength}
             />
-            <Text pb={4}>
-              The letter {EXAMPLE_2_LETTER[wordLength]} is in the word but in
-              the wrong spot.
-            </Text>
+
+            <TranslatedText
+              pb={4}
+              text={`The letter ${EXAMPLE_2_LETTER[wordLength]} is in the word but in
+              the wrong spot.`}
+              translation={`Ang letrang ${EXAMPLE_2_LETTER[wordLength]} ay nasa salita ngunit nasa maling pwesto`}
+            />
+
             <LetterBoxRow
               word={EXAMPLE_3[wordLength]}
               wordLength={wordLength}
             />
-            <Text pb={4}>The letters are not in the word in any spot.</Text>
+            <TranslatedText
+              pb={4}
+              text="The letters are not in the word in any spot."
+              translation="Walang letra ang nasa salita"
+            />
             <Divider />
-            <Text>A new word will be avaiable each day.</Text>
+            <TranslatedText
+              text="A new word will be avaiable each day."
+              translation="May bagong salitang lalabas araw-araw."
+            />
           </Stack>
         </ModalBody>
       </ModalContent>
