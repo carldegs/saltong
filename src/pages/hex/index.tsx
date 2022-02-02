@@ -1,6 +1,8 @@
-import { ExternalLinkIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
+import { Icon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
+  Alert,
   Box,
+  CloseButton,
   Container,
   Flex,
   Grid,
@@ -11,11 +13,15 @@ import {
   Skeleton,
   Spinner,
   Text,
+  Tooltip,
+  useColorMode,
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { ReactElement, useEffect } from 'react';
+import { SkipBack } from 'phosphor-react';
+import { ReactElement, useEffect, useState } from 'react';
 
+import { MISSING_WORD_FORM } from '../../constants';
 import { useDisclosures } from '../../context/DisclosuresContext';
 import { HexGameProvider, useHexGame } from '../../context/HexGameContext';
 import HexAnswerList from '../../molecules/HexAnswerList';
@@ -50,6 +56,8 @@ const HexPage: React.FC = () => {
   } = useHexGame();
   const { hexRulesModal, hexShareModal, bugReportModal, hexPrevAnsModal } =
     useDisclosures();
+  const [showAlert, setShowAlert] = useState(true);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     if (firstVisit) {
@@ -100,40 +108,59 @@ const HexPage: React.FC = () => {
         </>
       )}
 
+      {showAlert ? (
+        <Alert status="success">
+          <Text width="96%">
+            Found a missing word? Report it at the{' '}
+            <Link
+              isExternal
+              href={MISSING_WORD_FORM}
+              fontWeight="bold"
+              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
+            >
+              Saltong Dictionary Reklamo Corner
+            </Link>{' '}
+            and help improve the word list before we get bought out by a
+            newspaper company. (jk)
+          </Text>
+          <CloseButton
+            position="absolute"
+            right="8px"
+            top="8px"
+            onClick={() => {
+              setShowAlert(false);
+            }}
+          />
+        </Alert>
+      ) : null}
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">
         <HStack my={4} w="full">
-          <Flex flex={1} flexDir="row">
+          <Box>
+            <Heading size="lg" textTransform="capitalize">
+              {`Saltong Hex`}
+            </Heading>
             <Skeleton isLoaded={!isLoading}>
-              <Text cursor="default" fontSize={['md', 'lg']} textAlign="center">
+              <Text cursor="default" fontSize={['md', 'lg']}>
                 Game #{gameId}
               </Text>
             </Skeleton>
-          </Flex>
-          <Box>
-            <Heading size="lg" textAlign="center" textTransform="capitalize">
-              {`Saltong Hex`}
-            </Heading>
-            <Text
-              fontSize={['xs', 'sm']}
-              textAlign="center"
-              maxW={['150px', '300px']}
-            >
-              A Filipino clone of the{' '}
-              <Link
-                isExternal
-                href="https://www.nytimes.com/puzzles/spelling-bee"
-              >
-                NYT Spelling Bee <ExternalLinkIcon />
-              </Link>
-            </Text>
           </Box>
-          <HStack flex={1} justifyContent="flex-end" spacing={4}>
-            <IconButton
-              aria-label="help"
-              icon={<QuestionOutlineIcon />}
-              onClick={hexRulesModal.onOpen}
-              display={['none', 'inherit']}
-            />
+          <HStack flex={1} justifyContent="flex-end" spacing={[2, 3]}>
+            <Tooltip label="How to Play" openDelay={300}>
+              <IconButton
+                aria-label="help"
+                icon={<QuestionOutlineIcon />}
+                onClick={hexRulesModal.onOpen}
+              />
+            </Tooltip>
+
+            <Tooltip label="Previous Answers" openDelay={300}>
+              <IconButton
+                aria-label="previous answers"
+                icon={<Icon as={SkipBack} weight="bold" />}
+                onClick={hexPrevAnsModal.onOpen}
+              />
+            </Tooltip>
 
             <GameMenu
               gameMode={GameMode.hex}

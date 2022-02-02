@@ -45,7 +45,6 @@ const GameStatusPanel: React.FC<GameStatusPanelProps> = ({
             textDecoration: 'underline',
           }}
           fontSize={['md', 'lg']}
-          textAlign="center"
         >
           Game #{gameId}
         </Text>

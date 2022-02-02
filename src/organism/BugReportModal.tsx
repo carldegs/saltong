@@ -11,7 +11,12 @@ import {
   ModalProps,
 } from '@chakra-ui/modal';
 
-import { LOCAL_GAME_DATA, LOCAL_HEX_DATA, TWITTER_LINK } from '../constants';
+import {
+  LOCAL_GAME_DATA,
+  LOCAL_HEX_DATA,
+  MISSING_WORD_FORM,
+  TWITTER_LINK,
+} from '../constants';
 import { getPersistState } from '../utils/local';
 import ResetDataAlert from './ResetDataAlert';
 
@@ -58,6 +63,16 @@ const BugReportModal: React.FC<BugReportModalInterface> = ({
               <Link isExternal href={TWITTER_LINK} w="full">
                 <Button colorScheme="twitter" isFullWidth>
                   Send DM
+                </Button>
+              </Link>
+              <Divider pt={4} />
+              <Text pt={4}>
+                Are there missing words from the dictionary? Report it at the
+                Saltong Dictionary Reklamo Corner.
+              </Text>
+              <Link isExternal href={MISSING_WORD_FORM} w="full">
+                <Button colorScheme="orange" isFullWidth>
+                  Report Missing Word
                 </Button>
               </Link>
               <Divider pt={4} />

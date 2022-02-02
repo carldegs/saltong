@@ -1,4 +1,3 @@
-import { ExternalLinkIcon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
   Alert,
   Box,
@@ -7,18 +6,20 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Link,
   Skeleton,
-  Spacer,
   Spinner,
   Text,
+  Tooltip,
   useColorMode,
   useToast,
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { ChartBar, Question } from 'phosphor-react';
 import React, {
   ReactElement,
   useCallback,
@@ -135,35 +136,35 @@ const Home: React.FC = () => {
       ) : null}
       <Container centerContent maxW="container.xl">
         <HStack my={4} w="full">
-          <Flex flex={1} flexDir="row">
+          <Box>
+            <Heading size="lg" textAlign="left" textTransform="capitalize">
+              {`Saltong ${gameMode !== GameMode.main ? gameMode : ''}`}
+            </Heading>
+
             <Skeleton isLoaded={!isLoading}>
               <GameStatusPanel gameId={gameId} />
             </Skeleton>
-          </Flex>
-          <Box>
-            <Heading size="lg" textAlign="center" textTransform="capitalize">
-              {`Saltong ${gameMode !== GameMode.main ? gameMode : ''}`}
-            </Heading>
-            <Text fontSize={['sm', 'md']} textAlign="center">
-              A Filipino clone of{' '}
-              <Link isExternal href="https://www.powerlanguage.co.uk/wordle/">
-                Wordle <ExternalLinkIcon />
-              </Link>
-            </Text>
           </Box>
-          <HStack flex={1} flexDir="row-reverse" spacing={4}>
+          <HStack flex={1} justifyContent="flex-end" spacing={[2, 3]}>
+            <Tooltip label="How to Play" openDelay={300}>
+              <IconButton
+                aria-label="help"
+                icon={<Icon as={Question} weight="bold" fontSize="20px" />}
+                onClick={disc.rulesModal.onOpen}
+              />
+            </Tooltip>
+            <Tooltip label="View Stats/ Share Results" openDelay={300}>
+              <IconButton
+                isDisabled={gameStatus === GameStatus.playing}
+                aria-label="help"
+                icon={<Icon as={ChartBar} weight="bold" />}
+                onClick={disc.endGameModal.onOpen}
+              />
+            </Tooltip>
             <GameMenu
               gameStatus={gameStatus}
               resetLocalStorage={resetLocalStorage}
               gameMode={gameMode}
-            />
-            <Spacer maxW="0" />
-
-            <IconButton
-              aria-label="help"
-              icon={<QuestionOutlineIcon />}
-              onClick={disc.rulesModal.onOpen}
-              display={['none', 'inherit']}
             />
           </HStack>
         </HStack>
