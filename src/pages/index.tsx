@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { ChartBar, Question } from 'phosphor-react';
 import React, {
   ReactElement,
@@ -45,7 +44,6 @@ const BugReportModal = dynamic(() => import('../organism/BugReportModal'));
 const RulesModal = dynamic(() => import('../organism/RulesModal'));
 
 const Home: React.FC = () => {
-  const router = useRouter();
   const {
     wordLength,
     numTries,
@@ -112,17 +110,17 @@ const Home: React.FC = () => {
       {showAlert ? (
         <Alert status="success">
           <Text>
-            Kulang sa challenge? Try{' '}
+            Want the same word-related stress you get with Wordle and Saltong
+            but in Bisaya? Try{' '}
             <Link
-              onClick={() => {
-                router.push(`/${GameMode.hex}`);
-              }}
+              isExternal
+              href="https://kuan.vercel.app/"
               fontWeight="bold"
               color={colorMode === 'dark' ? 'green.200' : 'green.600'}
             >
-              Saltong Hex
-            </Link>
-            , with new rounds every Tuesday and Friday.
+              Kuan
+            </Link>{' '}
+            by @TeamMinJay!
           </Text>
           <CloseButton
             position="absolute"
@@ -240,7 +238,8 @@ const Home: React.FC = () => {
               tries={tries}
               onSolve={onSolve}
               gameStatus={gameStatus}
-              mt={['4', '8']}
+              mt={[4, 8]}
+              mb={[numTries <= 6 ? 0 : '200px', 0]}
             />
             <Keyboard
               letterStatuses={letterStatuses}

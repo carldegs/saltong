@@ -49,9 +49,9 @@ const Keyboard: React.FC<KeyboardProps> = ({
   });
 
   return (
-    <Stack spacing={[1, 3]} alignItems="center" {...stackProps}>
+    <Stack spacing={[1, 2]} alignItems="center" {...stackProps}>
       {keyboardInfo.map((row) => (
-        <HStack spacing={[1, 3]} key={`${row[0].value}`}>
+        <HStack spacing={[1, 2]} key={`${row[0].value}`}>
           {row.map((data) => (
             <KeyboardKey
               key={`${row[0].value}-${data.value}`}
