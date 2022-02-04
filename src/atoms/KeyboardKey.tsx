@@ -51,8 +51,12 @@ const KeyboardKey: React.FC<KeyboardKeyProps> = ({
         }
       }}
       w="full"
-      maxW={value.length > 1 ? ['42px', '54px'] : ['32px', '43px']}
-      minW={value.length > 1 ? ['42px', '54px'] : ['32px', '43px']}
+      maxW={
+        value.length > 1 ? ['46px', '46px', '54px'] : ['36px', '36px', '43px']
+      }
+      minW={
+        value.length > 1 ? ['42px', '42px', '54px'] : ['32px', '32px', '43px']
+      }
       h="58px"
       cursor={isDisabled ? 'wait' : 'pointer'}
       onContextMenu={(e) => e.preventDefault()}

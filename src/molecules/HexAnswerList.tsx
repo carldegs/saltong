@@ -32,6 +32,7 @@ interface HexAnswerListProps {
     isPangram: boolean;
   }[];
   title?: string;
+  listMode?: boolean;
 }
 
 enum WordListSortBy {
@@ -45,7 +46,10 @@ enum SortDirection {
   desc = 'Descending',
 }
 
-const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
+const HexAnswerList: React.FC<HexAnswerListProps> = ({
+  answers = [],
+  listMode = false,
+}) => {
   const numWordsShown = useBreakpointValue([4, 8]);
   const answeredPopoverDisc = useDisclosure();
   const textColor = useColorModeValue('gray.400', 'gray.600');
@@ -69,6 +73,87 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
         return orderBy(answers, ['word'], [order]);
     }
   }, [answers, wordListSortBy, sortDir]);
+
+  const Header = (
+    <Flex w="full" justifyContent="space-between" alignItems="center">
+      <Box w="40px" />
+      <Text fontWeight="bold">
+        {answers.length} word{answers.length > 1 ? 's' : ''} found
+      </Text>
+      <Menu closeOnSelect={false}>
+        <MenuButton
+          as={IconButton}
+          icon={<Icon as={SortAscending} weight="bold" />}
+          aria-label="sort-words"
+        />
+        <MenuList>
+          <MenuOptionGroup
+            title="Sort by"
+            value={wordListSortBy}
+            onChange={(str) => setWordListSortBy(str as WordListSortBy)}
+          >
+            {Object.values(WordListSortBy).map((value) => (
+              <MenuItemOption value={value} key={value}>
+                {value}
+              </MenuItemOption>
+            ))}
+          </MenuOptionGroup>
+          <MenuOptionGroup
+            title="Order"
+            value={sortDir}
+            onChange={(str) => setSortDir(str as SortDirection)}
+          >
+            {Object.values(SortDirection).map((value) => (
+              <MenuItemOption value={value} key={value}>
+                {value}
+              </MenuItemOption>
+            ))}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    </Flex>
+  );
+
+  const Content = sortedAnswers?.length ? (
+    <SimpleGrid
+      columns={listMode ? 2 : [3, 4]}
+      spacing={2}
+      overflowY="auto"
+      maxH="600px"
+    >
+      {sortedAnswers.map(({ word, isPangram }) => (
+        <Text
+          key={`answer-list-${word}`}
+          textAlign="center"
+          fontWeight={isPangram && 'bold'}
+          color={isPangram && 'purple.400'}
+        >
+          {word}
+        </Text>
+      ))}
+    </SimpleGrid>
+  ) : (
+    <Text textAlign="center" py={2} color={textColor}>
+      No answers yet
+    </Text>
+  );
+
+  if (listMode) {
+    return (
+      <Box
+        w="full"
+        borderColor="purple.400"
+        borderWidth={1}
+        borderRadius={12}
+        p={4}
+        minH="200px"
+        h="full"
+      >
+        {Header}
+        <Box mt={4}>{Content}</Box>
+      </Box>
+    );
+  }
 
   return (
     <Popover
@@ -116,65 +201,8 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({ answers = [] }) => {
         </HStack>
       </PopoverTrigger>
       <PopoverContent w={['sm', 'lg']}>
-        <PopoverHeader>
-          <Flex w="full" justifyContent="space-between" alignItems="center">
-            <Box w="40px" />
-            <Text fontWeight="bold">
-              {answers.length} word{answers.length > 1 ? 's' : ''} found
-            </Text>
-            <Menu closeOnSelect={false}>
-              <MenuButton
-                as={IconButton}
-                icon={<Icon as={SortAscending} weight="bold" />}
-                aria-label="sort-words"
-              />
-              <MenuList>
-                <MenuOptionGroup
-                  title="Sort by"
-                  value={wordListSortBy}
-                  onChange={(str) => setWordListSortBy(str as WordListSortBy)}
-                >
-                  {Object.values(WordListSortBy).map((value) => (
-                    <MenuItemOption value={value} key={value}>
-                      {value}
-                    </MenuItemOption>
-                  ))}
-                </MenuOptionGroup>
-                <MenuOptionGroup
-                  title="Order"
-                  value={sortDir}
-                  onChange={(str) => setSortDir(str as SortDirection)}
-                >
-                  {Object.values(SortDirection).map((value) => (
-                    <MenuItemOption value={value} key={value}>
-                      {value}
-                    </MenuItemOption>
-                  ))}
-                </MenuOptionGroup>
-              </MenuList>
-            </Menu>
-          </Flex>
-        </PopoverHeader>
-        <PopoverBody>
-          {sortedAnswers?.length ? (
-            <SimpleGrid columns={[3, 4]} spacing={2}>
-              {sortedAnswers.map(({ word, isPangram }) => (
-                <Text
-                  key={`answer-list-${word}`}
-                  textAlign="center"
-                  fontWeight={isPangram && 'bold'}
-                  color={isPangram && 'purple.400'}
-                >
-                  {word}
-                </Text>
-              ))}
-            </SimpleGrid>
-          ) : (
-            <Text textAlign="center" py={2} color={textColor}>
-              No answers yet
-            </Text>
-          )}
-        </PopoverBody>
+        <PopoverHeader>{Header}</PopoverHeader>
+        <PopoverBody>{Content}</PopoverBody>
       </PopoverContent>
     </Popover>
   );

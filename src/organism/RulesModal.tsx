@@ -1,6 +1,5 @@
 import {
   Box,
-  BoxProps,
   Divider,
   IconButton,
   Modal,
@@ -17,6 +16,7 @@ import {
 import { useRef, useState } from 'react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
+import useTranslate from '../hooks/useTranslate';
 import LetterBoxRow from '../molecules/LetterBoxRow';
 import LetterStatus from '../types/LetterStatus';
 
@@ -104,22 +104,59 @@ const EXAMPLE_3 = {
   ],
 };
 
+const messages = {
+  header: {
+    en: 'How to Play',
+    fil: 'Paano Laruin',
+  },
+  ruleNumTries: {
+    en: 'Guess the SALTONG in {numTries} tries.',
+    fil: 'Hulaan ang SALTONG sa loob ng {numTries} na tira.',
+  },
+  ruleWordLength: {
+    en: 'Each guess must be a valid {wordLength} letter word. Hit the enter button to submit.',
+    fil: 'Ang bawat hulang salita ay dapat {wordLength} letra ang haba. Pindutin ang Enter button para i-submit',
+  },
+  ruleColor: {
+    en: 'After each guess, the color of the tiles will change to show how close your guess was to the word.',
+    fil: 'Pagkatapos ng bawat tira, mag-iiba ang kulay ng mga tiles na nagpapakita kung gaano kalapit ang hula mo sa tamang sagot',
+  },
+  examples: {
+    en: 'Examples',
+    fil: 'Mga Halimbawa',
+  },
+  ex1: {
+    en: 'The letter {ex1Letter} is in the word and in the correct spot.',
+    fil: 'Ang letrang {ex1Letter} ay nasa salita at nasa tamang pwesto',
+  },
+  ex2: {
+    en: 'The letter {ex2Letter} is in the word but in the wrong spot.',
+    fil: 'Ang letrang {ex2Letter} ay nasa salita ngunit nasa maling pwesto',
+  },
+  ex3: {
+    en: 'The letters are not in the word in any spot.',
+    fil: 'Walang letra ang nasa salita',
+  },
+  sched: {
+    en: 'A new word will be avaiable each day.',
+    fil: 'May bagong salitang lalabas araw-araw.',
+  },
+};
+
 const RulesModal: React.FC<RulesModalProps> = ({
   wordLength,
   numTries,
   isOpen,
   onClose,
 }) => {
-  const [isFilipino, setFilipino] = useState(true);
+  const [lang, setLang] = useState('fil');
+  const { getMessage } = useTranslate(messages, lang, {
+    numTries,
+    wordLength,
+    ex1Letter: EXAMPLE_1_LETTER[wordLength],
+    ex2Letter: EXAMPLE_2_LETTER[wordLength],
+  });
   const finalRef = useRef();
-  // TODO: Temp only.
-  const TranslatedText: React.FC<
-    { text: string; translation: string } & BoxProps
-  > = ({ text, translation, ...boxProps }) => (
-    <Box {...boxProps}>
-      <Text>{isFilipino ? translation : text}</Text>
-    </Box>
-  );
 
   return (
     <Modal
@@ -130,9 +167,7 @@ const RulesModal: React.FC<RulesModalProps> = ({
     >
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          <TranslatedText text="How to Play" translation="Paano Laruin" />
-        </ModalHeader>
+        <ModalHeader>{getMessage('header')}</ModalHeader>
 
         <Tooltip
           label={
@@ -147,9 +182,9 @@ const RulesModal: React.FC<RulesModalProps> = ({
         >
           <IconButton
             aria-label="language"
-            icon={<EmojiWrapper value={isFilipino ? '🇵🇭' : '🇺🇸'} />}
+            icon={<EmojiWrapper value={lang === 'fil' ? '🇵🇭' : '🇺🇸'} />}
             onClick={() => {
-              setFilipino((curr) => !curr);
+              setLang((curr) => (curr === 'fil' ? 'en' : 'fil'));
             }}
             pos="absolute"
             right="50px"
@@ -159,59 +194,29 @@ const RulesModal: React.FC<RulesModalProps> = ({
         <ModalCloseButton ref={finalRef} />
         <ModalBody mb={4}>
           <Stack spacing={3}>
-            <TranslatedText
-              text={`Guess the SALTONG in ${numTries} tries.`}
-              translation={`Hulaan ang SALTONG sa loob ng ${numTries} na tira.`}
-            />
+            <Text>{getMessage('ruleNumTries')}</Text>
+            <Text>{getMessage('ruleWordLength')}</Text>
+            <Text>{getMessage('ruleColor')}</Text>
 
-            <TranslatedText
-              text={`Each guess must be a valid ${wordLength} letter word. Hit the enter button to submit.`}
-              translation={`Ang bawat hulang salita ay dapat ${wordLength} letra ang haba. Pindutin ang Enter button para i-submit`}
-            />
-
-            <TranslatedText
-              text="After each guess, the color of the tiles will change to show how close your guess was to the word."
-              translation="Pagkatapos ng bawat tira, mag-iiba ang kulay ng mga tiles na nagpapakita kung gaano kalapit ang hula mo sa tamang sagot"
-            />
             <Divider />
-            <b>
-              <TranslatedText text="Examples" translation="Mga Halimbawa" />
-            </b>
+            <b>{getMessage('examples')} </b>
             <LetterBoxRow
               word={EXAMPLE_1[wordLength]}
               wordLength={wordLength}
             />
-            <TranslatedText
-              pb={4}
-              text={`The letter ${EXAMPLE_1_LETTER[wordLength]} is in the word and in the correct spot.`}
-              translation={`Ang letrang ${EXAMPLE_1_LETTER[wordLength]} ay nasa salita at nasa tamang pwesto`}
-            />
+            <Text pb={4}>{getMessage('ex1')}</Text>
             <LetterBoxRow
               word={EXAMPLE_2[wordLength]}
               wordLength={wordLength}
             />
-
-            <TranslatedText
-              pb={4}
-              text={`The letter ${EXAMPLE_2_LETTER[wordLength]} is in the word but in
-              the wrong spot.`}
-              translation={`Ang letrang ${EXAMPLE_2_LETTER[wordLength]} ay nasa salita ngunit nasa maling pwesto`}
-            />
-
+            <Text pb={4}>{getMessage('ex2')}</Text>
             <LetterBoxRow
               word={EXAMPLE_3[wordLength]}
               wordLength={wordLength}
             />
-            <TranslatedText
-              pb={4}
-              text="The letters are not in the word in any spot."
-              translation="Walang letra ang nasa salita"
-            />
+            <Text pb={4}>{getMessage('ex3')}</Text>
             <Divider />
-            <TranslatedText
-              text="A new word will be avaiable each day."
-              translation="May bagong salitang lalabas araw-araw."
-            />
+            <Text>{getMessage('sched')}</Text>
           </Stack>
         </ModalBody>
       </ModalContent>

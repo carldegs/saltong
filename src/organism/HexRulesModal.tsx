@@ -27,32 +27,107 @@ import {
   Link,
   IconButton,
 } from '@chakra-ui/react';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { HEX_RANK, TWITTER_LINK } from '../constants';
 import { useHexGame } from '../context/HexGameContext';
+import useTranslate from '../hooks/useTranslate';
 
 type HexRulesModalProps = Omit<ModalProps, 'children'>;
+
+const messages = {
+  header: { en: 'How to Play', fil: 'Paano Laruin' },
+  generalRule: {
+    en: 'Make as many words as you can given seven letters.',
+    fil: 'Gumawa ng mga salita gamit ang pitong letrang binigay',
+  },
+  rulesHeader: {
+    en: 'Rules',
+    fil: 'Mga Tuntunin',
+  },
+  rule1: {
+    en: 'Words must be at least four letters long',
+    fil: 'Ang mga salita ay binubuo dapat ng apat o higit pang mga letra',
+  },
+  rule2: {
+    en: 'Words must contain the center letter',
+    fil: 'Dapat kasama ang "center letter" sa bubuuing mga salita.',
+  },
+  rule3: {
+    en: 'Letters can be used more than once',
+    fil: 'Maaaring ulitin ang mga letra nang maraming beses.',
+  },
+  rule4: {
+    en: 'The word list does not include hyphenated, obscure, or obscene words.',
+    fil: 'Hindi kasama sa mga listahan ng tamang salita ang salitang may gitling, sinauna, o anumang may kinalaman sa kalaswaan.',
+  },
+  rule5: {
+    en: 'The goal of the game is to earn enough points to get the rank of BATHALA. No need to guess all the words. Check the scoring section for the points system.',
+    fil: 'Subukang makalikom ng sapat na puntos upang maabot ang ranggong BATHALA. Hindi kailangang hulaan ang lahat ng mga salita. Basahin ang bahagi ukol sa iskoring para sa pagkalkula ng mga puntos',
+  },
+  scoringHeader: { en: 'Scoring', fil: 'Iskoring' },
+  scoring1: {
+    en: '4-letter words are worth 1pt.',
+    fil: 'Ang mga 4 na letrang salita ay 1pt.',
+  },
+  scoring2: {
+    en: 'Longer words are worth 1pt per letter (e.g., MANONG = 6pts, DUWAG = 5pts).',
+    fil: 'Isang puntos sa bawat letrang ginamit sa mas mahabang mga salita (Hal. MANONG = 6pts, DUWAG = 5pts).',
+  },
+  scoring3: {
+    en: "When you've used all letters in a word (called a <b>pangram</b>) you will get 7 additional points.",
+    fil: 'Kung nagamit mo ang lahat ng letra para bumuo ng salita (tinatawag na <b>pangram</b>) ikaw ay makakatanggap ng dagdag na 7 puntos.',
+  },
+  exampleHeader: {
+    en: 'Example',
+    fil: 'Halimbawa',
+  },
+  example1: {
+    en: 'Given the letters <b>K T O R E S P</b>, with <b>O</b> being the center letter:',
+    fil: 'Gamit ang mga letrang <b>K T O R E S P</b>, kung saan ang letrang <b>O</b> ang center letter:',
+  },
+  example2: {
+    en: '<b>KESO</b> is worth 1 pt.',
+    fil: '<b>KESO</b> ay nagkakahalaga ng 1 pt.',
+  },
+  example3: {
+    en: '<b>TORPE</b> is 5 pts.',
+    fil: '<b>TORPE</b> ay 5 pts.',
+  },
+  example4: {
+    en: '<b>EKSPORT</b> is 14 pts. because it is 7 letters long and the word is a pangram.',
+    fil: '<b>EKSPORT</b> ay 14 pts. dahil ito ay 7-letra ang haba at ang salita ay isang pangram.',
+  },
+  example5: {
+    en: '<b>EKSPERTO</b> is 15 pts.',
+    fil: '<b>EKSPERTO</b> ay 15 pts.',
+  },
+  rankingsHeader: {
+    en: 'Rankings',
+    fil: 'Mga Ranggo',
+  },
+  rank1: {
+    en: 'The points needed to reach a rank will differ every Saltong Hex Round. The points needed for this round is:',
+    fil: 'Iba-iba ang kinakailangang puntos upang maabot ang mga ranggo sa bawat laro ng Saltong Hex. Ang mga puntos na kinakailangan para sa larong ito ay:',
+  },
+  sched: {
+    en: 'A new round of Saltong Hex will be released on Tuesdays and Fridays.',
+    fil: 'May bagong Saltong Hex na ilalabas tuwing Martes at Biyernes.',
+  },
+};
 
 const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
   const isDarkMode = useColorModeValue(false, true);
   const { maxScore, list: wordList } = useHexGame();
 
   const [locale, setLocale] = useState('fil');
-  // TODO: Create site-wide translation system. Use libraries instead.
-  const tr = useCallback(
-    (obj: { en: string; fil: string }) => obj[locale],
-    [locale]
-  );
-
+  const { getMessage } = useTranslate(messages, locale, {});
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          {tr({ en: 'How to Play', fil: 'Paano Laruin' })}
-        </ModalHeader>
+        <ModalHeader>{getMessage('header')}</ModalHeader>
         <IconButton
           aria-label="language"
           icon={<EmojiWrapper value={locale === 'fil' ? '🇵🇭' : '🇺🇸'} />}
@@ -66,58 +141,25 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
         <ModalCloseButton />
         <ModalBody mb={4}>
           <Stack spacing={6}>
-            <Text>
-              {tr({
-                en: 'Make as many words as you can given seven letters.',
-                fil: 'Gumawa ng mga salita gamit ang pitong letrang binigay',
-              })}
-            </Text>
+            <Text>{getMessage('generalRule')}</Text>
             <Accordion defaultIndex={[0]}>
               <AccordionItem>
                 <Stack spacing={2}>
                   <h2>
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
-                        {tr({
-                          en: 'Rules',
-                          fil: 'Mga Tuntunin',
-                        })}
+                        {getMessage('rulesHeader')}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pl={4} pb={4}>
                     <UnorderedList spacing={1}>
-                      <ListItem>
-                        {tr({
-                          en: 'Words must be at least four letters long',
-                          fil: 'Ang mga salita ay dapat apat na letra ang haba, pataas',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: 'Words must contain the center letter',
-                          fil: 'Kasama dapat ang "center letter" sa mga salita',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: 'Letters can be used more than once',
-                          fil: 'Maaring gamit ang mga letra ng maraming beses',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: 'The word list does not include hyphenated, obscure, or obscene words.',
-                          fil: 'Ang listahan ng mga salita ay hindi naglalaman ng salitang may gitling, sinauna o malaswa.',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: 'The goal of the game is to earn enough points to get the rank of BATHALA. No need to guess all the words. Check the scoring section for the points system.',
-                          fil: 'Subukang makalikom ng sapat na puntos upang maabot ang ranggong BATHALA. Hindi kailangang hulaan ang lahat ng mga salita. Basahin ang bahagi ukol sa iskoring para sa pagkalkula ng mga puntos',
-                        })}
-                      </ListItem>
+                      <ListItem>{getMessage('rule1')}</ListItem>
+                      <ListItem>{getMessage('rule2')}</ListItem>
+                      <ListItem>{getMessage('rule3')}</ListItem>
+                      <ListItem>{getMessage('rule4')}</ListItem>
+                      <ListItem>{getMessage('rule5')}</ListItem>
                     </UnorderedList>
                   </AccordionPanel>
                 </Stack>
@@ -127,105 +169,59 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                   <h2>
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
-                        {tr({ en: 'Scoring', fil: 'Iskoring' })}
+                        {getMessage('scoringHeader')}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pl={4} pb={4}>
                     <UnorderedList spacing={2}>
-                      <ListItem>
-                        {tr({
-                          en: '4-letter words are worth 1pt.',
-                          fil: 'Ang mga 4 na letrang salita ay 1pt.',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: 'Longer words are worth 1pt per letter (e.g., MANONG = 6pts, DUWAG = 5pts).',
-                          fil: 'Isang puntos sa bawat letrang ginamit sa mas mahabang mga salita (Hal. MANONG = 6pts, DUWAG = 5pts).',
-                        })}
-                      </ListItem>
-                      <ListItem>
-                        {tr({
-                          en: "When you've used all letters in a word (called a",
-                          fil: 'Kung nagamit mo ang lahat ng letra para bumuo ng salita (tinatawag na',
-                        })}{' '}
-                        <b>pangram</b>
-                        {tr({
-                          en: ') you will get 7 additional points.',
-                          fil: ') ikaw ay makakatanggap ng dagdag na 7 puntos.',
-                        })}
-                      </ListItem>
+                      <ListItem>{getMessage('scoring1')}</ListItem>
+                      <ListItem>{getMessage('scoring2')}</ListItem>
+                      <ListItem
+                        dangerouslySetInnerHTML={{
+                          __html: getMessage('example1'),
+                        }}
+                      />
                     </UnorderedList>
                     <Box
                       bg={isDarkMode ? 'gray.600' : 'gray.200'}
                       px={3}
                       py={2}
                       borderRadius={4}
-                      mt={2}
+                      mt={4}
                     >
                       <Text fontWeight="bold">
-                        {tr({
-                          en: 'Example',
-                          fil: 'Halimbawa',
-                        })}
+                        {getMessage('exampleHeader')}
                       </Text>
-                      <Text mb={2}>
-                        {tr({
-                          en: 'Given the letters',
-                          fil: 'Gamit ang mga letrang',
-                        })}{' '}
-                        <b>K T O R E S P</b>,{' '}
-                        {tr({
-                          en: 'with',
-                          fil: 'kung saan ang letrang',
-                        })}{' '}
-                        <b>O</b>{' '}
-                        {tr({
-                          en: 'being the center letter',
-                          fil: 'ang center letter',
-                        })}
-                        :
-                      </Text>
+                      <Text
+                        mb={2}
+                        dangerouslySetInnerHTML={{
+                          __html: getMessage('example1'),
+                        }}
+                      ></Text>
                       <Box pl={2}>
                         <UnorderedList>
-                          <ListItem>
-                            <b>KESO</b>{' '}
-                            {tr({
-                              en: 'is worth',
-                              fil: 'ay nagkakahalaga ng',
-                            })}{' '}
-                            1 pt.
-                          </ListItem>
-                          <ListItem>
-                            <b>TORPE</b>{' '}
-                            {tr({
-                              en: 'is',
-                              fil: 'ay',
-                            })}{' '}
-                            5 pts.
-                          </ListItem>
-                          <ListItem>
-                            <b>EKSPORT</b>{' '}
-                            {tr({
-                              en: 'is',
-                              fil: 'ay',
-                            })}{' '}
-                            14 pts.{' '}
-                            {tr({
-                              en: 'because it is 7 letters long and the word is a pangram.',
-                              fil: 'dahil ito ay 7-letra ang haba at ang salita ay isang pangram.',
-                            })}
-                          </ListItem>
-                          <ListItem>
-                            <b>EKSPERTO</b>{' '}
-                            {tr({
-                              en: 'is',
-                              fil: 'ay',
-                            })}{' '}
-                            15 pts.
-                          </ListItem>
+                          <ListItem
+                            dangerouslySetInnerHTML={{
+                              __html: getMessage('example2'),
+                            }}
+                          />
+                          <ListItem
+                            dangerouslySetInnerHTML={{
+                              __html: getMessage('example3'),
+                            }}
+                          />
+                          <ListItem
+                            dangerouslySetInnerHTML={{
+                              __html: getMessage('example4'),
+                            }}
+                          />
+                          <ListItem
+                            dangerouslySetInnerHTML={{
+                              __html: getMessage('example5'),
+                            }}
+                          />
                         </UnorderedList>
                       </Box>
                     </Box>
@@ -237,19 +233,13 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                   <h2>
                     <AccordionButton>
                       <Box flex="1" textAlign="left">
-                        {tr({
-                          en: 'Rankings',
-                          fil: 'Mga Ranggo',
-                        })}
+                        {getMessage('rankingsHeader')}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pl={4} pb={4}>
-                    {tr({
-                      en: 'The points needed to reach a rank will differ every Saltong Hex Round. The points needed for this round is:',
-                      fil: 'Iba-iba ang kinakailangang puntos upang maabot ang mga ranggo sa bawat laro ng Saltong Hex. Ang mga puntos na kinakailangan para sa larong ito ay:',
-                    })}
+                    {getMessage('rank1')}
 
                     <Table
                       variant="simple"
@@ -352,12 +342,7 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                 </Stack>
               </AccordionItem>
             </Accordion>
-            <Text>
-              {tr({
-                en: 'A new round of Saltong Hex will be released on Tuesdays and Fridays.',
-                fil: 'May bagong Saltong Hex na ilalabas tuwing Martes at Biyernes.',
-              })}
-            </Text>
+            <Text>{getMessage('sched')}</Text>
           </Stack>
         </ModalBody>
       </ModalContent>

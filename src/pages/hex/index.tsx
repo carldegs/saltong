@@ -190,25 +190,61 @@ const HexPage: React.FC = () => {
           </Flex>
         )}
         {!(isLoading || isError) && (
-          <>
-            <RankStatusBar rank={rank} score={score} />
-            <Grid w="full" gridTemplateRows="auto 1fr auto" h="full" mt={12}>
-              <HexAnswerList answers={guessedWords} />
-              <Flex maxH="500px" h="full" w="full" alignItems="center">
-                <HexInput
-                  onSolve={solve}
-                  centerLetter={centerLetter}
+          <Flex
+            w="full"
+            h="full"
+            alignItems="flex-start"
+            justifyContent="center"
+          >
+            <Box
+              display={['none', 'none', 'none', 'inherit']}
+              w="full"
+              maxW="300px"
+            />
+            <Flex
+              flexDir="column"
+              h="full"
+              W="full"
+              flexGrow={1}
+              alignItems="center"
+            >
+              <RankStatusBar rank={rank} score={score} />
+              <Grid
+                w="full"
+                gridTemplateRows={['auto 1fr auto', '1fr auto']}
+                h="full"
+                mt={3}
+              >
+                <Box display={['inherit', 'none']}>
+                  <HexAnswerList answers={guessedWords} />
+                </Box>
+                <Flex maxH="500px" h="full" w="full" alignItems="center" mt={3}>
+                  <HexInput
+                    onSolve={solve}
+                    centerLetter={centerLetter}
+                    letters={letters}
+                  />
+                </Flex>
+                <Hexboard
                   letters={letters}
+                  onEnter={solve}
+                  centerLetter={centerLetter}
+                  mx="auto"
+                  mb={6}
                 />
-              </Flex>
-              <Hexboard
-                letters={letters}
-                onEnter={solve}
-                centerLetter={centerLetter}
-                mx="auto"
-              />
-            </Grid>
-          </>
+              </Grid>
+            </Flex>
+            <Flex
+              display={['none', 'inherit']}
+              ml={6}
+              maxW="350px"
+              w="full"
+              my={12}
+              alignItems="flex-start"
+            >
+              <HexAnswerList answers={guessedWords} listMode />
+            </Flex>
+          </Flex>
         )}
       </Container>
     </>
