@@ -119,7 +119,7 @@ const messages = {
 
 const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
   const isDarkMode = useColorModeValue(false, true);
-  const { maxScore, list: wordList } = useHexGame();
+  const { maxScore, numPangrams, numWords } = useHexGame();
 
   const [locale, setLocale] = useState('fil');
   const { getMessage } = useTranslate(messages, locale, {});
@@ -280,12 +280,9 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pl={4} pb={4}>
-                    <Text>Number of words: {wordList.length}</Text>
+                    <Text>Number of words: {numWords}</Text>
                     <Text>Points: {maxScore}</Text>
-                    <Text>
-                      Number of Pangrams:{' '}
-                      {wordList.filter(({ isPangram }) => isPangram).length}
-                    </Text>
+                    <Text>Number of Pangrams: {numPangrams}</Text>
                     <Text fontWeight="bold" mt={4}>
                       Tips
                     </Text>

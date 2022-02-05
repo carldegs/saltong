@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { ChartBar, Question } from 'phosphor-react';
 import React, {
   ReactElement,
@@ -66,6 +67,17 @@ const Home: React.FC = () => {
   const [showAlert, setShowAlert] = useState(true);
   const toast = useToast();
   const { colorMode } = useColorMode();
+  const router = useRouter();
+  const baseColor = useMemo(() => {
+    switch (gameMode) {
+      case GameMode.main:
+        return 'blue';
+      case GameMode.max:
+        return 'pink';
+      case GameMode.mini:
+        return 'teal';
+    }
+  }, [gameMode]);
 
   const onSolve = useCallback(
     async (answer: string) => {
@@ -110,17 +122,16 @@ const Home: React.FC = () => {
       {showAlert ? (
         <Alert status="success">
           <Text>
-            Want the same word-related stress you get with Wordle and Saltong
-            but in Bisaya? Try{' '}
+            Kulang sa challenge? Try the improved{' '}
             <Link
-              isExternal
-              href="https://kuan.vercel.app/"
+              onClick={() => {
+                router.push(`/${GameMode.hex}`);
+              }}
               fontWeight="bold"
               color={colorMode === 'dark' ? 'green.200' : 'green.600'}
             >
-              Kuan
-            </Link>{' '}
-            by @TeamMinJay!
+              Saltong Hex!
+            </Link>
           </Text>
           <CloseButton
             position="absolute"
@@ -135,9 +146,19 @@ const Home: React.FC = () => {
       <Container centerContent maxW="container.xl">
         <HStack my={4} w="full">
           <Box>
-            <Heading size="lg" textAlign="left" textTransform="capitalize">
-              {`Saltong ${gameMode !== GameMode.main ? gameMode : ''}`}
-            </Heading>
+            <Flex>
+              <Heading size="lg">Saltong</Heading>
+              {gameMode !== GameMode.main && (
+                <Heading
+                  size="lg"
+                  color={`${baseColor}.${colorMode === 'dark' ? '400' : '500'}`}
+                  textTransform="capitalize"
+                  ml="8px"
+                >
+                  {gameMode}
+                </Heading>
+              )}
+            </Flex>
 
             <Skeleton isLoaded={!isLoading}>
               <GameStatusPanel gameId={gameId} />

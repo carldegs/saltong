@@ -12,12 +12,14 @@ import { useKeyboard } from '../context/KeyboardContext';
 
 interface HexInputProps {
   onSolve: (answer: string) => void;
+  onShuffle: () => void;
   centerLetter: string;
   letters: string[];
 }
 
 const HexInput: React.FC<HexInputProps> = ({
   onSolve,
+  onShuffle,
   centerLetter,
   letters,
 }) => {
@@ -119,12 +121,23 @@ const HexInput: React.FC<HexInputProps> = ({
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
+            e.preventDefault();
             onSolve(values);
             return;
           }
 
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            onShuffle();
+            return;
+          }
+
           if (
-            [...letters, centerLetter].indexOf(e.key) < 0 &&
+            [
+              ...letters,
+              centerLetter,
+              ...[...letters, centerLetter].map((l) => l.toUpperCase()),
+            ].indexOf(e.key) < 0 &&
             e.key !== 'Backspace'
           ) {
             e.preventDefault();

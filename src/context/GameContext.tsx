@@ -301,7 +301,7 @@ export const GameProvider: React.FC = ({ children }) => {
   const resetLocalStorage = useCallback(() => setState(DEFAULT_USER_DATA), []); // TODO
   const getShareStatus = useCallback(
     (options?: Partial<OnShareOptions>) => {
-      const { showTimeSolved } = options || {};
+      const { showTimeSolved, showLink } = options || {};
       const { history, gameId } = gameData;
       const grid = history
         .map(({ word }) => {
@@ -350,7 +350,9 @@ export const GameProvider: React.FC = ({ children }) => {
 
 ${grid}
 
-${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`;
+${
+  showLink ? `${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}` : ''
+}`;
     },
     [colorMode, gameData, gameMode, numTries, timeSolved]
   );

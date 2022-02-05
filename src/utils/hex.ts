@@ -12,11 +12,9 @@ import { HexGameWordList, HexGameWordListItem } from '../types/HexGameData';
 
 export const getFlatDict = (groupedDict: Record<number, string[]> = {}) => {
   let flattenedDict: string[] = [];
-  Object.values(groupedDict).forEach((wordGroup) =>
-    (wordGroup || []).forEach((word) => {
-      flattenedDict = [...flattenedDict, word];
-    })
-  );
+  Object.values(groupedDict).forEach((wordGroup) => {
+    flattenedDict = [...flattenedDict, ...(wordGroup || [])];
+  });
   return flattenedDict;
 };
 
@@ -28,6 +26,22 @@ export const getMaxScore = (finalWordList: HexGameWordListItem[]) => {
   });
 
   return maxScore;
+};
+
+export const checkWordValidity = (
+  word: string,
+  flatDict: string[],
+  rootWord: string,
+  blacklist: string[],
+  centerLetter: string
+): boolean => {
+  const letters = word.split('');
+  return (
+    letters.includes(centerLetter) &&
+    letters.every((letter) => rootWord.indexOf(letter) >= 0) &&
+    !blacklist.includes(word) &&
+    flatDict.includes(word)
+  );
 };
 
 export const getHexWordList = (

@@ -1,5 +1,13 @@
-import { Box, Button, Flex, Stack, StackProps } from '@chakra-ui/react';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  Box,
+  Button,
+  Flex,
+  Kbd,
+  Stack,
+  StackProps,
+  Tooltip,
+} from '@chakra-ui/react';
+import { useEffect, useMemo } from 'react';
 
 import HexboardKey, { HexboardKeyData } from '../atoms/HexboardKey';
 import { HEX_HEIGHT, HEX_OUTER_WIDTH } from '../constants';
@@ -7,6 +15,7 @@ import { useKeyboard } from '../context/KeyboardContext';
 
 interface HexboardProps extends StackProps {
   onEnter: (string) => void;
+  onShuffle: () => void;
   letters: string[];
   centerLetter: string;
 }
@@ -35,12 +44,24 @@ const EDGE_LETTERS_LEFT = [0.5, 0.77, 0.77, 0.5, 0.23, 0.23].map((pos) =>
 
 const Hexboard: React.FC<HexboardProps> = ({
   onEnter,
+  onShuffle,
   letters,
   centerLetter,
   ...stackProps
 }) => {
   const eventRef = useKeyboard();
-  const [edgeKeysInfo, setEdgeKeysInfo] = useState<HexboardKeyData[]>([]);
+  const edgeKeysInfo = useMemo(
+    () =>
+      letters.map(
+        (char) =>
+          ({
+            value: char,
+            label: char.toUpperCase(),
+          } as HexboardKeyData)
+      ),
+    [letters]
+  );
+
   const centerKeyInfo = useMemo(
     () =>
       ({
@@ -54,20 +75,6 @@ const Hexboard: React.FC<HexboardProps> = ({
   useEffect(() => {
     eventRef?.current.focus();
   }, [eventRef]);
-
-  useEffect(() => {
-    setEdgeKeysInfo(
-      letters
-        .map(
-          (char) =>
-            ({
-              value: char,
-              label: char.toUpperCase(),
-            } as HexboardKeyData)
-        )
-        .sort(() => Math.random() - 0.5)
-    );
-  }, [letters]);
 
   return (
     <Stack {...stackProps}>
@@ -118,16 +125,24 @@ const Hexboard: React.FC<HexboardProps> = ({
         >
           DELETE
         </Button>
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            setEdgeKeysInfo((curr) => [
-              ...curr.sort(() => Math.random() - 0.5),
-            ]);
-          }}
+        <Tooltip
+          openDelay={500}
+          label={
+            <>
+              Press the <Kbd>Tab</Kbd> button to shuffle
+            </>
+          }
+          colorScheme="blue"
         >
-          SHUFFLE
-        </Button>
+          <Button
+            onClick={(e) => {
+              e.preventDefault();
+              onShuffle();
+            }}
+          >
+            SHUFFLE
+          </Button>
+        </Tooltip>
         <Button
           onClick={(e) => {
             e.preventDefault();
