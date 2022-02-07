@@ -4,10 +4,18 @@ export interface HexGameData {
   centerLetter: string;
   date: string;
   gameId: number;
+  numPangrams: number;
+  numWords: number;
+  maxScore: number;
+  words?: string[]; // Only fetched when viewing previous answers
 }
 
 // Data type for localstorage
-export interface HexGameState extends Omit<HexGameData, 'date'> {
+export interface HexGameState
+  extends Omit<
+    HexGameData,
+    'date' | 'numPangrams' | 'numWords' | 'maxScore' | 'words'
+  > {
   prevRootWord: string;
   prevCenterLetter: string;
   scores: Record<

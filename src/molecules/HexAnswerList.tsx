@@ -21,6 +21,7 @@ import {
   MenuOptionGroup,
   MenuItemOption,
   MenuList,
+  Wrap,
 } from '@chakra-ui/react';
 import orderBy from 'lodash/orderBy';
 import { SortAscending } from 'phosphor-react';
@@ -177,7 +178,13 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({
           mx="auto"
           cursor="pointer"
         >
-          <HStack spacing={2} flexGrow={1} maxW="500px" overflow="hidden">
+          <Wrap
+            spacing={2}
+            flexGrow={1}
+            maxW="500px"
+            maxH="24px"
+            overflow="hidden"
+          >
             {answers
               .slice()
               .reverse()
@@ -193,7 +200,7 @@ const HexAnswerList: React.FC<HexAnswerListProps> = ({
                 </Text>
               ))}
             {!answers.length && <Text color={textColor}>No answers yet.</Text>}
-          </HStack>
+          </Wrap>
           <ChevronDownIcon
             fontSize="xl"
             transform={answeredPopoverDisc.isOpen && 'rotate(180deg)'}

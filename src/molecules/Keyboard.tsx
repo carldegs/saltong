@@ -1,5 +1,5 @@
 import { ChevronLeftIcon } from '@chakra-ui/icons';
-import { HStack, Stack, StackProps } from '@chakra-ui/react';
+import { HStack, Stack, StackProps, useColorModeValue } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 
 import KeyboardKey, { KeyboardKeyData } from '../atoms/KeyboardKey';
@@ -43,13 +43,20 @@ const Keyboard: React.FC<KeyboardProps> = ({
       ),
     [letterStatuses]
   );
+  const bgGradientColor = useColorModeValue('white', 'gray.800');
 
   useEffect(() => {
     eventRef?.current?.focus();
   });
 
   return (
-    <Stack spacing={[1, 2]} alignItems="center" {...stackProps}>
+    <Stack
+      spacing={[1, 2]}
+      alignItems="center"
+      {...stackProps}
+      bgGradient={`linear(to-b, transparent, ${bgGradientColor} 5%)`}
+      pt={3}
+    >
       {keyboardInfo.map((row) => (
         <HStack spacing={[1, 2]} key={`${row[0].value}`}>
           {row.map((data) => (

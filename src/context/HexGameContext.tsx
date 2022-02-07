@@ -13,7 +13,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  DEFAULT_HEX_GAME_DATA,
   DEFAULT_HEX_STATE,
   HEX_RANK,
   LOCAL_HEX_DATA,
@@ -28,15 +27,15 @@ import GameMode from '../types/GameMode';
 import {
   HexGameData,
   HexGameState,
-  HexGameWordList,
   HexGameWordListItem,
 } from '../types/HexGameData';
 import { getDateString } from '../utils';
 import {
+  checkWordValidity,
   getCurrGameDate,
-  getHexWordList,
-  getPrevGameDate,
+  getFlatDict,
   getRank,
+  getWordScore,
   isPangram,
 } from '../utils/hex';
 import { getPersistState, setPersistState } from '../utils/local';
@@ -49,8 +48,9 @@ const setHexPersistState = (gameState: HexGameState) =>
 interface useHexGameProps extends HexGameState {
   firstVisit: boolean;
   setFirstVisit: Dispatch<SetStateAction<boolean>>;
-  list: HexGameWordListItem[];
   rootWord: string;
+  numPangrams: number;
+  numWords: number;
   maxScore: number;
   solve: (answer: string) => void;
   letters: string[];
@@ -64,19 +64,15 @@ interface useHexGameProps extends HexGameState {
   isLoading: boolean;
   isError: boolean;
   fetchError?: ApiError;
-  getPrevData: () => {
-    prevRootWord: string;
-    prevAnswers: { list: HexGameWordListItem[]; maxScore: number };
-    prevCenterLetter: string;
-  };
 }
 
 const DEFAULT_DATA: useHexGameProps = {
   ...DEFAULT_HEX_STATE,
   firstVisit: false,
   setFirstVisit: null,
-  list: [],
   rootWord: '',
+  numPangrams: -1,
+  numWords: -1,
   maxScore: -1,
   solve: () => undefined,
   letters: [],
@@ -88,11 +84,6 @@ const DEFAULT_DATA: useHexGameProps = {
   isLoading: false,
   isError: false,
   fetchError: undefined,
-  getPrevData: () => ({
-    prevRootWord: '',
-    prevCenterLetter: '',
-    prevAnswers: { list: [], maxScore: 0 },
-  }),
 };
 
 const HexGameContext = createContext<useHexGameProps>(DEFAULT_DATA);
@@ -108,11 +99,8 @@ export const useHexGame = () => {
 };
 
 export const HexGameProvider: React.FC = ({ children }) => {
-  const { data: hexRound, ...roundQueryData } = useQueryRoundData(GameMode.hex);
-  const { data: prevHexRound, ...prevRoundQueryData } = useQueryRoundData(
-    GameMode.hex,
-    getDateString(getPrevGameDate())
-  );
+  const { data: hround, ...roundQueryData } = useQueryRoundData(GameMode.hex);
+  const hexRound = hround as HexGameData;
   const { data: blacklist, ...blacklistQueryData } = useQueryBlacklist();
   const { data: dict, ...dictQueryData } = useQueryDictionary();
 
@@ -120,84 +108,40 @@ export const HexGameProvider: React.FC = ({ children }) => {
     () =>
       roundQueryData.isLoading ||
       blacklistQueryData.isLoading ||
-      dictQueryData.isLoading ||
-      prevRoundQueryData.isLoading,
+      dictQueryData.isLoading,
     [
       roundQueryData.isLoading,
       blacklistQueryData.isLoading,
       dictQueryData.isLoading,
-      prevRoundQueryData.isLoading,
     ]
   );
   const isError = useMemo(
     () =>
       roundQueryData.isError ||
       blacklistQueryData.isError ||
-      dictQueryData.isError ||
-      prevRoundQueryData.isError,
-    [
-      roundQueryData.isError,
-      blacklistQueryData.isError,
       dictQueryData.isError,
-      prevRoundQueryData.isError,
-    ]
+    [roundQueryData.isError, blacklistQueryData.isError, dictQueryData.isError]
   );
 
   const fetchError = useMemo(
     () =>
-      roundQueryData.error ||
-      blacklistQueryData.error ||
-      dictQueryData.error ||
-      prevRoundQueryData.error,
-    [
-      roundQueryData.error,
-      blacklistQueryData.error,
-      dictQueryData.error,
-      prevRoundQueryData.error,
-    ]
+      roundQueryData.error || blacklistQueryData.error || dictQueryData.error,
+    [roundQueryData.error, blacklistQueryData.error, dictQueryData.error]
   );
   const toast = useToast();
   const keyboardRef = useKeyboard();
   const [state, setState] = useState(DEFAULT_HEX_STATE);
   const [firstVisit, setFirstVisit] = useState(false);
-  const getPrevData = useCallback(() => {
-    if (
-      state.prevRootWord &&
-      state.prevCenterLetter &&
-      blacklist?.length &&
-      dict &&
-      dict[4]?.length
-    ) {
-      return {
-        prevCenterLetter: state.prevCenterLetter,
-        prevRootWord: state.prevRootWord,
-        prevAnswers: getHexWordList(
-          state.prevRootWord,
-          state.prevCenterLetter,
-          blacklist,
-          dict
-        ),
-      };
-    }
 
-    return {
-      prevCenterLetter: '',
-      prevRootWord: '',
-      prevAnswers: { list: [], maxScore: 0 },
-    };
-  }, [state.prevRootWord, state.prevCenterLetter, blacklist, dict]);
-  const { list, maxScore } = useMemo(
+  const flatDict = useMemo(
     () =>
-      !state?.rootWord
-        ? ({
-            list: [],
-          } as HexGameWordList)
-        : getHexWordList(state.rootWord, state.centerLetter, blacklist, dict),
-    [blacklist, dict, state.centerLetter, state.rootWord]
+      !state?.rootWord && !(dict && dict[4]?.length) ? [] : getFlatDict(dict),
+    [dict, state?.rootWord]
   );
+
   const rank = useMemo(
-    () => getRank(state.score, maxScore),
-    [state.score, maxScore]
+    () => getRank(state.score, hexRound?.maxScore),
+    [state.score, hexRound?.maxScore]
   );
   const letters = useMemo(
     () =>
@@ -213,55 +157,81 @@ export const HexGameProvider: React.FC = ({ children }) => {
         return;
       }
 
-      answer = answer.toLowerCase();
-
-      const match = list.find(({ word }) => word === answer);
-      const hasAnswered =
-        state.guessedWords.findIndex(({ word }) => word === answer) >= 0;
-
       const defaultToast: UseToastOptions = {
         position: 'top',
         duration: 800,
       };
 
-      if (!match?.word) {
+      answer = answer.toLowerCase();
+
+      if (answer.length < 4 || answer.length > 19) {
         toast({
-          description: answer.includes(state.centerLetter)
-            ? 'Not in word list'
-            : 'Center letter required',
+          description:
+            answer.length < 4
+              ? 'Word must be at least 4 letters long'
+              : 'Word must not exceed 19 letters',
           status: 'error',
           ...defaultToast,
         });
-      } else if (hasAnswered) {
-        toast({
-          description: 'Already answered',
-          status: 'warning',
-          ...defaultToast,
-        });
-      } else if (match?.word && !hasAnswered) {
-        const currDateStr = getDateString(getCurrGameDate());
-        setState((curr) => ({
-          ...curr,
-          guessedWords: [
-            ...curr.guessedWords,
-            { word: answer, isPangram: isPangram(answer) },
-          ],
-          score: curr.score + match.score,
-          scores: {
-            ...curr.scores,
-            [currDateStr]: {
-              score: (curr.scores[currDateStr]?.score || 0) + match.score,
-              maxScore,
+      } else {
+        const isValidWord = checkWordValidity(
+          answer,
+          flatDict,
+          state.rootWord,
+          blacklist,
+          state.centerLetter
+        );
+
+        const match: HexGameWordListItem = isValidWord
+          ? {
+              word: answer,
+              isPangram: isPangram(answer),
+              score: getWordScore(answer),
+            }
+          : undefined;
+
+        const hasAnswered =
+          state.guessedWords.findIndex(({ word }) => word === answer) >= 0;
+
+        if (!match?.word) {
+          toast({
+            description: answer.includes(state.centerLetter)
+              ? 'Not in word list'
+              : 'Center letter required',
+            status: 'error',
+            ...defaultToast,
+          });
+        } else if (hasAnswered) {
+          toast({
+            description: 'Already answered',
+            status: 'warning',
+            ...defaultToast,
+          });
+        } else if (match?.word && !hasAnswered) {
+          const currDateStr = getDateString(getCurrGameDate());
+          setState((curr) => ({
+            ...curr,
+            guessedWords: [
+              ...curr.guessedWords,
+              { word: answer, isPangram: isPangram(answer) },
+            ],
+            score: curr.score + match.score,
+            scores: {
+              ...curr.scores,
+              [currDateStr]: {
+                score: (curr.scores[currDateStr]?.score || 0) + match.score,
+                maxScore: hexRound.maxScore,
+              },
             },
-          },
-        }));
-        toast({
-          description: `+${match.score} pts ${
-            match.isPangram ? '(PANGRAM!)' : ''
-          }`,
-          status: match.isPangram ? 'success' : 'info',
-          ...defaultToast,
-        });
+          }));
+          toast({
+            description: `+${match.score} pts ${
+              match.isPangram ? '(PANGRAM!)' : ''
+            }`,
+            status: match.isPangram ? 'success' : 'info',
+            ...defaultToast,
+          });
+        }
       }
 
       if (keyboardRef.current?.value) {
@@ -270,7 +240,16 @@ export const HexGameProvider: React.FC = ({ children }) => {
         keyboardRef.current.focus();
       }
     },
-    [keyboardRef, list, maxScore, state.centerLetter, state.guessedWords, toast]
+    [
+      blacklist,
+      flatDict,
+      hexRound?.maxScore,
+      keyboardRef,
+      state.centerLetter,
+      state.guessedWords,
+      state.rootWord,
+      toast,
+    ]
   );
 
   const resetLocalStorage = useCallback(() => {
@@ -278,20 +257,13 @@ export const HexGameProvider: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (
-      isLoading ||
-      isError ||
-      !(hexRound as HexGameData)?.rootWord ||
-      !(prevHexRound as HexGameData)?.rootWord
-    ) {
+    if (isLoading || isError || !(hexRound as HexGameData)?.rootWord) {
       return;
     }
 
     let persistState = getHexPersistState();
     const currGameDate = getCurrGameDate();
     const { gameId, rootWord, centerLetter } = hexRound as HexGameData;
-    const { rootWord: prevRootWord, centerLetter: prevCenterLetter } =
-      (prevHexRound as HexGameData) || DEFAULT_HEX_GAME_DATA;
 
     // Check if first visit, else update state
     if (!persistState?.version) {
@@ -300,8 +272,6 @@ export const HexGameProvider: React.FC = ({ children }) => {
       // add current game and prev game
       persistState = {
         ...persistState,
-        prevRootWord,
-        prevCenterLetter,
         rootWord,
         centerLetter,
         gameId,
@@ -323,8 +293,6 @@ export const HexGameProvider: React.FC = ({ children }) => {
     if (!isSameDay(getCurrGameDate(persistState.gameStartDate), currGameDate)) {
       persistState = {
         ...persistState,
-        prevRootWord,
-        prevCenterLetter,
         rootWord,
         centerLetter,
         gameId,
@@ -347,7 +315,6 @@ export const HexGameProvider: React.FC = ({ children }) => {
       persistState = {
         ...persistState,
         rootWord,
-        prevRootWord,
       };
     }
 
@@ -359,29 +326,8 @@ export const HexGameProvider: React.FC = ({ children }) => {
       };
     }
 
-    [
-      ['rootWord', false],
-      ['prevRootWord', true],
-      ['centerLetter', false],
-      ['prevCenterLetter', true],
-    ].forEach(([param, isPrev]: [string, boolean]) => {
-      if (isPrev) {
-        const prevParam = param
-          .replace('prev', '')
-          .replace('R', 'r')
-          .replace('C', 'c');
-
-        if (
-          persistState.gameId - 1 === prevHexRound.gameId &&
-          persistState[param] !== prevHexRound[prevParam]
-        ) {
-          persistState = {
-            ...persistState,
-            [param]: prevHexRound[prevParam],
-          };
-        }
-      } else if (
-        !isPrev &&
+    ['rootWord', 'centerLetter'].forEach((param: string) => {
+      if (
         persistState.gameId === hexRound.gameId &&
         persistState[param] !== hexRound[param]
       ) {
@@ -393,7 +339,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
     });
 
     setState(persistState);
-  }, [hexRound, isLoading, isError, prevHexRound]);
+  }, [hexRound, isLoading, isError]);
 
   useEffect(() => {
     if (isLoading || isError) {
@@ -406,9 +352,9 @@ export const HexGameProvider: React.FC = ({ children }) => {
     ...state,
     firstVisit,
     setFirstVisit,
-    list,
-    maxScore,
-    getPrevData,
+    maxScore: hexRound?.maxScore,
+    numPangrams: hexRound?.numPangrams,
+    numWords: hexRound?.numWords,
     solve,
     rank,
     letters,

@@ -42,6 +42,10 @@ export const DEFAULT_HEX_GAME_DATA: HexGameData = {
   centerLetter: '',
   date: '',
   gameId: 0,
+  numPangrams: -1,
+  numWords: -1,
+  maxScore: -1,
+  words: [],
 };
 
 export const DEFAULT_HEX_STATE: HexGameState = {

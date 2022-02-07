@@ -32,6 +32,8 @@ import {
   Switch,
   Text,
   useClipboard,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import { formatDuration } from 'date-fns';
 import { useRouter } from 'next/router';
@@ -198,7 +200,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                           aria-label="chevron-down"
                           size="lg"
                           colorScheme="green"
-                          ml="0.5px"
+                          ml="1px"
                         />
                       </PopoverTrigger>
                       <PopoverContent>
@@ -264,52 +266,60 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                 <Heading fontSize="sm" mt={2}>
                   Try the other game modes
                 </Heading>
-                <Stack spacing={2}>
-                  {gameMode !== GameMode.mini && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/${GameMode.mini}`);
-                        onClose();
-                      }}
-                      colorScheme="green"
-                    >
-                      Saltong Mini
-                    </Button>
-                  )}
+                <Wrap spacing={2} justify="center">
                   {gameMode !== GameMode.main && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/`);
-                        onClose();
-                      }}
-                      colorScheme="orange"
-                    >
-                      Saltong
-                    </Button>
+                    <WrapItem>
+                      <Button
+                        onClick={() => {
+                          router.push(`/`);
+                          onClose();
+                        }}
+                        colorScheme="blue"
+                      >
+                        Saltong
+                      </Button>
+                    </WrapItem>
+                  )}
+                  {gameMode !== GameMode.mini && (
+                    <WrapItem>
+                      <Button
+                        onClick={() => {
+                          router.push(`/${GameMode.mini}`);
+                          onClose();
+                        }}
+                        colorScheme="teal"
+                      >
+                        Mini
+                      </Button>
+                    </WrapItem>
                   )}
                   {gameMode !== GameMode.max && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/${GameMode.max}`);
-                        onClose();
-                      }}
-                      colorScheme="red"
-                    >
-                      Saltong Max
-                    </Button>
+                    <WrapItem>
+                      <Button
+                        onClick={() => {
+                          router.push(`/${GameMode.max}`);
+                          onClose();
+                        }}
+                        colorScheme="red"
+                      >
+                        Max
+                      </Button>
+                    </WrapItem>
                   )}
                   {gameMode !== GameMode.hex && (
-                    <Button
-                      onClick={() => {
-                        router.push(`/${GameMode.hex}`);
-                        onClose();
-                      }}
-                      colorScheme="yellow"
-                    >
-                      Saltong Hex
-                    </Button>
+                    <WrapItem>
+                      <Button
+                        onClick={() => {
+                          router.push(`/${GameMode.hex}`);
+                          onClose();
+                        }}
+                        colorScheme="purple"
+                      >
+                        Hex
+                      </Button>
+                    </WrapItem>
                   )}
-                </Stack>
+                </Wrap>
               </Stack>
             </Flex>
             {!!(correctAnswer && gameStatus !== GameStatus.playing) && (

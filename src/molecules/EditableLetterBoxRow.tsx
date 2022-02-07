@@ -17,7 +17,6 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
   onSolve,
 }) => {
   const [values, setValues] = useState('');
-  const [isFocused, setFocused] = useState(false);
   const keyboardRef = useKeyboard();
   const [prevRoute, setPrevRoute] = useState('');
   const route = useRouter();
@@ -57,12 +56,7 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
         {splitValues
           .map((value, key) => ({ value, key: `edit-${key}` }))
           .map(({ value, key }) => (
-            <LetterBox
-              bg={isFocused ? 'blue.300' : 'blue.200'}
-              color="blue.900"
-              key={key}
-              value={value}
-            />
+            <LetterBox bg="blue.300" color="blue.900" key={key} value={value} />
           ))}
       </HStack>
 
@@ -72,16 +66,17 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
           setValues(e.target.value?.toUpperCase().substring(0, wordLength));
         }}
         onFocus={(e) => {
-          setFocused(true);
           if (e.target.value !== values) {
             setValues(e.target.value);
           }
         }}
-        onBlur={() => {
-          setFocused(false);
-        }}
         onKeyDown={(e) => {
-          if (!e.key.match(/[a-zA-Z]/)) {
+          if (
+            !e.key.match(/[a-zA-Z]/) ||
+            ((e.target as any)?.value?.length >= wordLength &&
+              e.key !== 'Backspace' &&
+              e.key !== 'Enter')
+          ) {
             e.preventDefault();
             return;
           }

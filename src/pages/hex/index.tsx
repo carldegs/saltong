@@ -58,6 +58,7 @@ const HexPage: React.FC = () => {
     useDisclosures();
   const [showAlert, setShowAlert] = useState(true);
   const { colorMode } = useColorMode();
+  const [shuffledLetters, setShuffledLetters] = useState<string[]>([]);
 
   useEffect(() => {
     if (firstVisit) {
@@ -65,6 +66,14 @@ const HexPage: React.FC = () => {
       setFirstVisit(false);
     }
   }, [firstVisit, hexRulesModal, setFirstVisit]);
+
+  useEffect(() => {
+    setShuffledLetters([...letters.sort(() => Math.random() - 0.5)]);
+  }, [letters]);
+
+  const handleShuffle = () => {
+    setShuffledLetters((sl) => [...sl.sort(() => Math.random() - 0.5)]);
+  };
 
   return (
     <>
@@ -136,9 +145,16 @@ const HexPage: React.FC = () => {
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">
         <HStack my={4} w="full">
           <Box>
-            <Heading size="lg" textTransform="capitalize">
-              {`Saltong Hex`}
-            </Heading>
+            <Flex>
+              <Heading size="lg">Saltong</Heading>
+              <Heading
+                size="lg"
+                color={colorMode === 'dark' ? 'purple.400' : 'purple.600'}
+                ml={2}
+              >
+                Hex
+              </Heading>
+            </Flex>
             <Skeleton isLoaded={!isLoading}>
               <Text cursor="default" fontSize={['md', 'lg']}>
                 Game #{gameId}
@@ -221,12 +237,14 @@ const HexPage: React.FC = () => {
                 <Flex maxH="500px" h="full" w="full" alignItems="center" mt={3}>
                   <HexInput
                     onSolve={solve}
+                    onShuffle={handleShuffle}
                     centerLetter={centerLetter}
                     letters={letters}
                   />
                 </Flex>
                 <Hexboard
-                  letters={letters}
+                  letters={shuffledLetters}
+                  onShuffle={handleShuffle}
                   onEnter={solve}
                   centerLetter={centerLetter}
                   mx="auto"

@@ -9,15 +9,19 @@ import { getCurrGameDate, getDateString } from '../utils';
 
 type Data = RoundData | HexGameData;
 
-export const getRoundData = async (gameMode: GameMode, date?: string) => {
+export const getRoundData = async <T = Data>(
+  gameMode: GameMode,
+  date?: string,
+  isPrevHex?: boolean
+) => {
   try {
-    const { data } = await axios.get<Data>(
+    const { data } = await axios.get<T>(
       `/api/round/${gameMode}/${
         date ||
         getDateString(
           gameMode === GameMode.hex ? getCurrGameDate() : new Date()
         )
-      }`
+      }${isPrevHex ? '?prevHex=true' : ''}`
     );
 
     return data;
@@ -31,11 +35,12 @@ export const getRoundData = async (gameMode: GameMode, date?: string) => {
 const useQueryRoundData = (
   gameMode: GameMode,
   date?: string,
+  isPrevHex?: boolean,
   options?: UseQueryOptions<Data, ApiError>
 ) => {
   return useQuery(
     date ? ['round', gameMode, date] : ['round', gameMode],
-    () => getRoundData(gameMode, date),
+    () => getRoundData(gameMode, date, isPrevHex),
     {
       ...options,
     }
