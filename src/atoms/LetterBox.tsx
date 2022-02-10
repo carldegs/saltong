@@ -30,7 +30,14 @@ const LetterBox: React.FC<LetterBoxProps> = ({
   } as any);
 
   return (
-    <Flex __css={styles} w={[10, 12]} h={[10, 12]} pos="relative" {...boxProps}>
+    <Flex
+      __css={styles}
+      w={[10, 12]}
+      h={[10, 12]}
+      pos="relative"
+      transition="ease"
+      {...boxProps}
+    >
       <Heading
         textAlign="center"
         fontSize={fontSize || ['2xl', '3xl']}

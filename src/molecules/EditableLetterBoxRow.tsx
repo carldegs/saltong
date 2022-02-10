@@ -6,15 +6,29 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
 import { useKeyboard } from '../context/KeyboardContext';
+import LetterStatus from '../types/LetterStatus';
 
 interface EditableLetterBoxRowProps {
   wordLength: number;
   onSolve: (answer: string) => void;
+  pattern?: LetterStatus[];
 }
+
+const getBoxColor = (status?: LetterStatus) => {
+  switch (status) {
+    case LetterStatus.correct:
+      return 'green';
+    case LetterStatus.wrongSpot:
+      return 'orange';
+    default:
+      return 'blue';
+  }
+};
 
 const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
   wordLength,
   onSolve,
+  pattern,
 }) => {
   const [values, setValues] = useState('');
   const keyboardRef = useKeyboard();
@@ -55,8 +69,13 @@ const EditableLetterBoxRow: React.FC<EditableLetterBoxRowProps> = ({
       >
         {splitValues
           .map((value, key) => ({ value, key: `edit-${key}` }))
-          .map(({ value, key }) => (
-            <LetterBox bg="blue.300" color="blue.900" key={key} value={value} />
+          .map(({ value, key }, i) => (
+            <LetterBox
+              bg={`${getBoxColor(pattern?.length && pattern[i])}.300`}
+              color={`${getBoxColor(pattern?.length && pattern[i])}.900`}
+              key={key}
+              value={value}
+            />
           ))}
       </HStack>
 

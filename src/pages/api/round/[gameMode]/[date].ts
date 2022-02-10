@@ -27,8 +27,9 @@ const RoundHandler = createApiHandler().get(async (req, res) => {
     let currRound = data[date];
 
     if (
-      (gameMode === GameMode.hex && !currRound?.rootWord) ||
-      (gameMode !== GameMode.hex && !currRound?.word)
+      gameMode === GameMode.hex || gameMode === GameMode.bal
+        ? !currRound?.rootWord
+        : !currRound?.word
     ) {
       // TODO: Change error
       throw new FileNotFoundError(fileName);

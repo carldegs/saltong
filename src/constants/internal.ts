@@ -13,4 +13,5 @@ export const LOCAL_DICT_DATA = 'saltong-dictionary';
 export const LOCAL_BLACKLIST_DATA = 'saltong-blacklist';
 export const LOCAL_GAME_DATA = 'saltong-user-data';
 export const LOCAL_HEX_DATA = 'saltong-hex-data';
+export const LOCAL_BAL_DATA = 'saltong-bal-data';
 export const HIGH_CONTRAST_DATA = 'saltong-high-contrast';

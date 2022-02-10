@@ -87,7 +87,7 @@ export const useGame = () => {
   const game = useContext(GameContext);
 
   if (!game) {
-    throw new ContextNoProviderError('useHexGame', 'HexGameProvider');
+    throw new ContextNoProviderError('useGame', 'GameProvider');
   }
 
   return game;

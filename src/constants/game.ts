@@ -1,16 +1,19 @@
+import { Record } from 'phosphor-react';
+
+import { BalGameState } from '../types/BalGameData';
 import { DictionaryState } from '../types/Dictionary';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
 import { HexGameData, HexGameState } from '../types/HexGameData';
 import UserData, { UserGameData } from '../types/UserData';
 
-export const NUM_TRIES: Record<Exclude<GameMode, 'hex'>, number> = {
+export const NUM_TRIES: Record<Exclude<GameMode, 'hex' | 'bal'>, number> = {
   [GameMode.main]: 6,
   [GameMode.mini]: 5,
   [GameMode.max]: 8,
 };
 
-export const WORD_LENGTH: Record<Exclude<GameMode, 'hex'>, number> = {
+export const WORD_LENGTH: Record<Exclude<GameMode, 'hex' | 'bal'>, number> = {
   [GameMode.main]: 5,
   [GameMode.mini]: 4,
   [GameMode.max]: 7,
@@ -60,6 +63,18 @@ export const DEFAULT_HEX_STATE: HexGameState = {
   guessedWords: [],
   version: '',
   uuid: '',
+};
+
+export const DEFAULT_BAL_STATE: BalGameState = {
+  rootWord: '',
+  pattern: '',
+  prevRootWord: '',
+  prevPattern: '',
+  scores: {},
+  version: '',
+  uuid: '',
+  history: [],
+  gameDate: '',
 };
 
 export const DEFAULT_DICTIONARY_STATE: DictionaryState = {

@@ -22,7 +22,7 @@ export interface UserGameData {
 }
 
 interface UserData
-  extends Record<Exclude<GameMode, GameMode.hex>, UserGameData> {
+  extends Record<Exclude<GameMode, GameMode.hex | GameMode.bal>, UserGameData> {
   version: string;
   uuid?: string;
 }

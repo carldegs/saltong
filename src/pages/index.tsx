@@ -120,18 +120,20 @@ const Home: React.FC = () => {
         }`}</title>
       </Head>
       {showAlert ? (
-        <Alert status="success">
+        <Alert status="info">
           <Text>
-            Kulang sa challenge? Try the improved{' '}
+            Isa ka na bang Bathala ng Saltong? Then try playing Saltong in
+            reverse. Play{' '}
             <Link
               onClick={() => {
-                router.push(`/${GameMode.hex}`);
+                router.push(`/${GameMode.bal}`);
               }}
               fontWeight="bold"
-              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
+              color={colorMode === 'dark' ? 'blue.200' : 'blue.600'}
             >
-              Saltong Hex!
-            </Link>
+              Saltong Bal
+            </Link>{' '}
+            today!
           </Text>
           <CloseButton
             position="absolute"
@@ -195,7 +197,7 @@ const Home: React.FC = () => {
             alignItems="center"
             justifyContent="center"
           >
-            <Spinner colorScheme="purple" />
+            <Spinner colorScheme={baseColor} />
           </Flex>
         )}
         {isError && (

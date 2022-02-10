@@ -3,6 +3,7 @@ enum GameMode {
   max = 'max',
   mini = 'mini',
   hex = 'hex',
+  bal = 'bal',
 }
 
 export default GameMode;

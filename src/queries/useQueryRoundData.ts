@@ -2,12 +2,13 @@ import axios from 'axios';
 import { useQuery, UseQueryOptions } from 'react-query';
 
 import ApiError from '../lib/errors/ApiError';
+import { BalGameData } from '../types/BalGameData';
 import GameMode from '../types/GameMode';
 import { HexGameData } from '../types/HexGameData';
 import { RoundData } from '../types/RoundData';
 import { getCurrGameDate, getDateString } from '../utils';
 
-type Data = RoundData | HexGameData;
+type Data = RoundData | HexGameData | BalGameData;
 
 export const getRoundData = async <T = Data>(
   gameMode: GameMode,
@@ -32,13 +33,13 @@ export const getRoundData = async <T = Data>(
   }
 };
 
-const useQueryRoundData = (
+const useQueryRoundData = <T = Data>(
   gameMode: GameMode,
   date?: string,
   isPrevHex?: boolean,
-  options?: UseQueryOptions<Data, ApiError>
+  options?: UseQueryOptions<T, ApiError>
 ) => {
-  return useQuery(
+  return useQuery<T, ApiError>(
     date ? ['round', gameMode, date] : ['round', gameMode],
     () => getRoundData(gameMode, date, isPrevHex),
     {
