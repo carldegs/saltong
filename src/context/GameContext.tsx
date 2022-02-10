@@ -19,6 +19,7 @@ import {
   DEFAULT_USER_GAME_DATA,
   DOMAIN,
   LOCAL_GAME_DATA,
+  LOCAL_KAL_STATUS,
   NUM_TRIES,
   VERSION,
   WORD_LENGTH,
@@ -98,7 +99,7 @@ export const GameProvider: React.FC = ({ children }) => {
   const gameMode = useMemo(() => {
     let { slug } = router.query;
 
-    if (!slug) {
+    if (!slug && router.route !== '/kal') {
       return GameMode.main;
     }
 
@@ -107,9 +108,13 @@ export const GameProvider: React.FC = ({ children }) => {
       return GameMode.main;
     }
 
-    slug = (slug as string).toLowerCase();
+    slug = ((slug as string) || router.route.replace('/', '')).toLowerCase();
 
-    if (slug !== GameMode.max && slug !== GameMode.mini) {
+    if (
+      slug !== GameMode.max &&
+      slug !== GameMode.mini &&
+      slug !== GameMode.kal
+    ) {
       router.push('/');
       return GameMode.main;
     }
@@ -333,6 +338,10 @@ export const GameProvider: React.FC = ({ children }) => {
         gameModeTitle = 'Saltong Mini';
       }
 
+      if (gameMode === GameMode.kal) {
+        gameModeTitle = 'Saltong Kalimbahin';
+      }
+
       const scoreText = `${
         gameData.gameStatus === GameStatus.win ? history.length : 'X'
       }/${numTries}`;
@@ -342,7 +351,7 @@ export const GameProvider: React.FC = ({ children }) => {
 
       const winStateText = `\n🏅${scoreText}  ${timeSolvedText}`;
 
-      return `${gameModeTitle} ${gameId}${
+      return `${gameModeTitle} ${gameMode === GameMode.kal ? '' : gameId}${
         gameData.gameStatus === GameStatus.win
           ? winStateText
           : ` (${scoreText})`
@@ -350,8 +359,11 @@ export const GameProvider: React.FC = ({ children }) => {
 
 ${grid}
 
+${gameMode === GameMode.kal ? '#LeniKiko2022 #AngatBuhayLahat' : ''}
 ${
-  showLink ? `${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}` : ''
+  showLink && gameMode !== GameMode.kal
+    ? `${DOMAIN}${gameMode !== GameMode.main ? `/${gameMode}` : ''}`
+    : ''
 }`;
     },
     [colorMode, gameData, gameMode, numTries, timeSolved]
@@ -365,31 +377,43 @@ ${
     let persistState = getGamePersistState();
     const currDate = new Date().toISOString();
 
+    const getNewUserGameData = (gameMode: GameMode): UserGameData => ({
+      ...DEFAULT_USER_GAME_DATA,
+      gameStartDate: currDate,
+      turnStats: getNumArr(NUM_TRIES[gameMode]).map(() => 0),
+    });
+
     if (!persistState?.version || !isSupportedVersion(persistState.version)) {
       console.warn(
         'No user data found or outdated data version. Initializing data...'
       );
       setFirstVisit(true);
 
-      const getNewUserGameData = (gameMode: GameMode): UserGameData => ({
-        ...DEFAULT_USER_GAME_DATA,
-        gameStartDate: currDate,
-        turnStats: getNumArr(NUM_TRIES[gameMode]).map(() => 0),
-      });
-
       persistState = {
         ...persistState,
         main: getNewUserGameData(GameMode.main),
         mini: getNewUserGameData(GameMode.mini),
         max: getNewUserGameData(GameMode.max),
+        kal: getNewUserGameData(GameMode.kal),
         version: VERSION,
         uuid: uuidv4(),
       };
     } else {
-      const isValidGame = isSameDay(
-        new Date(currDate),
-        new Date(persistState[gameMode].gameStartDate)
-      );
+      if (!persistState?.kal?.gameId) {
+        persistState = {
+          ...persistState,
+          kal: getNewUserGameData(GameMode.kal),
+        };
+
+        setPersistState(LOCAL_KAL_STATUS, false);
+      }
+
+      const isValidGame =
+        gameMode === GameMode.kal ||
+        isSameDay(
+          new Date(currDate),
+          new Date(persistState[gameMode].gameStartDate)
+        );
 
       // eslint-disable-next-line no-console
       console.log('isSameDay', {

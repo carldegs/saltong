@@ -8,12 +8,14 @@ export const NUM_TRIES: Record<Exclude<GameMode, 'hex'>, number> = {
   [GameMode.main]: 6,
   [GameMode.mini]: 5,
   [GameMode.max]: 8,
+  [GameMode.kal]: 6,
 };
 
 export const WORD_LENGTH: Record<Exclude<GameMode, 'hex'>, number> = {
   [GameMode.main]: 5,
   [GameMode.mini]: 4,
   [GameMode.max]: 7,
+  [GameMode.kal]: 5,
 };
 
 export const DEFAULT_USER_GAME_DATA: UserGameData = {
@@ -33,6 +35,7 @@ export const DEFAULT_USER_DATA: UserData = {
   mini: DEFAULT_USER_GAME_DATA,
   max: DEFAULT_USER_GAME_DATA,
   main: DEFAULT_USER_GAME_DATA,
+  kal: DEFAULT_USER_GAME_DATA,
   version: '',
   uuid: '',
 };

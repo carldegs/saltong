@@ -36,7 +36,6 @@ export default class Document extends NextDocument {
           <meta property="og:url" content={DOMAIN} />
           <meta property="og:title" content="Saltong" />
           <meta property="og:description" content="A Filipino Wordle Clone" />
-          <meta name="description" content="A Filipino Wordle Clone" />
         </Head>
         <body>
           <ColorModeScript initialColorMode={theme.config.initialColorMode} />

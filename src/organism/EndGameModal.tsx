@@ -32,10 +32,12 @@ import {
   Switch,
   Text,
   useClipboard,
+  useColorModeValue,
   Wrap,
   WrapItem,
 } from '@chakra-ui/react';
 import { formatDuration } from 'date-fns';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import {
   ShareNetwork,
@@ -45,12 +47,14 @@ import {
 } from 'phosphor-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { DICTIONARY_LINK } from '../constants';
+import KalImage from '../../public/kal/saltong-kal.png';
+import EmojiWrapper from '../atoms/EmojiWrapper';
+import { DICTIONARY_LINK, LOCAL_KAL_STATUS } from '../constants';
 import { useGame } from '../context/GameContext';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
-import { getCountdownToNextDay } from '../utils';
+import { getCountdownToNextDay, getPersistState } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 type EndGameModalProps = Omit<ModalProps, 'children'>;
@@ -79,11 +83,13 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
   const showShareButton =
     typeof window !== 'undefined' && !!window?.navigator?.share;
   const showGraph = useMemo(
-    () => !!turnStats.find((stat) => !!stat),
-    [turnStats]
+    () => !!turnStats.find((stat) => !!stat) && gameMode !== GameMode.kal,
+    [turnStats, gameMode]
   );
   const [timer, setTimer] = useState(undefined);
   const [countdown, setCountdown] = useState('');
+  const isKalSolved = useMemo(() => getPersistState(LOCAL_KAL_STATUS), []);
+  const kalBg = useColorModeValue('pink.100', '#d41a87');
 
   useEffect(() => {
     if (isOpen) {
@@ -104,53 +110,57 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
       }}
       size="lg"
     >
-      <ModalOverlay />
-      <ModalContent>
+      <ModalOverlay bg={gameMode === GameMode.kal ? '#ffe5ef68' : undefined} />
+      <ModalContent bg={gameMode === GameMode.kal ? kalBg : undefined}>
         <ModalHeader>
           {gameStatus === GameStatus.lose ? 'YOU LOSE' : 'SOLVED!'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody mb={4}>
           <Stack spacing={4}>
-            <StatGroup>
-              <Stat>
-                <StatLabel>Wins</StatLabel>
-                <StatNumber>{numWins}</StatNumber>
-              </Stat>
-
-              <Stat>
-                <StatLabel>Win Rate</StatLabel>
-                <StatNumber>
-                  {numPlayed > 0 ? ((numWins / numPlayed) * 100).toFixed(0) : 0}
-                  %
-                </StatNumber>
-              </Stat>
-
-              <Stat>
-                <StatLabel>Win Streak</StatLabel>
-                <StatNumber>{winStreak}</StatNumber>
-              </Stat>
-              {gameStatus === GameStatus.win && (
+            {gameMode !== GameMode.kal && (
+              <StatGroup>
                 <Stat>
-                  <StatLabel>
-                    Time{' '}
-                    <Popover>
-                      <PopoverTrigger>
-                        <Icon as={Question} weight="bold" />
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <PopoverArrow />
-                        <PopoverCloseButton />
-                        <PopoverBody>
-                          From time of first guess to time solved
-                        </PopoverBody>
-                      </PopoverContent>
-                    </Popover>
-                  </StatLabel>
-                  <StatNumber>{timeSolved}</StatNumber>
+                  <StatLabel>Wins</StatLabel>
+                  <StatNumber>{numWins}</StatNumber>
                 </Stat>
-              )}
-            </StatGroup>
+
+                <Stat>
+                  <StatLabel>Win Rate</StatLabel>
+                  <StatNumber>
+                    {numPlayed > 0
+                      ? ((numWins / numPlayed) * 100).toFixed(0)
+                      : 0}
+                    %
+                  </StatNumber>
+                </Stat>
+
+                <Stat>
+                  <StatLabel>Win Streak</StatLabel>
+                  <StatNumber>{winStreak}</StatNumber>
+                </Stat>
+                {gameStatus === GameStatus.win && (
+                  <Stat>
+                    <StatLabel>
+                      Time{' '}
+                      <Popover>
+                        <PopoverTrigger>
+                          <Icon as={Question} weight="bold" />
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <PopoverArrow />
+                          <PopoverCloseButton />
+                          <PopoverBody>
+                            From time of first guess to time solved
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover>
+                    </StatLabel>
+                    <StatNumber>{timeSolved}</StatNumber>
+                  </Stat>
+                )}
+              </StatGroup>
+            )}
             {showGraph && (
               <>
                 <Heading textAlign="center" size="md" mt={6} mb={4}>
@@ -160,6 +170,11 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                   <TurnStatPieChart turnStats={turnStats} diameter={200} />
                 </Flex>
               </>
+            )}
+            {gameMode === GameMode.kal && (
+              <Box>
+                <Image src={KalImage} />
+              </Box>
             )}
             <Divider />
             {/* TODO: Add socials */}
@@ -173,12 +188,27 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                 {showShareButton && (
                   <ButtonGroup isAttached>
                     <Button
-                      onClick={() => {
+                      onClick={async () => {
                         sendEvent(GTAG_EVENTS.sharedResult);
-                        window?.navigator?.share({
-                          title: 'Saltong',
-                          text: shareMessage,
-                        });
+                        if (gameMode === GameMode.kal) {
+                          const blob = await fetch('/kal/saltong-kal.png').then(
+                            (r) => r.blob()
+                          );
+                          window?.navigator?.share({
+                            title: 'Saltong Kal',
+                            text: shareMessage,
+                            files: [
+                              new File([blob], 'saltong-kal.png', {
+                                type: 'image/png',
+                              }),
+                            ],
+                          });
+                        } else {
+                          window?.navigator?.share({
+                            title: 'Saltong',
+                            text: shareMessage,
+                          });
+                        }
                       }}
                       colorScheme="green"
                       size="lg"
@@ -266,6 +296,19 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                 <Heading fontSize="sm" mt={2}>
                   Try the other game modes
                 </Heading>
+                {gameMode !== GameMode.kal && !isKalSolved && (
+                  <Button
+                    onClick={() => {
+                      router.push(`/${GameMode.kal}`);
+                      onClose();
+                    }}
+                    colorScheme="pink"
+                    leftIcon={<EmojiWrapper value="💖" />}
+                    isFullWidth
+                  >
+                    Kal
+                  </Button>
+                )}
                 <Wrap spacing={2} justify="center">
                   {gameMode !== GameMode.main && (
                     <WrapItem>
@@ -319,10 +362,29 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                       </Button>
                     </WrapItem>
                   )}
+                  {gameMode !== GameMode.kal && isKalSolved && (
+                    <WrapItem>
+                      <Button
+                        onClick={() => {
+                          router.push(`/${GameMode.kal}`);
+                          onClose();
+                        }}
+                        colorScheme="pink"
+                        leftIcon={<EmojiWrapper value="💖" />}
+                        isFullWidth
+                      >
+                        Kal
+                      </Button>
+                    </WrapItem>
+                  )}
                 </Wrap>
               </Stack>
             </Flex>
-            {!!(correctAnswer && gameStatus !== GameStatus.playing) && (
+            {!!(
+              correctAnswer &&
+              gameStatus !== GameStatus.playing &&
+              gameMode !== GameMode.kal
+            ) && (
               <>
                 <Divider />
                 <Stack spacing={3} alignItems="center">

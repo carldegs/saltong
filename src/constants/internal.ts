@@ -1,4 +1,4 @@
-export const VERSION = 'v1.7.0';
+export const VERSION = 'v1.7.1';
 export const DOMAIN = 'saltong.carldegs.com';
 export const MIN_SUPPORTED_VERSION = 'v0.2.3';
 export const MIN_SUPPORTED_DICTIONARY_VERSION = 'v1.7.0';
@@ -14,3 +14,4 @@ export const LOCAL_BLACKLIST_DATA = 'saltong-blacklist';
 export const LOCAL_GAME_DATA = 'saltong-user-data';
 export const LOCAL_HEX_DATA = 'saltong-hex-data';
 export const HIGH_CONTRAST_DATA = 'saltong-high-contrast';
+export const LOCAL_KAL_STATUS = 'saltong-kal-solved';
