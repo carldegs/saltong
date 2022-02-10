@@ -10,14 +10,18 @@ const ModalWrapper: React.FC = ({ children }) => {
   const disc = useDisclosures();
   return (
     <>
-      <AboutModal
-        isOpen={disc.aboutModal.isOpen}
-        onClose={disc.aboutModal.onClose}
-      />
-      <DebugCodeModal
-        isOpen={disc.debugModal.isOpen}
-        onClose={disc.debugModal.onClose}
-      />
+      {disc.aboutModal.isOpen && (
+        <AboutModal
+          isOpen={disc.aboutModal.isOpen}
+          onClose={disc.aboutModal.onClose}
+        />
+      )}
+      {disc.debugModal.isOpen && (
+        <DebugCodeModal
+          isOpen={disc.debugModal.isOpen}
+          onClose={disc.debugModal.onClose}
+        />
+      )}
       <NewDomainModal />
       {children}
     </>

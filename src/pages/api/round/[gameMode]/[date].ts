@@ -4,6 +4,7 @@ import path from 'path';
 import createApiHandler from '../../../../lib/api/create-api-handler';
 import ApiError from '../../../../lib/errors/ApiError';
 import FileNotFoundError from '../../../../lib/errors/FileNotFoundError';
+import RoundNotFoundError from '../../../../lib/errors/RoundNotFoundError';
 import GameMode from '../../../../types/GameMode';
 import { HexGameData } from '../../../../types/HexGameData';
 
@@ -24,14 +25,13 @@ const RoundHandler = createApiHandler().get(async (req, res) => {
       throw new FileNotFoundError(fileName);
     }
 
-    let currRound = data[date];
+    let currRound = data[gameMode === GameMode.kal ? '2022-02-10' : date];
 
     if (
       (gameMode === GameMode.hex && !currRound?.rootWord) ||
       (gameMode !== GameMode.hex && !currRound?.word)
     ) {
-      // TODO: Change error
-      throw new FileNotFoundError(fileName);
+      throw new RoundNotFoundError(gameMode);
     }
 
     if (gameMode === GameMode.hex && !prevHex) {
