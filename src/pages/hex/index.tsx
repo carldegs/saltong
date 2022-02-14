@@ -1,15 +1,12 @@
 import { Icon, QuestionOutlineIcon } from '@chakra-ui/icons';
 import {
-  Alert,
   Box,
-  CloseButton,
   Container,
   Flex,
   Grid,
   Heading,
   HStack,
   IconButton,
-  Link,
   Skeleton,
   Spinner,
   Text,
@@ -21,13 +18,13 @@ import Head from 'next/head';
 import { SkipBack } from 'phosphor-react';
 import { ReactElement, useEffect, useState } from 'react';
 
-import { MISSING_WORD_FORM } from '../../constants';
 import { useDisclosures } from '../../context/DisclosuresContext';
 import { HexGameProvider, useHexGame } from '../../context/HexGameContext';
 import HexAnswerList from '../../molecules/HexAnswerList';
 import HexInput from '../../molecules/HexInput';
 import Hexboard from '../../molecules/Hexboard';
 import RankStatusBar from '../../molecules/RankStatusBar';
+import ContentfulAlert from '../../organism/ContentfulAlert';
 import GameMenu from '../../organism/GameMenu';
 import GameMode from '../../types/GameMode';
 
@@ -56,7 +53,6 @@ const HexPage: React.FC = () => {
   } = useHexGame();
   const { hexRulesModal, hexShareModal, bugReportModal, hexPrevAnsModal } =
     useDisclosures();
-  const [showAlert, setShowAlert] = useState(true);
   const { colorMode } = useColorMode();
   const [shuffledLetters, setShuffledLetters] = useState<string[]>([]);
 
@@ -116,32 +112,7 @@ const HexPage: React.FC = () => {
           )}
         </>
       )}
-
-      {showAlert ? (
-        <Alert status="success">
-          <Text width="96%">
-            Found a missing word? Report it at the{' '}
-            <Link
-              isExternal
-              href={MISSING_WORD_FORM}
-              fontWeight="bold"
-              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
-            >
-              Saltong Dictionary Reklamo Corner
-            </Link>{' '}
-            and help improve the word list before we get bought out by a
-            newspaper company. (jk)
-          </Text>
-          <CloseButton
-            position="absolute"
-            right="8px"
-            top="8px"
-            onClick={() => {
-              setShowAlert(false);
-            }}
-          />
-        </Alert>
-      ) : null}
+      <ContentfulAlert gameMode={GameMode.hex} />
       <Container centerContent maxW="container.xl" h="calc(100vh - 50px)">
         <HStack my={4} w="full">
           <Box>

@@ -1,7 +1,5 @@
 import {
-  Alert,
   Box,
-  CloseButton,
   Container,
   Flex,
   Heading,
@@ -18,21 +16,15 @@ import {
 } from '@chakra-ui/react';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { ChartBar, Question } from 'phosphor-react';
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo } from 'react';
 
 import { DICTIONARY_LINK } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
 import { GameProvider, useGame } from '../context/GameContext';
 import GameStatusPanel from '../molecules/GameStatusPanel';
 import Keyboard from '../molecules/Keyboard';
+import ContentfulAlert from '../organism/ContentfulAlert';
 import GameMenu from '../organism/GameMenu';
 import LetterGrid from '../organism/LetterGrid';
 import GameMode from '../types/GameMode';
@@ -64,10 +56,8 @@ const Home: React.FC = () => {
   } = useGame();
   const tries = useMemo(() => history.map(({ word }) => word), [history]);
   const disc = useDisclosures();
-  const [showAlert, setShowAlert] = useState(true);
   const toast = useToast();
   const { colorMode } = useColorMode();
-  const router = useRouter();
   const baseColor = useMemo(() => {
     switch (gameMode) {
       case GameMode.main:
@@ -119,30 +109,7 @@ const Home: React.FC = () => {
           gameMode !== GameMode.main ? ` ${gameMode?.toUpperCase()}` : ''
         }`}</title>
       </Head>
-      {showAlert ? (
-        <Alert status="success">
-          <Text>
-            Kulang sa challenge? Try the improved{' '}
-            <Link
-              onClick={() => {
-                router.push(`/${GameMode.hex}`);
-              }}
-              fontWeight="bold"
-              color={colorMode === 'dark' ? 'green.200' : 'green.600'}
-            >
-              Saltong Hex!
-            </Link>
-          </Text>
-          <CloseButton
-            position="absolute"
-            right="8px"
-            top="8px"
-            onClick={() => {
-              setShowAlert(false);
-            }}
-          />
-        </Alert>
-      ) : null}
+      <ContentfulAlert gameMode={gameMode} />
       <Container centerContent maxW="container.xl">
         <HStack my={4} w="full">
           <Box>

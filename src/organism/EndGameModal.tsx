@@ -49,12 +49,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import KalImage from '../../public/kal/saltong-kal.png';
 import EmojiWrapper from '../atoms/EmojiWrapper';
-import { DICTIONARY_LINK, LOCAL_KAL_STATUS } from '../constants';
+import { DICTIONARY_LINK, DONATE_LINK } from '../constants';
 import { useGame } from '../context/GameContext';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameMode from '../types/GameMode';
 import GameStatus from '../types/GameStatus';
-import { getCountdownToNextDay, getPersistState } from '../utils';
+import { getCountdownToNextDay } from '../utils';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 
 type EndGameModalProps = Omit<ModalProps, 'children'>;
@@ -88,7 +88,20 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
   );
   const [timer, setTimer] = useState(undefined);
   const [countdown, setCountdown] = useState('');
-  const isKalSolved = useMemo(() => getPersistState(LOCAL_KAL_STATUS), []);
+  const contributeMessage = useMemo(() => {
+    const messages = [
+      'Help keep the site running!',
+      'Contribute to keep the site running!',
+      'Contribute to keep the site ad-free!',
+    ];
+    const randValue = Math.random();
+
+    if (randValue < 0.001) {
+      return 'kyah kyah pengeng barya...';
+    }
+
+    return messages[Math.floor(randValue * messages.length)];
+  }, []);
   const kalBg = useColorModeValue('pink.100', '#d41a87');
 
   useEffect(() => {
@@ -178,7 +191,11 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
             )}
             <Divider />
             {/* TODO: Add socials */}
-            <Flex alignItems="center" justifyContent="space-between">
+            <Flex
+              alignItems="center"
+              justifyContent="space-between"
+              flexDir={{ base: 'column', md: 'row' }}
+            >
               <Stack
                 spacing={2}
                 alignItems="center"
@@ -291,24 +308,17 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                   {hasCopied ? 'COPIED' : 'Copy Result'}
                 </Button>
               </Stack>
-              <Divider orientation="vertical" h="120px" mx={6} />
+              <Divider
+                display={{ base: 'none', md: 'inherit' }}
+                orientation="vertical"
+                h="120px"
+                mx={6}
+              />
+              <Divider display={{ base: 'inherit', md: 'none' }} my={3} />
               <Stack spacing={4} flexGrow={1} textAlign="center">
                 <Heading fontSize="sm" mt={2}>
                   Try the other game modes
                 </Heading>
-                {gameMode !== GameMode.kal && !isKalSolved && (
-                  <Button
-                    onClick={() => {
-                      router.push(`/${GameMode.kal}`);
-                      onClose();
-                    }}
-                    colorScheme="pink"
-                    leftIcon={<EmojiWrapper value="💖" />}
-                    isFullWidth
-                  >
-                    Kal
-                  </Button>
-                )}
                 <Wrap spacing={2} justify="center">
                   {gameMode !== GameMode.main && (
                     <WrapItem>
@@ -362,7 +372,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                       </Button>
                     </WrapItem>
                   )}
-                  {gameMode !== GameMode.kal && isKalSolved && (
+                  {gameMode !== GameMode.kal && (
                     <WrapItem>
                       <Button
                         onClick={() => {
@@ -379,6 +389,26 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                   )}
                 </Wrap>
               </Stack>
+            </Flex>
+            <Flex alignItems="center" justifyContent="center">
+              <Link
+                isExternal
+                href={DONATE_LINK}
+                onClick={() => {
+                  sendEvent(GTAG_EVENTS.openDonate);
+                }}
+                pt={3}
+              >
+                <Button
+                  size="sm"
+                  variant="solid"
+                  opacity={0.7}
+                  _hover={{ opacity: 1 }}
+                  fontWeight="normal"
+                >
+                  {contributeMessage}
+                </Button>
+              </Link>
             </Flex>
             {!!(
               correctAnswer &&
