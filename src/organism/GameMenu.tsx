@@ -25,7 +25,7 @@ import {
 } from 'phosphor-react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
-import { LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
+import { DONATE_LINK, LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
 import { useHighContrast } from '../context/HighContrastContext';
 import { useKeyboard } from '../context/KeyboardContext';
@@ -180,7 +180,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
 
         <Link
           isExternal
-          href="https://ko-fi.com/carldegs"
+          href={DONATE_LINK}
           onClick={() => {
             sendEvent(GTAG_EVENTS.openDonate);
           }}

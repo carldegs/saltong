@@ -20,7 +20,7 @@ import {
 } from '@chakra-ui/modal';
 import React from 'react';
 
-import { VERSION } from '../constants';
+import { DONATE_LINK, VERSION } from '../constants';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 
@@ -68,6 +68,9 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                 </Link>
                 <ExternalLinkIcon />
               </Text>
+              <Text textAlign="center">
+                Additional entries sourced from you!
+              </Text>
               <Box pb={4}>
                 <Button onClick={privacyModalDisc.onOpen}>
                   Privacy Policy
@@ -103,7 +106,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                 </HStack>
                 <Link
                   isExternal
-                  href="https://ko-fi.com/carldegs"
+                  href={DONATE_LINK}
                   onClick={() => {
                     sendEvent(GTAG_EVENTS.openDonate);
                   }}
