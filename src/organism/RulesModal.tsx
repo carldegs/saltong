@@ -166,31 +166,10 @@ const RulesModal: React.FC<RulesModalProps> = ({
       size="lg"
     >
       <ModalOverlay />
+
       <ModalContent>
         <ModalHeader>{getMessage('header')}</ModalHeader>
 
-        <Tooltip
-          label={
-            <Box>
-              <Text>Change Language</Text>
-              <Text>
-                <i>Baguhin ang Wika</i>
-              </Text>
-            </Box>
-          }
-          openDelay={500}
-        >
-          <IconButton
-            aria-label="language"
-            icon={<EmojiWrapper value={lang === 'fil' ? '🇵🇭' : '🇺🇸'} />}
-            onClick={() => {
-              setLang((curr) => (curr === 'fil' ? 'en' : 'fil'));
-            }}
-            pos="absolute"
-            right="50px"
-            top="20px"
-          />
-        </Tooltip>
         <ModalCloseButton ref={finalRef} />
         <ModalBody mb={4}>
           <Stack spacing={3}>
@@ -219,6 +198,29 @@ const RulesModal: React.FC<RulesModalProps> = ({
             <Text>{getMessage('sched')}</Text>
           </Stack>
         </ModalBody>
+
+        <Tooltip
+          label={
+            <Box>
+              <Text>Change Language</Text>
+              <Text>
+                <i>Baguhin ang Wika</i>
+              </Text>
+            </Box>
+          }
+          openDelay={500}
+        >
+          <IconButton
+            aria-label="language"
+            icon={<EmojiWrapper value={lang === 'fil' ? '🇵🇭' : '🇺🇸'} />}
+            onClick={() => {
+              setLang((curr) => (curr === 'fil' ? 'en' : 'fil'));
+            }}
+            pos="absolute"
+            right="50px"
+            top="20px"
+          />
+        </Tooltip>
       </ModalContent>
     </Modal>
   );

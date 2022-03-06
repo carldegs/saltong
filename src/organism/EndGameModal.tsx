@@ -50,6 +50,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import KalImage from '../../public/kal/saltong-kal.png';
 import EmojiWrapper from '../atoms/EmojiWrapper';
 import { DICTIONARY_LINK, DONATE_LINK } from '../constants';
+import { useDisclosures } from '../context/DisclosuresContext';
 import { useGame } from '../context/GameContext';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
 import GameMode from '../types/GameMode';
@@ -72,6 +73,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
     correctAnswer,
     timeSolved,
   } = useGame();
+  const { contributeModal } = useDisclosures();
   const [showTimeSolved, setShowTimeSolved] = useState(true);
   const [showLink, setShowLink] = useState(true);
   const router = useRouter();
@@ -391,24 +393,19 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
               </Stack>
             </Flex>
             <Flex alignItems="center" justifyContent="center">
-              <Link
-                isExternal
-                href={DONATE_LINK}
+              <Button
+                size="sm"
+                variant="solid"
+                opacity={0.8}
+                _hover={{ opacity: 1 }}
+                fontWeight="normal"
                 onClick={() => {
+                  contributeModal.onOpen();
                   sendEvent(GTAG_EVENTS.openDonate);
                 }}
-                pt={3}
               >
-                <Button
-                  size="sm"
-                  variant="solid"
-                  opacity={0.7}
-                  _hover={{ opacity: 1 }}
-                  fontWeight="normal"
-                >
-                  {contributeMessage}
-                </Button>
-              </Link>
+                {contributeMessage}
+              </Button>
             </Flex>
             {!!(
               correctAnswer &&
@@ -428,7 +425,7 @@ const EndGameModal: React.FC<EndGameModalProps> = ({ isOpen, onClose }) => {
                   </Heading>
                   <Link
                     isExternal
-                    href={`${DICTIONARY_LINK}/word/${correctAnswer}`}
+                    href={`${DICTIONARY_LINK}/search?q=${correctAnswer}`}
                   >
                     <Button
                       colorScheme="blue"

@@ -197,7 +197,7 @@ const Home: React.FC = () => {
             {!!(gameStatus !== GameStatus.playing && correctAnswer) && (
               <Link
                 isExternal
-                href={`${DICTIONARY_LINK}/word/${correctAnswer}`}
+                href={`${DICTIONARY_LINK}/search?q=${correctAnswer}`}
                 onClick={() => {
                   sendEvent(GTAG_EVENTS.openDictionary);
                 }}

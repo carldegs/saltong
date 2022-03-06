@@ -79,6 +79,14 @@ const theme = extendTheme({
       }),
       variants: letterStatusVariants,
     },
+    Popover: {
+      baseStyle: {
+        popper: {
+          width: 'fit-content',
+          maxWidth: 'fit-content',
+        },
+      },
+    },
   },
 });
 

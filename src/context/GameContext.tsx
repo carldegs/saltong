@@ -263,7 +263,7 @@ export const GameProvider: React.FC = ({ children }) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ([_, status]) => status !== LetterStatus.correct
       );
-      const isDone = state[gameMode].history.length === numTries - 1;
+      const isDone = newState[gameMode].history.length === numTries;
 
       if (isSolved || isDone) {
         const {
@@ -274,7 +274,7 @@ export const GameProvider: React.FC = ({ children }) => {
           longestWinStreak,
           turnStats,
           history,
-        } = state[gameMode] as UserGameData;
+        } = newState[gameMode] as UserGameData;
         // TODO: Check if no game was skipped
         const newWinStreak = isSolved ? winStreak + 1 : 0;
 

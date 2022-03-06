@@ -17,8 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { useMemo, useState } from 'react';
 
-import { LOCAL_GAME_DATA } from '../constants';
-import UserData from '../types/UserData';
+import { LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
 import { setPersistState } from '../utils/local';
 
 const DebugCodeModal: React.FC<Omit<ModalProps, 'children'>> = ({
@@ -80,10 +79,18 @@ const DebugCodeModal: React.FC<Omit<ModalProps, 'children'>> = ({
             <Button
               onClick={() => {
                 // TODO: handle hex
-                setPersistState(LOCAL_GAME_DATA, decodedData as UserData);
+                setPersistState(LOCAL_GAME_DATA, decodedData.orig);
               }}
             >
-              Import Data
+              Import Saltong Data
+            </Button>
+
+            <Button
+              onClick={() => {
+                setPersistState(LOCAL_HEX_DATA, decodedData.hex);
+              }}
+            >
+              Import Hex Data
             </Button>
           </HStack>
         </ModalBody>

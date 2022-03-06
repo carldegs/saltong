@@ -20,7 +20,8 @@ import {
 } from '@chakra-ui/modal';
 import React from 'react';
 
-import { DONATE_LINK, VERSION } from '../constants';
+import { VERSION } from '../constants';
+import { useDisclosures } from '../context/DisclosuresContext';
 import { GTAG_EVENTS, sendEvent } from '../utils/gtag';
 import PrivacyPolicyModal from './PrivacyPolicyModal';
 
@@ -29,6 +30,7 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
   onClose,
 }) => {
   const privacyModalDisc = useDisclosure();
+  const { contributeModal } = useDisclosures();
 
   return (
     <>
@@ -104,17 +106,16 @@ const AboutModal: React.FC<Omit<ModalProps, 'children'>> = ({
                     <Button colorScheme="purple">Email</Button>
                   </Link>
                 </HStack>
-                <Link
-                  isExternal
-                  href={DONATE_LINK}
+                <Button
+                  size="sm"
+                  variant="ghost"
                   onClick={() => {
+                    contributeModal.onOpen();
                     sendEvent(GTAG_EVENTS.openDonate);
                   }}
                 >
-                  <Button size="sm" variant="ghost">
-                    Contribute to keep the site running!
-                  </Button>
-                </Link>
+                  Contribute to keep the site running!
+                </Button>
               </Stack>
             </Stack>
           </ModalBody>
