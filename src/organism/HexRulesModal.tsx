@@ -26,11 +26,18 @@ import {
   OrderedList,
   Link,
   IconButton,
+  DrawerContent,
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerOverlay,
+  useBreakpointValue,
+  DrawerHeader,
 } from '@chakra-ui/react';
 import { useState } from 'react';
 
 import EmojiWrapper from '../atoms/EmojiWrapper';
-import { HEX_RANK, TWITTER_LINK } from '../constants';
+import { HEX_RANK, MISSING_WORD_FORM, TWITTER_LINK } from '../constants';
 import { useHexGame } from '../context/HexGameContext';
 import useTranslate from '../hooks/useTranslate';
 
@@ -121,13 +128,230 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
   const isDarkMode = useColorModeValue(false, true);
   const { maxScore, numPangrams, numWords } = useHexGame();
 
+  const showModal = useBreakpointValue({ base: false, lg: true });
+
   const [locale, setLocale] = useState('fil');
   const { getMessage } = useTranslate(messages, locale, {});
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
+
+  const Content = (
+    <Stack spacing={6}>
+      <Text>{getMessage('generalRule')}</Text>
+      <Accordion defaultIndex={[0]} allowToggle>
+        <AccordionItem>
+          <Stack spacing={2}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  {getMessage('rulesHeader')}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pl={4} pb={4}>
+              <UnorderedList spacing={1}>
+                <ListItem>{getMessage('rule1')}</ListItem>
+                <ListItem>{getMessage('rule2')}</ListItem>
+                <ListItem>{getMessage('rule3')}</ListItem>
+                <ListItem>{getMessage('rule4')}</ListItem>
+                <ListItem>{getMessage('rule5')}</ListItem>
+              </UnorderedList>
+            </AccordionPanel>
+          </Stack>
+        </AccordionItem>
+        <AccordionItem>
+          <Stack spacing={2}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  {getMessage('scoringHeader')}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pl={4} pb={4}>
+              <UnorderedList spacing={2}>
+                <ListItem>{getMessage('scoring1')}</ListItem>
+                <ListItem>{getMessage('scoring2')}</ListItem>
+                <ListItem
+                  dangerouslySetInnerHTML={{
+                    __html: getMessage('example1'),
+                  }}
+                />
+              </UnorderedList>
+              <Box
+                bg={isDarkMode ? 'gray.600' : 'gray.200'}
+                px={3}
+                py={2}
+                borderRadius={4}
+                mt={4}
+              >
+                <Text fontWeight="bold">{getMessage('exampleHeader')}</Text>
+                <Text
+                  mb={2}
+                  dangerouslySetInnerHTML={{
+                    __html: getMessage('example1'),
+                  }}
+                ></Text>
+                <Box pl={2}>
+                  <UnorderedList>
+                    <ListItem
+                      dangerouslySetInnerHTML={{
+                        __html: getMessage('example2'),
+                      }}
+                    />
+                    <ListItem
+                      dangerouslySetInnerHTML={{
+                        __html: getMessage('example3'),
+                      }}
+                    />
+                    <ListItem
+                      dangerouslySetInnerHTML={{
+                        __html: getMessage('example4'),
+                      }}
+                    />
+                    <ListItem
+                      dangerouslySetInnerHTML={{
+                        __html: getMessage('example5'),
+                      }}
+                    />
+                  </UnorderedList>
+                </Box>
+              </Box>
+            </AccordionPanel>
+          </Stack>
+        </AccordionItem>
+        <AccordionItem>
+          <Stack spacing={2}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  {getMessage('rankingsHeader')}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pl={4} pb={4}>
+              {getMessage('rank1')}
+
+              <Table
+                variant="simple"
+                colorScheme={isDarkMode ? 'white' : 'gray'}
+                size="sm"
+                mt={2}
+                maxW="250px"
+                mx="auto"
+              >
+                <Thead>
+                  <Tr>
+                    <Th>Rank</Th>
+                    <Th isNumeric>Points needed</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {HEX_RANK.map(({ name, percentage }) => (
+                    <Tr key={name}>
+                      <Td textTransform="capitalize">{name}</Td>
+                      <Td isNumeric>{Math.ceil(maxScore * percentage)}</Td>
+                    </Tr>
+                  ))}
+                </Tbody>
+              </Table>
+            </AccordionPanel>
+          </Stack>
+        </AccordionItem>
+        <AccordionItem>
+          <Stack spacing={2}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  Hints
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pl={4} pb={4}>
+              <Text>Number of words: {numWords}</Text>
+              <Text>Points: {maxScore}</Text>
+              <Text>Number of Pangrams: {numPangrams}</Text>
+              <Text fontWeight="bold" mt={4}>
+                Tips
+              </Text>
+              <Box pl={2}>
+                <OrderedList>
+                  <ListItem>There can be more than one pangram.</ListItem>
+                  <ListItem>The shuffle button is your friend.</ListItem>
+                  <ListItem>
+                    Look for words that you can make every time certain common
+                    letters appear. (BA can make you BABA and BABABA. BABABA BA?
+                    BABABA.)
+                  </ListItem>
+                  <ListItem>
+                    Find words where you can add prefixes and suffixes (i-, -in,
+                    -an)
+                  </ListItem>
+                </OrderedList>
+              </Box>
+            </AccordionPanel>
+          </Stack>
+        </AccordionItem>
+        <AccordionItem>
+          <Stack spacing={2}>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  Issues?
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pl={4} pb={4}>
+              <Text>
+                Missing some words? Report it at the{' '}
+                <Link
+                  isExternal
+                  href={MISSING_WORD_FORM}
+                  fontWeight="bold"
+                  color="blue.500"
+                >
+                  Saltong Dictionary Reklamo Corner
+                </Link>
+              </Text>
+              <Text mt={4}>
+                Experienced some other issue?{' '}
+                <Link
+                  isExternal
+                  href={TWITTER_LINK}
+                  fontWeight="bold"
+                  color="blue.500"
+                >
+                  Send a DM
+                </Link>{' '}
+                or send an e-mail at{' '}
+                <Link
+                  isExternal
+                  href="mailto:carl@carldegs.com"
+                  fontWeight="bold"
+                  color="blue.500"
+                >
+                  carl@carldegs.com
+                </Link>{' '}
+              </Text>
+            </AccordionPanel>
+          </Stack>
+        </AccordionItem>
+      </Accordion>
+      <Text>{getMessage('sched')}</Text>
+    </Stack>
+  );
+
+  return showModal ? (
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl" preserveScrollBarGap>
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{getMessage('header')}</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody mb={4}>{Content}</ModalBody>
+
         <IconButton
           aria-label="language"
           icon={<EmojiWrapper value={locale === 'fil' ? '🇵🇭' : '🇺🇸'} />}
@@ -138,212 +362,31 @@ const HexRulesModal: React.FC<HexRulesModalProps> = ({ isOpen, onClose }) => {
           right="50px"
           top="20px"
         />
-        <ModalCloseButton />
-        <ModalBody mb={4}>
-          <Stack spacing={6}>
-            <Text>{getMessage('generalRule')}</Text>
-            <Accordion defaultIndex={[0]}>
-              <AccordionItem>
-                <Stack spacing={2}>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        {getMessage('rulesHeader')}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pl={4} pb={4}>
-                    <UnorderedList spacing={1}>
-                      <ListItem>{getMessage('rule1')}</ListItem>
-                      <ListItem>{getMessage('rule2')}</ListItem>
-                      <ListItem>{getMessage('rule3')}</ListItem>
-                      <ListItem>{getMessage('rule4')}</ListItem>
-                      <ListItem>{getMessage('rule5')}</ListItem>
-                    </UnorderedList>
-                  </AccordionPanel>
-                </Stack>
-              </AccordionItem>
-              <AccordionItem>
-                <Stack spacing={2}>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        {getMessage('scoringHeader')}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pl={4} pb={4}>
-                    <UnorderedList spacing={2}>
-                      <ListItem>{getMessage('scoring1')}</ListItem>
-                      <ListItem>{getMessage('scoring2')}</ListItem>
-                      <ListItem
-                        dangerouslySetInnerHTML={{
-                          __html: getMessage('example1'),
-                        }}
-                      />
-                    </UnorderedList>
-                    <Box
-                      bg={isDarkMode ? 'gray.600' : 'gray.200'}
-                      px={3}
-                      py={2}
-                      borderRadius={4}
-                      mt={4}
-                    >
-                      <Text fontWeight="bold">
-                        {getMessage('exampleHeader')}
-                      </Text>
-                      <Text
-                        mb={2}
-                        dangerouslySetInnerHTML={{
-                          __html: getMessage('example1'),
-                        }}
-                      ></Text>
-                      <Box pl={2}>
-                        <UnorderedList>
-                          <ListItem
-                            dangerouslySetInnerHTML={{
-                              __html: getMessage('example2'),
-                            }}
-                          />
-                          <ListItem
-                            dangerouslySetInnerHTML={{
-                              __html: getMessage('example3'),
-                            }}
-                          />
-                          <ListItem
-                            dangerouslySetInnerHTML={{
-                              __html: getMessage('example4'),
-                            }}
-                          />
-                          <ListItem
-                            dangerouslySetInnerHTML={{
-                              __html: getMessage('example5'),
-                            }}
-                          />
-                        </UnorderedList>
-                      </Box>
-                    </Box>
-                  </AccordionPanel>
-                </Stack>
-              </AccordionItem>
-              <AccordionItem>
-                <Stack spacing={2}>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        {getMessage('rankingsHeader')}
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pl={4} pb={4}>
-                    {getMessage('rank1')}
-
-                    <Table
-                      variant="simple"
-                      colorScheme={isDarkMode ? 'white' : 'gray'}
-                      size="sm"
-                      mt={2}
-                      maxW="250px"
-                      mx="auto"
-                    >
-                      <Thead>
-                        <Tr>
-                          <Th>Rank</Th>
-                          <Th isNumeric>Points needed</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {HEX_RANK.map(({ name, percentage }) => (
-                          <Tr key={name}>
-                            <Td textTransform="capitalize">{name}</Td>
-                            <Td isNumeric>
-                              {Math.ceil(maxScore * percentage)}
-                            </Td>
-                          </Tr>
-                        ))}
-                      </Tbody>
-                    </Table>
-                  </AccordionPanel>
-                </Stack>
-              </AccordionItem>
-              <AccordionItem>
-                <Stack spacing={2}>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        Hints
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pl={4} pb={4}>
-                    <Text>Number of words: {numWords}</Text>
-                    <Text>Points: {maxScore}</Text>
-                    <Text>Number of Pangrams: {numPangrams}</Text>
-                    <Text fontWeight="bold" mt={4}>
-                      Tips
-                    </Text>
-                    <Box pl={2}>
-                      <OrderedList>
-                        <ListItem>There can be more than one pangram.</ListItem>
-                        <ListItem>The shuffle button is your friend.</ListItem>
-                        <ListItem>
-                          Look for words that you can make every time certain
-                          common letters appear. (BA can make you BABA and
-                          BABABA. BABABA BA? BABABA.)
-                        </ListItem>
-                        <ListItem>
-                          Find words where you can add prefixes and suffixes
-                          (i-, -in, -an)
-                        </ListItem>
-                      </OrderedList>
-                    </Box>
-                  </AccordionPanel>
-                </Stack>
-              </AccordionItem>
-              <AccordionItem>
-                <Stack spacing={2}>
-                  <h2>
-                    <AccordionButton>
-                      <Box flex="1" textAlign="left">
-                        Issues?
-                      </Box>
-                      <AccordionIcon />
-                    </AccordionButton>
-                  </h2>
-                  <AccordionPanel pl={4} pb={4}>
-                    <Text>
-                      Missing some words?{' '}
-                      <Link
-                        isExternal
-                        href={TWITTER_LINK}
-                        fontWeight="bold"
-                        color="blue.500"
-                      >
-                        Send a DM
-                      </Link>{' '}
-                      or send an e-mail at{' '}
-                      <Link
-                        isExternal
-                        href="mailto:carl@carldegs.com"
-                        fontWeight="bold"
-                        color="blue.500"
-                      >
-                        carl@carldegs.com
-                      </Link>{' '}
-                    </Text>
-                  </AccordionPanel>
-                </Stack>
-              </AccordionItem>
-            </Accordion>
-            <Text>{getMessage('sched')}</Text>
-          </Stack>
-        </ModalBody>
       </ModalContent>
     </Modal>
+  ) : (
+    <Drawer placement="bottom" isOpen={isOpen} onClose={onClose}>
+      <DrawerOverlay />
+
+      <DrawerContent maxH="85vh">
+        <DrawerCloseButton />
+        <DrawerHeader>{getMessage('header')}</DrawerHeader>
+        <DrawerBody my={8} maxW="600px" mx="auto">
+          {Content}
+        </DrawerBody>
+
+        <IconButton
+          aria-label="language"
+          icon={<EmojiWrapper value={locale === 'fil' ? '🇵🇭' : '🇺🇸'} />}
+          onClick={() => {
+            setLocale((curr) => (curr === 'fil' ? 'en' : 'fil'));
+          }}
+          pos="absolute"
+          right="50px"
+          top="20px"
+        />
+      </DrawerContent>
+    </Drawer>
   );
 };
 

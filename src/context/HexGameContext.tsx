@@ -315,6 +315,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
       persistState = {
         ...persistState,
         rootWord,
+        centerLetter,
       };
     }
 
@@ -323,6 +324,7 @@ export const HexGameProvider: React.FC = ({ children }) => {
       persistState = {
         ...persistState,
         rootWord: (hexRound as HexGameData).rootWord,
+        centerLetter: (hexRound as HexGameData).centerLetter,
       };
     }
 

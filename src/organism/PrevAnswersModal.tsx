@@ -1,5 +1,8 @@
 import {
+  Box,
+  Flex,
   HStack,
+  Link,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -7,15 +10,20 @@ import {
   ModalHeader,
   ModalOverlay,
   ModalProps,
-  SimpleGrid,
+  Spacer,
   Spinner,
   Stack,
+  Tag,
+  TagLabel,
+  TagRightIcon,
   Text,
   useColorModeValue,
+  Wrap,
 } from '@chakra-ui/react';
 import { useMemo } from 'react';
 
 import LetterBox from '../atoms/LetterBox';
+import { DICTIONARY_LINK } from '../constants';
 import useQueryRoundData from '../queries/useQueryRoundData';
 import GameMode from '../types/GameMode';
 import { HexGameData } from '../types/HexGameData';
@@ -52,7 +60,7 @@ const PrevAnswersModal: React.FC<Omit<ModalProps, 'children'>> = ({
   const hasPrevRound = rootWord && !!gameId;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal isOpen={isOpen} onClose={onClose} size="2xl">
       <ModalOverlay />
       <ModalContent>
         <ModalCloseButton />
@@ -87,23 +95,51 @@ const PrevAnswersModal: React.FC<Omit<ModalProps, 'children'>> = ({
                     />
                   ))}
                 </HStack>
-                <Text pb={4}>Max Score: {maxScore}</Text>
+                <Flex>
+                  <Text>Max Score: {maxScore}</Text>
+                  <Spacer minW={8} />
+                  <Text>Number of Words: {words.length}</Text>
+                </Flex>
+
+                <Text opacity={0.4}>
+                  Click the word to see its definition (opens a new tab)
+                </Text>
                 {words?.length ? (
-                  <SimpleGrid columns={[3, 4]} spacing={2} w="full">
+                  <Wrap shouldWrapChildren>
                     {words.map((word) => {
                       const pangram = isPangram(word);
                       return (
-                        <Text
+                        <Link
                           key={`answer-list-${word}`}
-                          textAlign="center"
-                          fontWeight={pangram && 'bold'}
-                          color={pangram && 'purple.400'}
+                          isExternal
+                          href={`${DICTIONARY_LINK}/search?q=${word}`}
                         >
-                          {`${word} (${getWordScore(word)})`}
-                        </Text>
+                          <Tag
+                            colorScheme={pangram ? 'purple' : 'gray'}
+                            minW="92px"
+                          >
+                            <TagLabel>{word}</TagLabel>
+                            <Spacer />
+                            <TagRightIcon
+                              as={() => (
+                                <Box
+                                  py={0}
+                                  px={1}
+                                  bg={pangram ? 'purple.300' : 'gray.300'}
+                                  borderRadius={12}
+                                  ml={2}
+                                >
+                                  <Text color="gray.900" fontWeight="bold">
+                                    {getWordScore(word)}
+                                  </Text>
+                                </Box>
+                              )}
+                            />
+                          </Tag>
+                        </Link>
                       );
                     })}
-                  </SimpleGrid>
+                  </Wrap>
                 ) : (
                   <Text textAlign="center" py={2} color={textColor}>
                     No answers yet
