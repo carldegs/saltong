@@ -49,7 +49,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import KalImage from '../../public/kal/saltong-kal.png';
 import EmojiWrapper from '../atoms/EmojiWrapper';
-import { DICTIONARY_LINK, DONATE_LINK } from '../constants';
+import { DICTIONARY_LINK } from '../constants';
 import { useDisclosures } from '../context/DisclosuresContext';
 import { useGame } from '../context/GameContext';
 import TurnStatPieChart from '../molecules/TurnStatPieChart';
