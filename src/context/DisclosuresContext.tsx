@@ -1,4 +1,5 @@
 import { useDisclosure, UseDisclosureReturn } from '@chakra-ui/hooks';
+import { useRouter } from 'next/router';
 import { createContext, useContext } from 'react';
 
 import ContextNoProviderError from '../lib/errors/ContextNoProviderError';
@@ -42,7 +43,26 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
   const hexShareModal = useDisclosure();
   const hexPrevAnsModal = useDisclosure();
   const menuModal = useDisclosure();
-  const contributeModal = useDisclosure();
+  const router = useRouter();
+
+  const contributeModal = useDisclosure({
+    onOpen: () => {
+      router.replace(
+        {
+          pathname: router.asPath,
+          query: { contribute: 1 },
+        },
+        undefined,
+        { shallow: true }
+      );
+    },
+    onClose: () => {
+      router.replace(router.asPath.replace('?contribute=1', ''), undefined, {
+        shallow: true,
+      });
+    },
+    isOpen: !!router.query?.contribute,
+  });
 
   const value = {
     endGameModal,

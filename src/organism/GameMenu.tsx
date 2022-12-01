@@ -261,12 +261,7 @@ const GameMenu: React.FC<GameMenuProps> = ({
                     alignItem="center"
                     justifyContent="center"
                   >
-                    <Image
-                      src={icon}
-                      placeholder="blur"
-                      height="20px"
-                      width="20px"
-                    />
+                    <Image src={icon} height="20px" width="20px" />
                   </Flex>
                 </Flex>
               ))}
