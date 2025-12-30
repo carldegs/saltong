@@ -34,6 +34,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import {
   BugBeetle,
+  FlowArrow,
+  GameController,
   HandWaving,
   Lifebuoy,
   Question,
@@ -43,6 +45,7 @@ import {
 import { ReactElement, useState } from 'react';
 
 import HexIcon from '../../public/hex.png';
+import HubIcon from '../../public/hub.svg';
 import MainIcon from '../../public/icon-192.png';
 import MaxIcon from '../../public/max.png';
 import MiniIcon from '../../public/mini.png';
@@ -127,6 +130,45 @@ const GameMenu: React.FC<GameMenuProps> = ({
   const Content = (
     <Stack spacing={3} direction={{ base: 'column', md: 'row' }}>
       <Box flexGrow={1} w={{ base: 'full', md: '320px' }}>
+        <HStack spacing={4} alignItems="center" px={4} mb={4}>
+          <Image src={HubIcon} alt="Saltong Hub" width={40} height={40} />
+          <Box flex={1}>
+            <Heading fontSize="lg" fontWeight="bold" mb={1}>
+              Saltong Hub
+            </Heading>
+            <Text fontSize="sm" opacity={0.8}>
+              On Jan 1, 2026, Saltong is moving to its new home.
+            </Text>
+          </Box>
+        </HStack>
+
+        <LargeMenuItem
+          icon={
+            <FlowArrow
+              size={28}
+              color="var(--chakra-colors-yellow-500)"
+              weight="duotone"
+            />
+          }
+          header="Transfer Game Data"
+          description="Bring your save data for Saltong Hub"
+          onClick={disc.transferDataModal.onOpen}
+        />
+
+        <LargeMenuItem
+          icon={
+            <GameController
+              size={28}
+              color="var(--chakra-colors-purple-500)"
+              weight="duotone"
+            />
+          }
+          header="Try Saltong Hub"
+          description="Play the Beta now!"
+        />
+
+        <Divider my={4} />
+
         <LargeMenuItem
           icon={
             <Question

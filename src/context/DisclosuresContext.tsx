@@ -17,6 +17,7 @@ interface DisclosuresContextParams {
   hexPrevAnsModal: UseDisclosureReturn;
   menuModal: UseDisclosureReturn;
   contributeModal: UseDisclosureReturn;
+  transferDataModal: UseDisclosureReturn;
 }
 
 const DisclosuresContext = createContext<Partial<DisclosuresContextParams>>({});
@@ -44,6 +45,25 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
   const hexPrevAnsModal = useDisclosure();
   const menuModal = useDisclosure();
   const router = useRouter();
+
+  const transferDataModal = useDisclosure({
+    onOpen: () => {
+      router.replace(
+        {
+          pathname: router.asPath,
+          query: { transfer: 1 },
+        },
+        undefined,
+        { shallow: true }
+      );
+    },
+    onClose: () => {
+      router.replace(router.asPath.replace('?transfer=1', ''), undefined, {
+        shallow: true,
+      });
+    },
+    isOpen: !!router.query?.transfer,
+  });
 
   const contributeModal = useDisclosure({
     onOpen: () => {
@@ -77,6 +97,7 @@ export const DisclosuresProvider: React.FC = ({ children }) => {
     hexPrevAnsModal,
     menuModal,
     contributeModal,
+    transferDataModal,
   };
 
   return (
