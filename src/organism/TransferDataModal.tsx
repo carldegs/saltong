@@ -92,10 +92,21 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
         <ModalHeader>Transfer Your Saltong Data</ModalHeader>
         <ModalBody>
           <Stack direction="column" spacing={4}>
-            <Text fontSize="md" mb={4}>
-              Starting January 1, 2026, Saltong will be fully integrated with
-              Saltong Hub. Please transfer your data to continue your progress.
-            </Text>
+            <Stack direction="row">
+              <Img
+                src="/hub.svg"
+                alt="Saltong Hub Logo"
+                width="80px"
+                height="80px"
+                mx="auto"
+                mr={4}
+              />
+              <Text fontSize="md" mb={4}>
+                Starting January 1, 2026, Saltong will be fully integrated with
+                Saltong Hub. Please transfer your data to continue your
+                progress.
+              </Text>
+            </Stack>
             <Box
               bg={colorMode === 'light' ? 'gray.100' : 'gray.700'}
               py={5}
