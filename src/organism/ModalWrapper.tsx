@@ -6,6 +6,7 @@ const AboutModal = dynamic(() => import('../molecules/AboutModal'));
 const DebugCodeModal = dynamic(() => import('./DebugCodeModal'));
 const NewDomainModal = dynamic(() => import('./NewDomainModal'));
 const ContributeModal = dynamic(() => import('./ContributeModal'));
+const TransferDataModal = dynamic(() => import('./TransferDataModal'));
 
 const ModalWrapper: React.FC = ({ children }) => {
   const disc = useDisclosures();
@@ -27,6 +28,12 @@ const ModalWrapper: React.FC = ({ children }) => {
         <ContributeModal
           isOpen={disc.contributeModal.isOpen}
           onClose={disc.contributeModal.onClose}
+        />
+      )}
+      {disc.transferDataModal.isOpen && (
+        <TransferDataModal
+          isOpen={disc.transferDataModal.isOpen}
+          onClose={disc.transferDataModal.onClose}
         />
       )}
       <NewDomainModal />
