@@ -18,8 +18,13 @@ module.exports = withBundleAnalyzer(
     async redirects() {
       return [
         {
-          source: '/:path*',
-          destination: '/?transfer=1',
+          source: '/:path((?!transfer|api|_next|public|static|.*\\..*|icon).*)',
+          destination: '/transfer',
+          permanent: false,
+        },
+        {
+          source: '/',
+          destination: '/transfer',
           permanent: false,
         },
       ];

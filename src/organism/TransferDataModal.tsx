@@ -85,10 +85,15 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
   }/transfer?data=${encodeURIComponent(data)}`;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      size="xl"
+      closeOnOverlayClick={false}
+      closeOnEsc={false}
+    >
       <ModalOverlay />
       <ModalContent pb={4}>
-        <ModalCloseButton />
         <ModalHeader>Transfer Your Saltong Data</ModalHeader>
         <ModalBody>
           <Stack direction="column" spacing={4}>
@@ -96,10 +101,8 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
               <Img
                 src="/hub.svg"
                 alt="Saltong Hub Logo"
-                width="80px"
-                height="80px"
-                mx="auto"
-                mr={4}
+                boxSize="80px"
+                flexShrink={0}
               />
               <Text fontSize="md" mb={4}>
                 Starting January 1, 2026, Saltong will be fully integrated with
