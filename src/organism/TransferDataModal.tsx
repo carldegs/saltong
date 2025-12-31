@@ -94,33 +94,62 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
     >
       <ModalOverlay />
       <ModalContent pb={4}>
-        <ModalHeader>Transfer Your Saltong Data</ModalHeader>
-        <ModalBody>
-          <Stack direction="column" spacing={4}>
-            <Stack direction="row">
-              <Img
-                src="/hub.svg"
-                alt="Saltong Hub Logo"
-                boxSize="80px"
-                flexShrink={0}
-              />
-              <Text fontSize="md" mb={4}>
-                Starting January 1, 2026, Saltong will be fully integrated with
-                Saltong Hub. Please transfer your data to continue your
-                progress.
-              </Text>
-            </Stack>
+        <ModalBody mt={4}>
+          <Stack direction="column" spacing={6}>
+            {/* Header Section with Logo and CTA */}
+            <Box
+              bg={colorMode === 'light' ? 'blue.50' : 'blue.900'}
+              py={6}
+              px={[4, 6]}
+              borderRadius={10}
+            >
+              <Stack direction="row" spacing={4} align="center">
+                <Img
+                  src="/hub.svg"
+                  alt="Saltong Hub Logo"
+                  boxSize="80px"
+                  flexShrink={0}
+                />
+                <Stack spacing={3} flex={1}>
+                  <Text fontSize="lg" fontWeight="semibold">
+                    Saltong is moving to Saltong Hub!
+                  </Text>
+                  <Text
+                    fontSize="sm"
+                    color={colorMode === 'light' ? 'gray.700' : 'gray.300'}
+                  >
+                    Starting January 1, 2026, Saltong is moving to its new,
+                    permanent home at{' '}
+                    <a href="https://saltong.com">saltong.com</a>
+                  </Text>
+                  <Button
+                    as="a"
+                    href="https://saltong.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    colorScheme="blue"
+                    size="md"
+                    fontWeight="bold"
+                    w="fit-content"
+                  >
+                    Go to Saltong Hub
+                  </Button>
+                </Stack>
+              </Stack>
+            </Box>
+
+            {/* Transfer Information and Steps Combined */}
             <Box
               bg={colorMode === 'light' ? 'gray.100' : 'gray.700'}
               py={5}
               px={[4, 6]}
               borderRadius={10}
             >
-              <Text fontWeight="semibold" fontSize="lg" mb={4}>
+              <Text fontWeight="semibold" fontSize="lg" mb={3}>
                 Transfer Your Saltong Data
               </Text>
-              <Text fontSize="md" mb={4}>
-                Follow these steps to transfer your data:
+              <Text fontSize="sm" mb={4} color={colorMode === 'light' ? 'gray.600' : 'gray.300'}>
+                If you want to keep your Saltong stats and progress when playing on Saltong Hub, you can transfer your data. Follow these steps:
               </Text>
               <Box as="ol" pl={5}>
                 <Text as="li" mb={2}>
