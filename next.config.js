@@ -15,5 +15,14 @@ module.exports = withBundleAnalyzer(
       disable: process.env.NODE_ENV === 'development',
       // disable: false,
     },
+    async redirects() {
+      return [
+        {
+          source: '/:path*',
+          destination: '/?transfer=1',
+          permanent: false,
+        },
+      ];
+    },
   })
 );
