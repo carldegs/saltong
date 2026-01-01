@@ -61,8 +61,6 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
   const encryptedData = xorCipher(baseData, SECRET_KEY);
   const data = Buffer.from(encryptedData, 'binary').toString('base64');
 
-  console.log('Transfer Data:', baseData, encryptedData, data);
-
   const downloadData = () => {
     const blob = new Blob([data], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -149,8 +147,13 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
               <Text fontWeight="semibold" fontSize="lg" mb={3}>
                 Transfer Your Saltong Data
               </Text>
-              <Text fontSize="sm" mb={4} color={colorMode === 'light' ? 'gray.600' : 'gray.300'}>
-                If you want to keep your Saltong stats and progress when playing on Saltong Hub, you can transfer your data. Follow these steps:
+              <Text
+                fontSize="sm"
+                mb={4}
+                color={colorMode === 'light' ? 'gray.600' : 'gray.300'}
+              >
+                If you want to keep your Saltong stats and progress when playing
+                on Saltong Hub, you can transfer your data. Follow these steps:
               </Text>
               <Box as="ol" pl={5}>
                 <Text as="li" mb={2}>
