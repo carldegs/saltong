@@ -53,6 +53,7 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
         game?.winStreak,
         game?.longestWinStreak,
         game.lastWinDate ? new Date(game.lastWinDate).getTime() : null,
+        game?.turnStats?.join(',') || '',
       ].join('|')
     )
     .join(';');
