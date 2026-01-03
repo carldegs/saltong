@@ -1,22 +1,25 @@
 import {
   Box,
   Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
   Img,
+  Input,
   Modal,
   ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalHeader,
   ModalOverlay,
   ModalProps,
   SimpleGrid,
   Stack,
   Text,
   useColorMode,
+  useToast,
 } from '@chakra-ui/react';
+import { FC, useCallback, useMemo, useState } from 'react';
 
-import { LOCAL_GAME_DATA, LOCAL_HEX_DATA } from '../constants';
-import { HexGameState } from '../types/HexGameData';
+import { LOCAL_GAME_DATA } from '../constants';
 import UserData from '../types/UserData';
 import { getPersistState } from '../utils/local';
 
@@ -32,11 +35,20 @@ const xorCipher = (text: string, key: string): string => {
   return result;
 };
 
-const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
+const TransferDataModal: FC<Omit<ModalProps, 'children'>> = ({
   onClose,
   isOpen,
 }) => {
   const { colorMode } = useColorMode();
+  const toast = useToast();
+  const [hubEmail, setHubEmail] = useState('');
+  const isValidHubEmail = useMemo(() => {
+    if (!hubEmail) {
+      return false;
+    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(hubEmail.trim());
+  }, [hubEmail]);
 
   const saltongData =
     getPersistState<UserData>(LOCAL_GAME_DATA) ?? ({} as UserData);
@@ -61,27 +73,90 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
   const encryptedData = xorCipher(baseData, SECRET_KEY);
   const data = Buffer.from(encryptedData, 'binary').toString('base64');
 
-  const downloadData = () => {
-    const blob = new Blob([data], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'saltong-save.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const emailContent = useMemo(
+    () =>
+      [
+        'Saltong Hub Account Email:',
+        hubEmail || '[add your Saltong Hub email above]',
+        '',
+        'Encrypted Save Data:',
+        data,
+      ].join('\n'),
+    [hubEmail, data]
+  );
 
-  // const transferUrl = `${
-  //   process.env.NEXT_PUBLIC_TRANSFER_URL || 'https://saltong.com'
-  // }/transfer?data=${encodeURIComponent(data)}`;
+  const mailtoHref = useMemo(
+    () =>
+      `mailto:carl@carldegs.com?subject=${encodeURIComponent(
+        'Saltong Data Transfer'
+      )}&body=${encodeURIComponent(emailContent)}`,
+    [emailContent]
+  );
 
-  const transferUrl = `${
-    process.env.NODE_ENV === 'production'
-      ? 'https://saltong.com'
-      : 'http://localhost:3000'
-  }/transfer?data=${encodeURIComponent(data)}`;
+  const handleCopyEmailContent = useCallback(async () => {
+    if (!hubEmail || !isValidHubEmail) {
+      toast({
+        title: 'Enter a valid Saltong Hub email',
+        description: 'Add the same email you use on Saltong Hub before copying.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    try {
+      if (
+        typeof navigator !== 'undefined' &&
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+      ) {
+        await navigator.clipboard.writeText(emailContent);
+      } else if (typeof document !== 'undefined') {
+        const textArea = document.createElement('textarea');
+        textArea.value = emailContent;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } else {
+        throw new Error('Clipboard API unavailable');
+      }
+
+      toast({
+        title: 'Email content copied',
+        description: 'Paste it into your mail app if the button does not work.',
+        status: 'success',
+        duration: 4000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: 'Unable to copy email content',
+        description: 'Please try again or use the email button instead.',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [emailContent, hubEmail, isValidHubEmail, toast]);
+
+  const handleSendEmail = useCallback(() => {
+    if (!hubEmail || !isValidHubEmail) {
+      toast({
+        title: 'Enter a valid Saltong Hub email',
+        description: 'Add the same email you use on Saltong Hub before sending.',
+        status: 'error',
+        duration: 4000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.location.href = mailtoHref;
+    }
+  }, [hubEmail, isValidHubEmail, mailtoHref, toast]);
 
   return (
     <Modal
@@ -137,53 +212,66 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
               </Stack>
             </Box>
 
-            {/* Transfer Information and Steps Combined */}
+            {/* Step 1 */}
             <Box
               bg={colorMode === 'light' ? 'gray.100' : 'gray.700'}
               py={5}
               px={[4, 6]}
               borderRadius={10}
             >
-              <Text fontWeight="semibold" fontSize="lg" mb={3}>
-                Transfer Your Saltong Data
+              <Text fontWeight="semibold" fontSize="lg" mb={2}>
+                Step 1: Create Your Saltong Hub Account
+              </Text>
+              <Text
+                mb={4}
+                color={colorMode === 'light' ? 'gray.600' : 'gray.300'}
+              >
+                Sign up at{' '}
+                <Text
+                  as="a"
+                  href="https://saltong.com/auth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  color="blue.500"
+                  fontWeight="semibold"
+                >
+                  saltong.com/auth
+                </Text>{' '}
+                then add the email you used below. We need it to match your
+                Saltong Hub account.
+              </Text>
+              <FormControl isInvalid={Boolean(hubEmail) && !isValidHubEmail}>
+                <FormLabel fontSize="sm">Saltong Hub account email</FormLabel>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={hubEmail}
+                  onChange={(event) => setHubEmail(event.target.value)}
+                  bg={colorMode === 'light' ? 'white' : 'gray.800'}
+                />
+                <FormErrorMessage fontSize="xs">
+                  Please enter a valid email address.
+                </FormErrorMessage>
+              </FormControl>
+            </Box>
+
+            <Box
+              bg={colorMode === 'light' ? 'gray.100' : 'gray.700'}
+              py={5}
+              px={[4, 6]}
+              borderRadius={10}
+            >
+              <Text fontSize="lg" fontWeight="semibold" mb={1}>
+                Step 2: Confirm the Data To Transfer
               </Text>
               <Text
                 fontSize="sm"
                 mb={4}
                 color={colorMode === 'light' ? 'gray.600' : 'gray.300'}
               >
-                If you want to keep your Saltong stats and progress when playing
-                on Saltong Hub, you can transfer your data. Follow these steps:
+                Your Stats That Will Be Transferred
               </Text>
-              <Box as="ol" pl={5}>
-                <Text as="li" mb={2}>
-                  Create an account in{' '}
-                  <Text
-                    as="a"
-                    href="https://saltong.com/auth"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    color="blue.500"
-                  >
-                    Saltong Hub
-                  </Text>
-                  .
-                </Text>
-                <Text as="li" mb={2}>
-                  Once created, take note of the email used.
-                </Text>
-                <Text as="li">
-                  Download save file and send to carl@carldegs.com along with
-                  email.
-                </Text>
-              </Box>
-            </Box>
-
-            <Box>
-              <Text fontSize="md" fontWeight="semibold" mb={4}>
-                Your Stats That Will Be Transferred:
-              </Text>
-              <SimpleGrid columns={3} spacing={4}>
+              <SimpleGrid columns={[1, 3]} spacing={4}>
                 <Box
                   bg={colorMode === 'light' ? 'gray.50' : 'gray.600'}
                   p={4}
@@ -281,24 +369,42 @@ const TransferDataModal: React.FC<Omit<ModalProps, 'children'>> = ({
               </SimpleGrid>
             </Box>
 
-            <Box textAlign="center">
-              <Stack direction="row" spacing={4} justify="center">
+            <Box
+              bg={colorMode === 'light' ? 'gray.100' : 'gray.700'}
+              py={5}
+              px={[4, 6]}
+              borderRadius={10}
+            >
+              <Text fontWeight="semibold" fontSize="lg" mb={2}>
+                Step 3: Send the Email
+              </Text>
+              <Text
+                fontSize="sm"
+                mb={4}
+                color={colorMode === 'light' ? 'gray.600' : 'gray.300'}
+              >
+                Use the button below to draft the email automatically. If it
+                does not work, copy the content and send it manually to
+                carl@carldegs.com.
+              </Text>
+              <Stack spacing={3} direction="column">
                 <Button
-                  colorScheme="blue"
-                  size="lg"
-                  fontWeight="bold"
-                  onClick={downloadData}
-                >
-                  Download Save File
-                </Button>
-                <Button
-                  as="a"
-                  href="mailto:carl@carldegs.com?subject=Saltong Data Transfer&body=Please find attached my Saltong save file."
+                  onClick={handleSendEmail}
                   colorScheme="green"
                   size="lg"
+                  py={3}
                   fontWeight="bold"
+                  flex={1}
                 >
                   Send Email
+                </Button>
+                <Button
+                  variant="link"
+                  onClick={handleCopyEmailContent}
+                  flex={1}
+                  py={1}
+                >
+                  Copy Email Content
                 </Button>
               </Stack>
             </Box>
